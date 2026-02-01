@@ -3,9 +3,15 @@
   "slug": "amygdala-memory",
   "displayName": "Amygdala Memory",
   "latest": {
-    "version": "0.1.0",
-    "publishedAt": 1769909350792,
-    "commit": "https://github.com/clawdbot/skills/commit/8c0bfd5de3cf7c9f1b9c953936b392117f7fab3f"
+    "version": "1.2.0",
+    "publishedAt": 1769913902929,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.1.0",
+      "publishedAt": 1769909350792,
+      "commit": "https://github.com/clawdbot/skills/commit/8c0bfd5de3cf7c9f1b9c953936b392117f7fab3f"
+    }
+  ]
 }
