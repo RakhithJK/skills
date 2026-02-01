@@ -1,17 +1,19 @@
 ---
 name: hzl
-description: Persistent task ledger for agent workflows: tasks/projects with dependencies, checkpoints, leases, and multi-session continuity.
+description: OpenClaw's persistent task database. Coordinate sub-agents, checkpoint progress, survive session boundaries.
 homepage: https://github.com/tmchow/hzl
-metadata: { "openclaw": { "emoji": "🧾", "homepage": "https://github.com/tmchow/hzl", "requires": { "bins": ["hzl"] }, "install": [ { "id": "node", "kind": "node", "package": "hzl-cli", "bins": ["hzl"], "label": "Install HZL (npm)" } ] } }
+metadata:
+  { "openclaw": { "emoji": "🧾", "homepage": "https://github.com/tmchow/hzl", "requires": { "bins": ["hzl"] }, "install": [ { "id": "node", "kind": "node", "package": "hzl-cli", "bins": ["hzl"], "label": "Install HZL (npm)" } ] } }
 ---
 
 # HZL: Persistent task tracking for agents
 
-HZL is a local-first task ledger (database-backed) that an agent can use to:
+HZL (https://github.com/tmchow/hzl) is a local-first task ledger (database-backed, optionally cloud-synced for backup) that an agent can use to:
+
 - plan multi-step work into projects + tasks
 - checkpoint progress (so work survives session boundaries)
 - coordinate sub-agents or multiple coding tools with leases
-- generate reliable status reports (“what’s done vs what’s left”)
+- generate reliable status reports ("what's done vs what's left")
 
 This skill teaches an agent how to use the `hzl` CLI.
 
@@ -22,7 +24,7 @@ Use HZL when the agent needs a durable source of truth for work state:
 - Multi-step projects with real sequencing (dependencies) and handoffs
 - Work that spans multiple sessions, days, or tools/agents
 - Orchestration: delegating work to sub-agents and needing recovery if they crash
-- Anything where “resume exactly where we left off” matters
+- Anything where "resume exactly where we left off" matters
 
 Not ideal for:
 
@@ -58,13 +60,17 @@ hzl task next --project <project>
 
 # Work + persist progress
 hzl task claim <id> --author <agent-id>
-hzl task checkpoint <id> "<what changed / what’s next>"
+hzl task checkpoint <id> "<what changed / what's next>"
 hzl task show <id> --json
 hzl task complete <id>
 
 # Dependencies + validation
 hzl task add-dep <task-id> <depends-on-id>
 hzl validate
+
+# Diagnostics
+hzl status   # database mode, paths, sync state
+hzl doctor   # health check for debugging
 
 # Multi-agent recovery
 hzl task claim <id> --author <agent-id> --lease 30
@@ -100,8 +106,8 @@ hzl validate
 Checkpoint early and often. A checkpoint should be short and operational:
 - what you verified
 - what you changed
-- what’s next
-- what’s blocking you (if anything)
+- what's next
+- what's blocking you (if anything)
 
 ```bash
 hzl task claim <id> --author orchestrator
@@ -133,6 +139,6 @@ hzl task steal <id> --if-expired --author orchestrator
 
 ## OpenClaw-specific notes
 
-- Run `hzl ...` via the **Exec** tool.
-- OpenClaw skill gating checks `requires.bins` on the host at skill load time. If sandboxing is enabled, the binary must also exist inside the sandbox container too. Install it via `agents.defaults.sandbox.docker.setupCommand` (or use a custom image). 
+- Run `hzl ...` via the Exec tool.
+- OpenClaw skill gating checks `requires.bins` on the host at skill load time. If sandboxing is enabled, the binary must also exist inside the sandbox container too. Install it via `agents.defaults.sandbox.docker.setupCommand` (or use a custom image).
 - If multiple agents share the same HZL database, use distinct `--author` ids (for example: `orchestrator`, `subagent-claude`, `subagent-gemini`) and rely on leases to avoid collisions.
