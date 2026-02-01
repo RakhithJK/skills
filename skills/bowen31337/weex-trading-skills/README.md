@@ -1,6 +1,8 @@
-# WEEX Futures Trading Skill
+# WEEX Futures Trading Skill 🔵
 
-A Claude Code skill for trading USDT-margined perpetual futures on [WEEX](https://www.weex.com) exchange with up to 125x leverage.
+An **Open AI Agent Skill** for trading USDT-margined perpetual futures on [WEEX](https://www.weex.com) exchange with up to 125x leverage.
+
+> **Universal Compatibility**: This skill works with any AI agent that supports bash/curl commands, including Claude, GPT-4, Gemini, LLaMA, Mistral, and other LLM-based coding assistants.
 
 ## Features
 
@@ -8,22 +10,50 @@ A Claude Code skill for trading USDT-margined perpetual futures on [WEEX](https:
 - **Account Management** - Check balances, positions, leverage settings
 - **Order Operations** - Place market/limit orders, cancel orders, close positions
 - **Position Management** - Open long/short, close positions, adjust margin
+- **Trigger Orders** - Stop-loss, take-profit, and conditional orders
+- **TP/SL Orders** - Position-level take-profit and stop-loss
+- **AI Integration** - Log AI trading decisions to WEEX
 - **Python CLI Client** - Command-line tool for quick API interactions
+
+## Supported AI Agents
+
+| Agent | Status | Notes |
+|-------|--------|-------|
+| Claude (Anthropic) | ✅ Fully Supported | Claude Code, API |
+| GPT-4 (OpenAI) | ✅ Fully Supported | ChatGPT, API with code interpreter |
+| Gemini (Google) | ✅ Fully Supported | Gemini Pro, API |
+| LLaMA (Meta) | ✅ Fully Supported | With code execution capability |
+| Mistral | ✅ Fully Supported | With code execution capability |
+| Other LLMs | ✅ Compatible | Any agent supporting bash/curl |
 
 ## Installation
 
-### As Claude Code Skill
+### As AI Agent Skill
 
-Download the latest `.skill` file from [Releases](https://github.com/bowen31337/weex-futures-trading-skill/releases) and add it to your skills directory:
+The skill can be loaded by any AI agent that reads markdown-based skill definitions:
 
 ```bash
-# Download latest release
-curl -L -o weex-trading.skill \
-  https://github.com/bowen31337/weex-futures-trading-skill/releases/latest/download/weex-trading-v1.0.0.skill
+# Clone the repository
+git clone https://github.com/bowen31337/weex-futures-trading-skill.git
 
-# Install to Claude Code skills directory
-mv weex-trading.skill ~/.claude/skills/
+# Or download just the skill file
+curl -L -o SKILL.md \
+  https://raw.githubusercontent.com/bowen31337/weex-futures-trading-skill/main/weex-trading/SKILL.md
 ```
+
+### For Claude Code
+
+```bash
+# Install to Claude Code skills directory
+cp SKILL.md ~/.claude/skills/weex-trading.md
+```
+
+### For Other AI Agents
+
+Most AI agents can use this skill by:
+1. Loading the `SKILL.md` file into the conversation context
+2. Or referencing it as a system prompt
+3. Or using your agent's skill/plugin installation mechanism
 
 ### As Standalone Python Client
 
@@ -86,20 +116,25 @@ python scripts/weex_client.py close_all               # Close all positions
 python scripts/weex_client.py leverage cmt_btcusdt 20 # Set 20x leverage
 ```
 
-### With Claude Code
+### With AI Agents
 
-Once installed as a skill, Claude can help you trade on WEEX:
+Once loaded as a skill, any compatible AI agent can help you trade on WEEX:
 
 ```
 You: What's the current BTC price on WEEX?
-Claude: [Fetches ticker data and displays price]
+Agent: [Fetches ticker data and displays price]
 
 You: Open a long position on BTC with 10 contracts
-Claude: [Confirms order details and executes after your approval]
+Agent: [Confirms order details and executes after your approval]
 
 You: Show my current positions
-Claude: [Displays all open positions with PnL]
+Agent: [Displays all open positions with PnL]
+
+You: Set a stop-loss at $90,000 for my BTC position
+Agent: [Creates trigger order for risk management]
 ```
+
+The skill provides curl commands that any AI agent with shell access can execute.
 
 ## API Reference
 
@@ -167,13 +202,28 @@ Claude: [Displays all open positions with PnL]
 
 ```
 weex-trading/
-├── SKILL.md                 # Claude Code skill definition
+├── SKILL.md                 # Open AI Agent skill definition (37 API endpoints)
 ├── README.md                # This file
 ├── scripts/
 │   └── weex_client.py       # Python CLI client
 └── references/
-    └── api_reference.md     # API endpoint reference
+    └── api_reference.md     # API endpoint quick reference
 ```
+
+## Skill Coverage
+
+The SKILL.md provides complete coverage of the WEEX Futures API:
+
+| Category | Endpoints | Description |
+|----------|-----------|-------------|
+| Market Data | 13 | Tickers, order book, candles, funding rates |
+| Account | 8 | Balances, settings, leverage, margin |
+| Position | 3 | View and manage positions |
+| Order | 9 | Place, cancel, query orders |
+| Trigger Order | 4 | Stop-loss, take-profit triggers |
+| TP/SL | 2 | Position-level TP/SL orders |
+| AI Integration | 1 | Log AI trading decisions |
+| **Total** | **38** | **100% API coverage** |
 
 ## Contributing
 
@@ -187,8 +237,19 @@ weex-trading/
 
 MIT License - see [LICENSE](LICENSE) for details.
 
+## What is an Open Agent Skill?
+
+An **Open Agent Skill** is a markdown-based skill definition that can be used by any AI agent with code execution capabilities. Unlike proprietary plugin formats, open agent skills:
+
+- 📖 **Human-readable** - Written in Markdown with embedded code blocks
+- 🔌 **Universal** - Work with any AI agent (Claude, GPT, Gemini, LLaMA, etc.)
+- 🛠️ **Self-contained** - Include all necessary code snippets and documentation
+- 🔒 **Transparent** - Users can inspect exactly what commands will be executed
+- 🤝 **Shareable** - Easy to distribute, fork, and contribute to
+
 ## Links
 
 - [WEEX Exchange](https://www.weex.com)
 - [WEEX API Documentation](https://www.weex.com/help)
 - [Releases](https://github.com/bowen31337/weex-futures-trading-skill/releases)
+- [Open Agent Skills Community](https://github.com/topics/open-agent-skills)
