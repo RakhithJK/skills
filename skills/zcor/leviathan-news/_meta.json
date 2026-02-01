@@ -3,9 +3,15 @@
   "slug": "leviathan-news",
   "displayName": "Leviathan News",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1769901480015,
-    "commit": "https://github.com/clawdbot/skills/commit/7fd56677179f6adee6550ba492c89b88752788cc"
+    "version": "1.0.1",
+    "publishedAt": 1769943184953,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1769901480015,
+      "commit": "https://github.com/clawdbot/skills/commit/7fd56677179f6adee6550ba492c89b88752788cc"
+    }
+  ]
 }

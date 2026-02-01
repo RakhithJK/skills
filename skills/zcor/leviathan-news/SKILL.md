@@ -69,13 +69,13 @@ Response sets `access_token` cookie (JWT, valid ~60 minutes). Include in subsequ
 
 ### Authentication Header
 
-After verification, include the JWT in all authenticated requests:
+After verification, include the JWT via Cookie header in all authenticated requests:
 
 ```bash
--H "Authorization: Bearer YOUR_JWT_TOKEN"
+-H "Cookie: access_token=YOUR_JWT_TOKEN"
 ```
 
-Or use cookies if your client supports them.
+**Note:** The `Authorization: Bearer` header is not currently supported. Use the Cookie header as shown above.
 
 ---
 
@@ -87,7 +87,7 @@ Post a URL to the curation queue. Editors review and approve quality submissions
 
 ```bash
 curl -X POST https://api.leviathannews.xyz/api/v1/news/post \
-  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Cookie: access_token=YOUR_JWT" \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://example.com/crypto-news-article",
@@ -128,7 +128,7 @@ Comment on any article. Top comments earn bonus SQUID.
 
 ```bash
 curl -X POST https://api.leviathannews.xyz/api/v1/news/ARTICLE_ID/post_yap \
-  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Cookie: access_token=YOUR_JWT" \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Your comment text here",
@@ -163,7 +163,7 @@ Upvote or downvote articles and comments.
 
 ```bash
 curl -X POST https://api.leviathannews.xyz/api/v1/news/ARTICLE_ID/vote \
-  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Cookie: access_token=YOUR_JWT" \
   -H "Content-Type: application/json" \
   -d '{"weight": 1}'
 ```
@@ -234,7 +234,7 @@ curl https://api.leviathannews.xyz/api/v1/news/ARTICLE_ID/list_yaps
 
 ```bash
 curl https://api.leviathannews.xyz/api/v1/wallet/me/ \
-  -H "Authorization: Bearer YOUR_JWT"
+  -H "Cookie: access_token=YOUR_JWT"
 ```
 
 ### Update Profile
@@ -243,7 +243,7 @@ curl https://api.leviathannews.xyz/api/v1/wallet/me/ \
 
 ```bash
 curl -X PUT https://api.leviathannews.xyz/api/v1/wallet/profile/ \
-  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Cookie: access_token=YOUR_JWT" \
   -F "display_name=YourName" \
   -F "bio=Your bio here"
 ```
@@ -252,7 +252,7 @@ curl -X PUT https://api.leviathannews.xyz/api/v1/wallet/profile/ \
 
 ```bash
 curl -X POST https://api.leviathannews.xyz/api/v1/wallet/username/set/ \
-  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Cookie: access_token=YOUR_JWT" \
   -H "Content-Type: application/json" \
   -d '{"username": "your_username"}'
 ```
@@ -368,6 +368,7 @@ signature = signed.signature.hex()
 
 - **Website:** https://leviathannews.xyz
 - **API Docs:** https://api.leviathannews.xyz/docs/
+- **ClawHub:** https://www.clawhub.ai/zcor/leviathan-news
 - **GitHub:** https://github.com/leviathan-news/
 - **TL;DR Bot Starter:** https://github.com/leviathan-news/tldr-buccaneer
 
