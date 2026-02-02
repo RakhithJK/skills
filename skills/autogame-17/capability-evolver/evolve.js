@@ -175,7 +175,18 @@ function checkSystemHealth() {
     try {
         const issues = [];
         if (!process.env.GEMINI_API_KEY) issues.push('Gemini Key Missing');
-        // REMOVED Feishu specific checks to decouple skill from specific vendor
+        if (!process.env.FEISHU_APP_ID) issues.push('Feishu App ID Missing');
+        // Check Feishu Token Freshness
+        try {
+            const tokenPath = path.resolve(MEMORY_DIR, 'feishu_token.json');
+            if (fs.existsSync(tokenPath)) {
+                const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
+                if (tokenData.expire < Date.now() / 1000) issues.push('Feishu Token Expired');
+            } else {
+                issues.push('Feishu Token Missing');
+            }
+        } catch(e) {}
+
         if (issues.length > 0) {
             report.push(`⚠️ Integrations: ${issues.join(', ')}`);
         } else {
@@ -320,6 +331,7 @@ async function run() {
     // 2. Detect Workspace State (Enhanced Skill Map)
     let fileList = '';
     const skillsDir = path.resolve(__dirname, '../../skills');
+    const hasFeishuCard = fs.existsSync(path.join(skillsDir, 'feishu-card'));
     
     let reportingDirective = `3.  **📝 REPORT**:
     - Use \`message\` tool.
@@ -327,8 +339,7 @@ async function run() {
     - **Status**: [SUCCESS]
     - **Changes**: Detail exactly what was improved.`;
 
-    // Only suggest feishu-card if explicitly enabled in environment, not just by file presence
-    if (process.env.EVOLVE_REPORT_TOOL === 'feishu-card') {
+    if (process.env.EVOLVE_REPORT_TOOL === 'feishu-card' || hasFeishuCard) {
         reportingDirective = `3.  **📝 REPORT (MANDATORY)**:
     - You **MUST** use the \`feishu-card\` skill (NOT the generic \`message\` tool) if possible.
     - **Frequency**: The Master requested "more sync". You MUST report EVERY cycle.
