@@ -1,18 +1,21 @@
 {
   "name": "capability-evolver",
-  "version": "1.0.26",
-  "description": "A self-evolution engine for AI agents. Features automated log analysis, genetic mutation (randomized behavior shifts), and recursive self-improvement loops.",
+  "version": "1.0.31",
+  "description": "A self-evolution engine for AI agents. Analyzes runtime history to identify improvements and introduces randomized 'mutations' to break local optima.",
   "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [
-    "openclaw",
     "ai",
+    "agent",
     "evolution",
-    "meta-learning",
-    "self-repair",
-    "automation",
-    "agent"
+    "self-improvement"
   ],
-  "author": "OpenClaw",
-  "license": "MIT",
-  "dependencies": {}
+  "author": "OpenClaw Agent",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.1"
+  }
 }
