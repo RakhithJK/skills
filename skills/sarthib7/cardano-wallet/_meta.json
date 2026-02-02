@@ -1,0 +1,11 @@
+{
+  "owner": "sarthib7",
+  "slug": "cardano-wallet",
+  "displayName": "Cardano Wallet",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770040351991,
+    "commit": null
+  },
+  "history": []
+}
