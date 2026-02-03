@@ -1,58 +1,69 @@
 ---
 name: telegram-cloud-storage
-description: Setup and manage an unlimited cloud storage pool using Telegram as the backend. Provides high-level commands to upload, download, list, and delete files. Use when you need a persistent, large-scale storage solution for system state, datasets, or long-term memory that bypasses local disk limits.
+description: A high-performance Telegram Cloud Storage solution using Teldrive. Turns Telegram into an unlimited cloud drive with a local API/UI.
+metadata: {"openclaw":{"requires":{"bins":["teldrive"]},"install":[{"id":"binary","kind":"exec","command":"./scripts/install_binary.sh","label":"Download Teldrive Binary"}]}}
 ---
 
-# Telegram Cloud Storage
+# Telegram Cloud Storage (Teldrive Edition)
 
-This skill enables an agent to use Telegram as a distributed, unlimited cloud storage backend. It uses a local instance of the Pentaract engine to handle chunking, encryption, and multi-bot scheduling.
+This skill runs [Teldrive](https://github.com/tgdrive/teldrive), a powerful utility that organizes Telegram files and provides a high-speed API/UI for accessing them.
 
-## Core Capabilities
+## Features
+- **Unlimited Storage**: Uses Telegram as a backend.
+- **High Performance**: Written in Go, optimized for speed.
+- **UI & API**: Includes a web interface and REST API.
+- **AI-Native Client**: Includes `client.py` for agent-based file operations.
 
-1. **Unlimited Storage**: Leverages Telegram's cloud for file storage.
-2. **Auto-Chunking**: Large files are split into 20MB chunks to bypass Telegram limits.
-3. **Private Backend**: All metadata is stored in a local Postgres database.
-4. **Agent-Friendly CLI**: Python-based CLI for easy integration into agent workflows.
+## Credits
+This skill is a wrapper for [Teldrive](https://github.com/tgdrive/teldrive) by [divyam234](https://github.com/divyam234). All credit for the core engine goes to the original authors.
 
-## Initial Setup
+## Requirements
+1. **PostgreSQL Database**: Version 17+ recommended.
+2. **pgroonga Extension**: Required for file search within Postgres.
+3. **Telegram API**: App ID and Hash from [my.telegram.org](https://my.telegram.org).
 
-Before using the storage, you must perform a one-time setup:
+## Installation
 
-1. **Install Dependencies**: Ensure `postgresql@15`, `rust`, and `pnpm` are available.
-2. **Build Engine**: Run `python scripts/cli.py setup` to clone and build the backend.
-3. **Initialize**: Run `python scripts/cli.py init <bot_token> <chat_id> <admin_email> <admin_password>`.
-4. **Start Server**: Run `python scripts/cli.py start`.
-
-## Common Workflows
-
-### 1. Authenticate
-```bash
-python scripts/cli.py login <email> <password>
+### 1. Database Setup
+Ensure Postgres is running and the `pgroonga` extension is installed.
+```sql
+CREATE DATABASE teldrive;
+\c teldrive
+CREATE EXTENSION IF NOT EXISTS pgroonga;
 ```
 
-### 2. List Storages
-Identify the storage ID where you want to save data.
+### 2. Configure
+Run the setup script to generate `config/config.toml`:
 ```bash
-python scripts/cli.py list
+./scripts/setup.sh
 ```
 
-### 3. Save a File
+### 3. Start Server
 ```bash
-python scripts/cli.py upload <storage_id> <local_file_path> <remote_path>
+./scripts/manage.sh start
 ```
 
-### 4. Retrieve a File
+## Agent Usage
+The skill includes a Python client for programmatic access.
+
+### Environment Variables
+- `TELDRIVE_TOKEN`: Your JWT token (get this from the UI or `config/token.txt` after login).
+- `TELDRIVE_SESSION_HASH`: Your Telegram session hash (found in the `teldrive.sessions` table).
+
+### Commands
 ```bash
-python scripts/cli.py download <storage_id> <remote_path> <local_save_path>
+# List files
+python3 scripts/client.py list /
+
+# Upload a file
+python3 scripts/client.py upload local_file.txt /remote/path
+
+# Download a file
+python3 scripts/client.py download <file_id> local_save_path
 ```
 
-## Maintenance
-
-- **Stopping the server**: `python scripts/cli.py stop`
-- **Checking logs**: View `app/server.log` for backend activity.
-
-## Important Notes
-
-- **Database**: The skill requires a running Postgres instance.
-- **Privacy**: No data is sent to external servers other than Telegram's API.
-- **Limits**: While storage is unlimited, respect Telegram's rate limits. The scheduler automatically handles basic throttling.
+## Directory Structure
+- `bin/`: Teldrive binary.
+- `config/`: Configuration templates and generated config.
+- `scripts/`: Setup, management, and client scripts.
+- `logs/`: Application logs.
