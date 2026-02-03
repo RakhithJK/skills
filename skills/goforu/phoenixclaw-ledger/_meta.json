@@ -3,9 +3,15 @@
   "slug": "phoenixclaw-ledger",
   "displayName": "phoenixclaw-ledger",
   "latest": {
-    "version": "0.0.1",
-    "publishedAt": 1770005618046,
-    "commit": "https://github.com/clawdbot/skills/commit/d0b50035452b8da09dd4c0146b3e2fe2542a2648"
+    "version": "0.0.2",
+    "publishedAt": 1770092813253,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.0.1",
+      "publishedAt": 1770005618046,
+      "commit": "https://github.com/clawdbot/skills/commit/d0b50035452b8da09dd4c0146b3e2fe2542a2648"
+    }
+  ]
 }
