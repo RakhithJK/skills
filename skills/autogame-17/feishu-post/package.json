@@ -1,20 +1,11 @@
 {
   "name": "feishu-post",
-  "version": "1.0.1",
-  "description": "Send rich text (Post) messages to Feishu/Lark with Markdown support (headings, code blocks, tables, etc).",
+  "version": "1.0.2",
+  "description": "Send rich text messages (Post/RichText) to Feishu users/groups. Supports markdown conversion.",
   "main": "send.js",
-  "keywords": [
-    "feishu",
-    "lark",
-    "post",
-    "markdown",
-    "rich-text",
-    "openclaw"
-  ],
-  "author": "OpenClaw",
-  "license": "MIT",
   "dependencies": {
-    "commander": "^11.1.0",
-    "dotenv": "^16.4.1"
+    "@larksuiteoapi/node-sdk": "^1.58.0",
+    "commander": "^14.0.3",
+    "dotenv": "^17.2.3"
   }
 }

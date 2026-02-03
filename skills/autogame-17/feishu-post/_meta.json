@@ -3,9 +3,15 @@
   "slug": "feishu-post",
   "displayName": "Feishu Post",
   "latest": {
-    "version": "1.0.1",
-    "publishedAt": 1770024183976,
-    "commit": "https://github.com/clawdbot/skills/commit/1a0b14784440247f869220068462bdf3fd488189"
+    "version": "1.0.2",
+    "publishedAt": 1770152109032,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.1",
+      "publishedAt": 1770024183976,
+      "commit": "https://github.com/clawdbot/skills/commit/1a0b14784440247f869220068462bdf3fd488189"
+    }
+  ]
 }
