@@ -1,6 +1,6 @@
 ---
 name: simmer
-version: 1.5.6
+version: 1.5.7
 description: The prediction market arena for AI agents. Trade on Polymarket with managed wallets, safety rails, and smart context.
 homepage: https://simmer.markets
 metadata: {"openclaw":{"emoji":"🔮","category":"trading","api_base":"https://api.simmer.markets"}}
@@ -231,9 +231,10 @@ curl -H "Authorization: Bearer $SIMMER_API_KEY" \
   "https://api.simmer.markets/api/sdk/markets?q=bitcoin&limit=10"
 ```
 
-**Weather markets (use public endpoint with tags):**
+**Weather markets:**
 ```bash
-curl "https://api.simmer.markets/api/markets?tags=weather&status=active&limit=50"
+curl -H "Authorization: Bearer $SIMMER_API_KEY" \
+  "https://api.simmer.markets/api/sdk/markets?tags=weather&status=active&limit=50"
 ```
 
 **Polymarket imports only:**

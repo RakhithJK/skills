@@ -3,11 +3,16 @@
   "slug": "simmer",
   "displayName": "Simmer",
   "latest": {
-    "version": "1.5.6",
-    "publishedAt": 1770103215227,
-    "commit": "https://github.com/clawdbot/skills/commit/a865b5d701323a813105462c98e6e5d58e92dd81"
+    "version": "1.5.7",
+    "publishedAt": 1770146769248,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.5.6",
+      "publishedAt": 1770103215227,
+      "commit": "https://github.com/clawdbot/skills/commit/a865b5d701323a813105462c98e6e5d58e92dd81"
+    },
     {
       "version": "1.5.5",
       "publishedAt": 1770045221164,
