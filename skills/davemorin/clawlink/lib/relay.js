@@ -9,7 +9,7 @@ import util from 'tweetnacl-util';
 
 const { decodeBase64 } = util;
 
-const RELAY_URL = 'https://clawlink-relay.vercel.app';
+const RELAY_URL = 'https://relay.clawlink.bot';
 
 /**
  * Convert base64 to hex
@@ -42,8 +42,9 @@ export function hexToBase64(hex) {
  * @param {Object} params.content - Message content to encrypt
  * @param {Object} params.identity - Sender's identity
  * @param {Object} params.friend - Friend object with shared secret (base64)
+ * @param {boolean} params.includeX25519 - Include X25519 key in envelope (for friend_accept)
  */
-export async function sendMessage({ to, content, identity, friend }) {
+export async function sendMessage({ to, content, identity, friend, includeX25519 = false }) {
   // Decode shared secret from base64 to Uint8Array
   const sharedSecretBytes = decodeBase64(friend.sharedSecret);
   
@@ -53,17 +54,25 @@ export async function sendMessage({ to, content, identity, friend }) {
   // Sign the ciphertext with our Ed25519 key
   const signature = crypto.sign(ciphertext, identity.secretKey);
   
+  // Build payload
+  const payload = {
+    from: `ed25519:${base64ToHex(identity.publicKey)}`,
+    to: `ed25519:${base64ToHex(to)}`,
+    ciphertext,
+    nonce,
+    signature: base64ToHex(signature)
+  };
+  
+  // Include X25519 key in envelope for friend_accept messages
+  if (includeX25519) {
+    payload.fromX25519 = base64ToHex(identity.x25519PublicKey);
+  }
+  
   // Send to relay (convert to hex for relay API)
   const response = await fetch(`${RELAY_URL}/send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: `ed25519:${base64ToHex(identity.publicKey)}`,
-      to: `ed25519:${base64ToHex(to)}`,
-      ciphertext,
-      nonce,
-      signature: base64ToHex(signature)
-    })
+    body: JSON.stringify(payload)
   });
 
   if (!response.ok) {

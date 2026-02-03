@@ -212,6 +212,48 @@ export async function processIncoming() {
         } catch (e) {
           // Decryption failed
         }
+      } else {
+        // Check if this is from someone we sent a request to (friend_accept)
+        const fromKeyBase64 = relay.hexToBase64(msg.from.replace('ed25519:', ''));
+        const pendingOut = pending.outgoing.find(p => p.toKey === fromKeyBase64);
+        
+        if (pendingOut && msg.fromX25519) {
+          // This is likely a friend_accept - derive shared secret and decrypt
+          try {
+            const theirX25519 = relay.hexToBase64(msg.fromX25519);
+            const sharedSecret = crypto.deriveSharedSecret(
+              identity.x25519SecretKey,
+              theirX25519
+            );
+            
+            const sharedSecretBytes = new Uint8Array(sharedSecret);
+            const content = crypto.decrypt(msg.ciphertext, msg.nonce, sharedSecretBytes);
+            
+            if (content.type === 'friend_accept') {
+              // Add them as a friend
+              const friendsData = loadFriends();
+              const newFriend = {
+                displayName: pendingOut.to,
+                publicKey: pendingOut.toKey,
+                x25519PublicKey: theirX25519,
+                sharedSecret: Buffer.from(sharedSecret).toString('base64'),
+                addedAt: new Date().toISOString(),
+                status: 'connected'
+              };
+              
+              friendsData.friends.push(newFriend);
+              saveFriends(friendsData);
+              
+              // Remove from pending outgoing
+              pending.outgoing = pending.outgoing.filter(p => p.toKey !== fromKeyBase64);
+              savePending(pending);
+              
+              results.accepted.push({ from: pendingOut.to, content });
+            }
+          } catch (e) {
+            console.error('Error processing friend_accept:', e.message);
+          }
+        }
       }
     }
   } catch (e) {
@@ -281,7 +323,8 @@ export async function acceptFriendRequest(requestId) {
     to: request.fromKey,
     content,
     identity,
-    friend: newFriend
+    friend: newFriend,
+    includeX25519: true  // Include X25519 in envelope so recipient can decrypt
   });
   
   // Remove from pending

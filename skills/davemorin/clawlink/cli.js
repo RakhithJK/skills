@@ -101,7 +101,7 @@ async function main() {
       
       // Check relay health
       try {
-        const response = await fetch('https://clawlink-relay.vercel.app/health');
+        const response = await fetch('https://relay.clawlink.bot/health');
         const health = await response.json();
         console.log(`Relay: ✓ Online (${health.version})`);
       } catch (err) {

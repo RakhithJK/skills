@@ -67,7 +67,7 @@ for (const [k, v] of Object.entries(headers)) {
 console.log('\n4. Making request to relay...');
 
 try {
-  const response = await fetch('https://clawlink-relay.vercel.app/poll', {
+  const response = await fetch('https://relay.clawlink.bot/poll', {
     method: 'GET',
     headers
   });
@@ -89,7 +89,7 @@ try {
       'X-ClawLink-Signature': signature  // base64 instead of hex
     };
     
-    const altResponse = await fetch('https://clawlink-relay.vercel.app/poll', {
+    const altResponse = await fetch('https://relay.clawlink.bot/poll', {
       method: 'GET',
       headers: altHeaders
     });
@@ -113,7 +113,7 @@ const reqHeaders = {
 };
 
 try {
-  const response = await fetch('https://clawlink-relay.vercel.app/requests', {
+  const response = await fetch('https://relay.clawlink.bot/requests', {
     method: 'GET',
     headers: reqHeaders
   });

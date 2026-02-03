@@ -108,7 +108,7 @@ Recipients control how they receive messages:
 
 ## Relay
 
-- **URL:** https://clawlink-relay.vercel.app
+- **URL:** https://relay.clawlink.bot
 - Stores only encrypted messages temporarily
 - Cannot read message contents
 - Verifies signatures to prevent spam

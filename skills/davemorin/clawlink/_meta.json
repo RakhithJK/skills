@@ -3,9 +3,15 @@
   "slug": "clawlink",
   "displayName": "ClawLink",
   "latest": {
-    "version": "2.0.1",
-    "publishedAt": 1769974346419,
-    "commit": "https://github.com/clawdbot/skills/commit/5071cba0074f011d71fe9c5c899af7b84864abdf"
+    "version": "2.0.3",
+    "publishedAt": 1770100050312,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "2.0.1",
+      "publishedAt": 1769974346419,
+      "commit": "https://github.com/clawdbot/skills/commit/5071cba0074f011d71fe9c5c899af7b84864abdf"
+    }
+  ]
 }
