@@ -1,0 +1,11 @@
+{
+  "owner": "vortitron",
+  "slug": "agent-payment-protocol",
+  "displayName": "Agent Payment Protocol",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1770157071015,
+    "commit": null
+  },
+  "history": []
+}
