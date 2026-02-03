@@ -82,8 +82,11 @@ async def search_rooms_by_topic(topic: str) -> List[Dict]:
     logger.info(f"🔍 Searching for rooms with topic: {topic}")
     
     try:
+        api_key = os.getenv("MOLTSPACES_API_KEY", "")
+        headers = {"x-api-key": api_key}
+        
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as response:
                 if response.status == 200:
                     data = await response.json()
                     rooms = data.get("rooms", [])
@@ -117,8 +120,11 @@ async def get_room_token(room_name: str) -> Optional[Dict]:
     logger.info(f"🔑 Fetching token for room: {room_name}")
     
     try:
+        api_key = os.getenv("MOLTSPACES_API_KEY", "")
+        headers = {"x-api-key": api_key}
+        
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+            async with session.post(url, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as response:
                 if response.status == 200:
                     data = await response.json()
                     logger.info("✅ Token fetched successfully")
@@ -153,11 +159,17 @@ async def create_room_with_topic(topic: str) -> Optional[Dict]:
     payload = {"topic": topic}
     
     try:
+        api_key = os.getenv("MOLTSPACES_API_KEY", "")
+        headers = {
+            "Content-Type": "application/json",
+            "x-api-key": api_key
+        }
+        
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url, 
                 json=payload,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:
                 if response.status in [200, 201]:

@@ -24,68 +24,84 @@ echo "📚 Installing dependencies..."
 uv sync
 
 echo ""
-echo "🔐 Registration Hook - Generating Agent ID..."
-
-# Generate a unique agent ID using UUID
-AGENT_ID="molt-agent-$(uuidgen | tr '[:upper:]' '[:lower:]' | cut -d'-' -f1-2)"
-echo "Generated AGENT_ID: $AGENT_ID"
-
+echo "✅ Dependencies installed!"
 echo ""
-echo "📡 Registering with Moltspaces API..."
 
-# Register with the Moltspaces API
-# Note: Adjust the curl command based on actual API requirements
-RESPONSE=$(curl -s -X POST https://moltspaces-api-547962548252.us-central1.run.app/v1/register \
-    -H "Content-Type: application/json" \
-    -d "{\"agent_id\": \"$AGENT_ID\", \"skill_name\": \"moltspaces\", \"version\": \"1.0.0\"}" \
-    || echo "ERROR")
+# Auto-registration flow
+echo "🔐 Agent Registration"
+echo "====================="
+echo ""
 
-# Check if registration was successful
-if [[ "$RESPONSE" == *"ERROR"* ]] || [[ -z "$RESPONSE" ]]; then
-    echo "⚠️  API registration endpoint may not be available"
-    echo "   Continuing with local setup..."
+# Check if .env already exists and has credentials
+if [ -f ".env" ] && grep -q "MOLT_AGENT_ID=" .env && grep -q "MOLTSPACES_API_KEY=" .env; then
+    echo "✅ Found existing credentials in .env"
+    MOLT_AGENT_ID=$(grep "MOLT_AGENT_ID=" .env | cut -d '=' -f2)
+    echo "   Agent ID: $MOLT_AGENT_ID"
+    echo ""
+    echo "⚠️  If you want to register a new agent, delete .env and run setup.sh again"
 else
-    echo "✅ Registration successful"
-    echo "   Response: $RESPONSE"
-fi
-
-echo ""
-echo "💾 Saving configuration to .env file..."
-
-# Create or update .env file
-if [ -f .env ]; then
-    # Check if MOLT_AGENT_ID already exists
-    if grep -q "MOLT_AGENT_ID=" .env; then
-        # Update existing value
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s/^MOLT_AGENT_ID=.*/MOLT_AGENT_ID=$AGENT_ID/" .env
-        else
-            sed -i "s/^MOLT_AGENT_ID=.*/MOLT_AGENT_ID=$AGENT_ID/" .env
+    # Prompt for agent details
+    read -p "Enter your agent name (e.g., MyCoolBot): " AGENT_NAME
+    read -p "Enter agent description (e.g., A helpful voice assistant): " AGENT_DESC
+    
+    echo ""
+    echo "📡 Registering with Moltspaces API..."
+    
+    # Generate a unique agent ID prefix
+    AGENT_ID_PREFIX="molt-agent-$(uuidgen | tr '[:upper:]' '[:lower:]' | cut -c1-13)"
+    
+    # Register with the API
+    RESPONSE=$(curl -s -X POST https://moltspaces-api-547962548252.us-central1.run.app/v1/agents/register \
+        -H "Content-Type: application/json" \
+        -d "{\"name\": \"$AGENT_NAME\", \"description\": \"$AGENT_DESC\"}")
+    
+    # Extract credentials from response
+    API_KEY=$(echo "$RESPONSE" | grep -o '"api_key":"[^"]*' | cut -d'"' -f4)
+    AGENT_ID=$(echo "$RESPONSE" | grep -o '"agent_id":"[^"]*' | cut -d'"' -f4)
+    
+    if [ -n "$API_KEY" ] && [ -n "$AGENT_ID" ]; then
+        echo "✅ Registration successful!"
+        echo "   Agent ID: $AGENT_ID"
+        echo ""
+        
+        # Create or update .env file
+        if [ ! -f ".env" ]; then
+            cp env.example .env
         fi
-        echo "   Updated MOLT_AGENT_ID in .env"
+        
+        # Update credentials in .env
+        sed -i.bak "s/MOLT_AGENT_ID=.*/MOLT_AGENT_ID=$AGENT_ID/" .env
+        sed -i.bak "s/MOLTSPACES_API_KEY=.*/MOLTSPACES_API_KEY=$API_KEY/" .env
+        rm .env.bak 2>/dev/null || true
+        
+        echo "✅ Credentials saved to .env"
+        MOLT_AGENT_ID=$AGENT_ID
     else
-        # Append new value
-        echo "" >> .env
-        echo "MOLT_AGENT_ID=$AGENT_ID" >> .env
-        echo "   Added MOLT_AGENT_ID to .env"
-    fi
-else
-    # Create new .env from example
-    if [ -f env.example ]; then
-        cp env.example .env
-        echo "MOLT_AGENT_ID=$AGENT_ID" >> .env
-        echo "   Created .env from env.example"
-    else
-        echo "MOLT_AGENT_ID=$AGENT_ID" > .env
-        echo "   Created new .env file"
+        echo "❌ Registration failed. Please register manually:"
+        echo "   curl -X POST https://moltspaces-api-547962548252.us-central1.run.app/v1/agents/register \\"
+        echo "      -H \"Content-Type: application/json\" \\"
+        echo "      -d '{\"name\": \"$AGENT_NAME\", \"description\": \"$AGENT_DESC\"}'"
+        exit 1
     fi
 fi
 
 echo ""
-echo "✅ Setup complete!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Setup Complete!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "📝 Next steps:"
-echo "   1. Edit .env and add your API keys (ELEVENLABS_API_KEY, OPENAI_API_KEY, DAILY_API_KEY)"
-echo "   2. Run: uv run bot.py --room <room_name>"
+echo "📝 Next Steps:"
 echo ""
-echo "Your Agent ID: $AGENT_ID"
+echo "1️⃣  Add your API keys to .env:"
+echo "   - OPENAI_API_KEY=your_key_here"
+echo "   - ELEVENLABS_API_KEY=your_key_here"
+echo ""
+echo "2️⃣  For OpenClaw users:"
+echo "   Copy your credentials to ~/.openclaw/openclaw.json"
+echo "   See openclaw.json.example for the structure"
+echo ""
+echo "3️⃣  Test your bot:"
+echo "   uv run bot.py --topic \"test conversation\""
+echo ""
+echo "For full documentation, see SKILL.md"
+echo ""
