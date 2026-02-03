@@ -1,12 +1,14 @@
 ---
 name: mlx-stt
-description: Speech-To-Text/ASR/Transcibe with MLX (Apple Silicon) and glm-asr-nano-2512 locally. Free and Accurate. No api key required, no server required.
+description: Speech-To-Text with MLX (Apple Silicon) and GLM-ASR-Nano-2512 locally.
 metadata: {"openclaw":{"always":true,"emoji":"🦞","homepage":"https://github.com/guoqiao/skills/blob/main/mlx-stt/mlx-stt/SKILL.md","os":["darwin"],"tags":["latest","asr","stt","speech-to-text","audio","glm","glm-asr","glm-asr-nano-2512","glm-asr-nano-2512-8bit","macOS","MacBook","Mac mini","Apple Silicon","mlx","mlx-audio"],"requires":{"bins":["brew"]}}}
 ---
 
 # MLX STT
 
-Speech-To-Text/ASR/Transcibe with MLX (Apple Silicon) and glm-asr-nano-2512 locally. Free and Accurate. No api key required, no server required.
+Speech-To-Text/ASR/Transcribe with MLX (Apple Silicon) and GLM-ASR-Nano-2512 locally.
+
+Free and Accurate. No api key required. No server required.
 
 ## Requirements
 
@@ -31,4 +33,5 @@ To transcribe an audio file, run the `mlx-stt.py` script:
 uv run  ${baseDir}/mlx-stt.py <audio_file_path>
 ```
 
-The transcript result will be printed to stdout.
+- When first run, it will download model from Hugging Face, default: `mlx-community/GLM-ASR-Nano-2512-8bit`, 2.5GB ish.
+- The transcript result will be printed to stdout.

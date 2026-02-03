@@ -1,13 +1,18 @@
 {
   "owner": "guoqiao",
   "slug": "mlx-stt",
-  "displayName": "Mlx Stt",
+  "displayName": "MLX STT",
   "latest": {
-    "version": "1.0.3",
-    "publishedAt": 1770075107050,
-    "commit": "https://github.com/clawdbot/skills/commit/1d86ec66b6986effe2d3507628ff6ad665023133"
+    "version": "1.0.4",
+    "publishedAt": 1770075648517,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.3",
+      "publishedAt": 1770075107050,
+      "commit": "https://github.com/clawdbot/skills/commit/1d86ec66b6986effe2d3507628ff6ad665023133"
+    },
     {
       "version": "1.0.2",
       "publishedAt": 1769929551979,
