@@ -1,0 +1,11 @@
+{
+  "owner": "lstpsche",
+  "slug": "gog-advanced",
+  "displayName": "Google Services (via gogcli)",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1770154518775,
+    "commit": null
+  },
+  "history": []
+}
