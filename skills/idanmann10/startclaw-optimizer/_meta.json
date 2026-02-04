@@ -3,9 +3,15 @@
   "slug": "startclaw-optimizer",
   "displayName": "StartClaw-Optimizer",
   "latest": {
-    "version": "1.0.1",
-    "publishedAt": 1770106788575,
-    "commit": "https://github.com/clawdbot/skills/commit/ee3391d92d8534843357a10cf5c9fd9c7618850e"
+    "version": "1.0.2",
+    "publishedAt": 1770153020652,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.1",
+      "publishedAt": 1770106788575,
+      "commit": "https://github.com/clawdbot/skills/commit/ee3391d92d8534843357a10cf5c9fd9c7618850e"
+    }
+  ]
 }
