@@ -1,0 +1,11 @@
+{
+  "owner": "gitgoodordietrying",
+  "slug": "ssh-tunnel",
+  "displayName": "SSH Tunnel",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770158574236,
+    "commit": null
+  },
+  "history": []
+}
