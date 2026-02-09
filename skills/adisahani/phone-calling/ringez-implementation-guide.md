@@ -890,14 +890,6 @@ spec:
 
 ---
 
-## 📚 Additional Resources
-
-- **API Reference**: https://docs.ringez.com/api/reference
-- **SDK Documentation**: https://docs.ringez.com/sdk
-- **Example Projects**: https://github.com/ringez/examples
-- **Community Forum**: https://community.ringez.com
-- **Status Page**: https://status.ringez.com
-
 ---
 
-*For questions or support, contact: developers@ringez.com*
+*For questions or support, contact: support@ringez.com*
