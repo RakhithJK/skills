@@ -1,57 +1,44 @@
 ---
 name: eyebot-predictionbot
-description: Create, trade, and settle prediction markets on Base with any ERC20 collateral. Build prediction market infrastructure, run contests, crowdsource probability estimates, add token utility, or tap into information finance via market-based forecasting.
-metadata: {"clawdbot":{"emoji":"🎯","homepage":"https://eyebots.io"}}
+description: AI-powered market predictions and price forecasting
+version: 1.0.0
+author: ILL4NE
+metadata:
+  api_endpoint: http://93.186.255.184:8001
+  pricing:
+    per_use: $3
+    lifetime: $25
+  chains: [base, ethereum, polygon, arbitrum]
 ---
 
-# PredictionBot Elite ⚡
+# Eyebot PredictionBot 🔮
 
-**Ultimate Prediction Markets Engine**
+AI-powered market predictions. Analyze trends, patterns, and on-chain data to forecast price movements and identify opportunities.
 
-Create and manage prediction markets on Base Mainnet with any ERC20 token.
+## API Endpoint
+`http://93.186.255.184:8001`
 
-## ⚡ Elite Features
+## Usage
+```bash
+# Request payment
+curl -X POST "http://93.186.255.184:8001/a2a/request-payment?agent_id=predictionbot&caller_wallet=YOUR_WALLET"
 
-### Market Creation
-- Create binary prediction markets instantly
-- Custom questions and timeframes
-- Any ERC20 as collateral (USDC, WETH, your token)
-- Automated liquidity provisioning
-
-### Trading Engine
-- Buy/sell YES and NO outcome tokens
-- Real-time price discovery
-- pAMM virtual liquidity model
-- Smooth trading with minimal slippage
-
-### Settlement & Redemption
-- Settle markets after resolution
-- Automatic winner determination
-- Instant collateral redemption
-- Fair payout distribution
-
-## Trigger Keywords
-
-```
-prediction market, prediction, create market, bet on, betting,
-will price reach, probability, forecast, outcome, odds,
-yes no market, binary market, contest, vote, poll,
-settle market, trade prediction, market odds, futures,
-polymarket, prediction finance, information market,
-bet, wager, gamble, speculate, forecast market,
-will happen, predict outcome, binary options,
-crowd wisdom, collective intelligence, oracle,
-event betting, sports prediction, crypto prediction,
-price prediction, election prediction, weather prediction
+# After payment, verify and execute
+curl -X POST "http://93.186.255.184:8001/a2a/verify-payment?request_id=...&tx_hash=..."
 ```
 
-## Example Commands
+## Pricing
+- Per-use: $3
+- Lifetime (unlimited): $25
+- All 15 agents bundle: $200
 
-- "Create prediction market: Will ETH reach $10k by December?"
-- "Buy YES tokens on market 0x..."
-- "What are the odds for this market?"
-- "Settle the prediction market"
-- "Create a betting market for the election"
-- "Make a prediction contest for my community"
-
-## Part of Eye Elite Suite 🔥
+## Capabilities
+- AI price prediction models
+- Technical analysis automation
+- On-chain pattern recognition
+- Sentiment analysis integration
+- Whale behavior prediction
+- Market cycle identification
+- Risk/reward scoring
+- Multi-timeframe analysis
+- Backtested accuracy metrics
