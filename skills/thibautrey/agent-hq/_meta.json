@@ -1,0 +1,11 @@
+{
+  "owner": "thibautrey",
+  "slug": "agent-hq",
+  "displayName": "Agent HQ",
+  "latest": {
+    "version": "1.0.1",
+    "publishedAt": 1770627009737,
+    "commit": null
+  },
+  "history": []
+}
