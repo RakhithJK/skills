@@ -1,4 +1,4 @@
-# 🐾 OpenClaw Unity Skill
+# 🦞 OpenClaw Unity Skill
 
 > **TL;DR:** Vibe-code your game development remotely from anywhere! 🌍
 > 
@@ -24,7 +24,7 @@ openclaw gateway restart
 
 ```
 unity-plugin/
-├── SKILL.md           # AI workflow guide (44 tools)
+├── SKILL.md           # AI workflow guide (52 tools)
 ├── extension/         # Gateway extension (required)
 │   ├── index.ts
 │   ├── openclaw.plugin.json
