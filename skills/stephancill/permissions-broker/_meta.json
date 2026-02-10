@@ -1,0 +1,11 @@
+{
+  "owner": "stephancill",
+  "slug": "permissions-broker",
+  "displayName": "Permissions Broker",
+  "latest": {
+    "version": "1.0.2",
+    "publishedAt": 1770642132073,
+    "commit": null
+  },
+  "history": []
+}
