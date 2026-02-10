@@ -1,7 +1,7 @@
 ---
 name: mintyouragent
 description: Launch Solana tokens autonomously. Pure Python CLI - no bash/jq/solana-cli needed. Works on Windows, Mac, Linux. Use when you want to deploy a token on Solana.
-version: 3.1.0
+version: 3.1.3
 ---
 
 # MintYourAgent
@@ -12,6 +12,10 @@ Launch Solana tokens on pump.fun. Free. You keep all creator fees.
 🐙 **GitHub**: https://github.com/operatingdev/mintyouragent
 💬 **Discord**: https://discord.gg/mintyouragent
 📜 **License**: MIT
+
+---
+
+> ⚠️ **IMPORTANT:** Your wallet is stored in `~/.mintyouragent/` (your home directory), NOT in the skill folder. This means your wallet is **safe during skill updates**. Never manually put wallet files in the skill folder.
 
 ---
 

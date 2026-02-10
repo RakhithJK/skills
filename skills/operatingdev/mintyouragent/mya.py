@@ -1987,8 +1987,39 @@ Documentation: https://mintyouragent.com/docs
 """)
 
 
+def migrate_legacy_wallet() -> None:
+    """Migrate wallet from skill folder to ~/.mintyouragent/ on startup."""
+    try:
+        skill_dir = Path(__file__).parent.resolve()
+        home_dir = Path.home() / ".mintyouragent"
+        
+        # Check for legacy wallet in skill folder
+        legacy_wallet = skill_dir / "wallet.json"
+        home_wallet = home_dir / "wallet.json"
+        
+        if legacy_wallet.exists() and not home_wallet.exists():
+            home_dir.mkdir(exist_ok=True)
+            shutil.copy2(str(legacy_wallet), str(home_wallet))
+            os.chmod(home_wallet, 0o600)
+            legacy_wallet.unlink()
+            print(f"⚠️  Migrated wallet to {home_dir}")
+            print("   Your wallet is now safe from skill updates!")
+        
+        # Also migrate recovery file
+        for name in ["SEED_PHRASE.txt", "RECOVERY_KEY.txt", "BACKUP.txt"]:
+            legacy_file = skill_dir / name
+            home_file = home_dir / name
+            if legacy_file.exists() and not home_file.exists():
+                shutil.copy2(str(legacy_file), str(home_file))
+                os.chmod(home_file, 0o600)
+                legacy_file.unlink()
+    except:
+        pass  # Don't fail on migration errors
+
+
 def main() -> None:
     """Main entry point."""
+    migrate_legacy_wallet()  # Run FIRST before anything else
     load_dotenv()
     setup_signal_handlers()
     
