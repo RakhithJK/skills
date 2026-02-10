@@ -1,0 +1,11 @@
+{
+  "owner": "anton-abyzov",
+  "slug": "sw-database-optimizer",
+  "displayName": "Database Optimizer",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770713545188,
+    "commit": null
+  },
+  "history": []
+}
