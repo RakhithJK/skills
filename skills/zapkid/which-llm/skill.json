@@ -1,0 +1,80 @@
+{
+  "schema": "which-llm/skill/v1",
+  "id": "decision-economic-optimizer",
+  "name": "Decision Economic Optimizer",
+  "version": "0.1.0",
+  "description": "Deterministic goal-based LLM model suggestion API with HTTP 402 USDC payments and outcome credits (discounts).",
+  "configuration": {
+    "env": {
+      "DECISION_API_BASE_URL": {
+        "required": true,
+        "description": "Base URL for the Which‑LLM API (e.g. https://api.which-llm.com)."
+      },
+      "DECISION_PREFERRED_CHAIN": {
+        "required": false,
+        "description": "Preferred CAIP-2 chain id for payments (e.g. eip155:8453 for Base)."
+      },
+      "DECISION_CREDIT_TOKEN": {
+        "required": false,
+        "description": "Optional credit token to apply as X-Credit-Token (discount) on paid calls."
+      }
+    }
+  },
+  "service": {
+    "base_url_env": "DECISION_API_BASE_URL",
+    "paths": {
+      "home": "/",
+      "capabilities": "/capabilities",
+      "pricing": "/pricing",
+      "status": "/status",
+      "well_known_agent": "/.well-known/agent.json"
+    }
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/decision/optimize",
+      "paid": true,
+      "summary": "Suggest a recommended LLM model under cost/quality constraints and return a fallback plan."
+    },
+    {
+      "method": "POST",
+      "path": "/decision/outcome",
+      "paid": false,
+      "summary": "Report what happened; if the original decision was verified, returns a credit token (discount)."
+    }
+  ],
+  "payment": {
+    "model": "http_402",
+    "asset": "USDC",
+    "supported_chains": [
+      "eip155:8453",
+      "eip155:1",
+      "eip155:42161",
+      "eip155:10",
+      "eip155:43114"
+    ],
+    "proof_headers": {
+      "chain": "X-Payment-Chain",
+      "tx_hash": "X-Payment-Tx",
+      "payer": "X-Payer",
+      "amount": "X-Payment-Amount",
+      "asset": "X-Payment-Asset"
+    },
+    "security_note": "Only the resulting transaction hash and payer address are provided to the agent as public proof of payment. The API verifies payments on-chain."
+  },
+  "credits": {
+    "issue": {
+      "endpoint": {
+        "method": "POST",
+        "path": "/decision/outcome"
+      },
+      "token_field": "refund_credit.credit_token"
+    },
+    "redeem": {
+      "header": "X-Credit-Token",
+      "effect": "reduces required_amount on the next paid call"
+    }
+  }
+}
+
