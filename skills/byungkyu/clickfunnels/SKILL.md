@@ -8,6 +8,11 @@ description: |
 metadata:
   author: maton
   version: "1.0"
+  clawdbot:
+    emoji: 🧠
+    requires:
+      env:
+        - MATON_API_KEY
 ---
 
 # ClickFunnels
@@ -754,6 +759,32 @@ contact = response.json()
 | 429 | Rate limited |
 | 4xx/5xx | Passthrough error from ClickFunnels API |
 
+### Troubleshooting: API Key Issues
+
+1. Check that the `MATON_API_KEY` environment variable is set:
+
+```bash
+echo $MATON_API_KEY
+```
+
+2. Verify the API key is valid by listing connections:
+
+```bash
+python <<'EOF'
+import urllib.request, os, json
+req = urllib.request.Request('https://ctrl.maton.ai/connections')
+req.add_header('Authorization', f'Bearer {os.environ["MATON_API_KEY"]}')
+print(json.dumps(json.load(urllib.request.urlopen(req)), indent=2))
+EOF
+```
+
+### Troubleshooting: Invalid App Name
+
+1. Ensure your URL path starts with `clickfunnels`. For example:
+
+- Correct: `https://gateway.maton.ai/clickfunnels/api/v2/teams`
+- Incorrect: `https://gateway.maton.ai/api/v2/teams`
+
 ## Resources
 
 - [ClickFunnels API Introduction](https://developers.myclickfunnels.com/docs/intro)
@@ -761,3 +792,5 @@ contact = response.json()
 - [Pagination Guide](https://developers.myclickfunnels.com/docs/pagination)
 - [Filtering Guide](https://developers.myclickfunnels.com/docs/filtering)
 - [Webhooks Overview](https://developers.myclickfunnels.com/docs/webhooks-overview)
+- [Maton Community](https://discord.com/invite/dBfFAcefs2)
+- [Maton Support](mailto:support@maton.ai)
