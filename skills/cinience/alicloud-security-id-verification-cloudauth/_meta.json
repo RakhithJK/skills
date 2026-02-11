@@ -1,0 +1,11 @@
+{
+  "owner": "cinience",
+  "slug": "alicloud-security-id-verification-cloudauth",
+  "displayName": "Alicloud Security Id Verification Cloudauth",
+  "latest": {
+    "version": "1.0.1",
+    "publishedAt": 1770768588082,
+    "commit": null
+  },
+  "history": []
+}
