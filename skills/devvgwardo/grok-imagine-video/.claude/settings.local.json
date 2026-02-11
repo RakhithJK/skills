@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.x.ai)",
+      "Bash(npx next build:*)"
+    ]
+  }
+}
