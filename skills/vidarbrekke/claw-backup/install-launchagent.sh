@@ -103,6 +103,6 @@ if ! launchctl load "$AGENT_PLIST"; then
 fi
 echo "Loaded."
 echo ""
-echo "Done. Backup will run daily at 11:00 under your user."
+echo "Done. Backup will run daily at the time defined in the LaunchAgent plist under your user."
 echo "Verify: launchctl list | grep $LABEL"
 echo "Test:   run the backup script once manually to confirm rclone and paths work."
