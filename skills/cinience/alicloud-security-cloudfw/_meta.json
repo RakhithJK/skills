@@ -1,0 +1,11 @@
+{
+  "owner": "cinience",
+  "slug": "alicloud-security-cloudfw",
+  "displayName": "Alicloud Security Cloudfw",
+  "latest": {
+    "version": "1.0.1",
+    "publishedAt": 1770768580169,
+    "commit": null
+  },
+  "history": []
+}
