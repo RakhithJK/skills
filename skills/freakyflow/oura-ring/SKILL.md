@@ -1,10 +1,18 @@
 ---
 name: oura-ring
 description: Syncs daily health and fitness data from Oura Ring into markdown files. Provides sleep, readiness, activity, heart rate, stress, SpO2, and workout data.
-requires:
-  - uv
-env:
-  - OURA_TOKEN
+disable-model-invocation: true
+metadata:
+  openclaw:
+    primaryEnv: OURA_TOKEN
+    requires:
+      bins: ["uv"]
+      env: ["OURA_TOKEN"]
+    config:
+      - id: oura_token
+        label: Oura Personal Access Token
+        type: secret
+        env: OURA_TOKEN
 ---
 
 # Oura Ring

@@ -1,11 +1,17 @@
 {
   "owner": "freakyflow",
   "slug": "oura-ring",
-  "displayName": "Oura Ring",
+  "displayName": "Ouraskill",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1770608110705,
-    "commit": "https://github.com/openclaw/skills/commit/c1f42acabec1c4b493fed0066c3ebe80aa3e4460"
+    "version": "1.0.3",
+    "publishedAt": 1770772649201,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1770608110705,
+      "commit": "https://github.com/openclaw/skills/commit/c1f42acabec1c4b493fed0066c3ebe80aa3e4460"
+    }
+  ]
 }
