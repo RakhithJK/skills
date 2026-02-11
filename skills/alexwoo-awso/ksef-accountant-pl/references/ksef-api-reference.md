@@ -369,5 +369,3 @@ ksef_client.terminate_session(session)
 ---
 
 **Oficjalna dokumentacja:** https://ksef.mf.gov.pl/api/docs
-
-[← Powrót do głównego SKILL](https://github.com/alexwoo-awso/skill/blob/main/ksef-accountant-pl/SKILL.md)

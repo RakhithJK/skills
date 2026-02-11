@@ -3,12 +3,49 @@
 Wymagania bezpieczeństwa, zgodności i najlepsze praktyki.
 
 **⚠️ OSTRZEŻENIE BEZPIECZEŃSTWA:**
-Wszystkie przykłady kodu w tym dokumencie mają charakter **edukacyjny i koncepcyjny**. Przed użyciem w środowisku produkcyjnym:
+Wszystkie przykłady kodu w tym dokumencie mają charakter **edukacyjny i koncepcyjny** — to wzorce architektoniczne do implementacji przez użytkownika w jego własnym systemie. Ten skill NIE implementuje tych mechanizmów, NIE przechowuje tokenów, NIE łączy się z Vault i NIE zarządza kluczami szyfrowania.
+
+**Zmienne środowiskowe** wymienione w tym dokumencie (np. `KSEF_TOKEN`, `KSEF_ENCRYPTION_KEY`) są zadeklarowane w metadanych skilla jako opcjonalne. Skill nie prosi o nie niejawnie — jeśli użytkownik je udostępni, agent może je wykorzystać w sugerowanym kodzie. Wszystkie zmienne są opisane w sekcji `env` pliku SKILL.md.
+
+**NIGDY nie wklejaj tokenów, kluczy szyfrowania, certyfikatów ani innych danych uwierzytelniających bezpośrednio w rozmowie z agentem.** Używaj wyłącznie:
+- Zmiennych środowiskowych platformy (env vars)
+- Menedżera sekretów (np. HashiCorp Vault, AWS Secrets Manager)
+- Tymczasowych zmiennych sesji (ephemeral env vars)
+
+Przed użyciem wzorców w środowisku produkcyjnym:
 1. Przeprowadź security review
 2. Użyj dedykowanych, przetestowanych narzędzi zamiast własnych implementacji
 3. Nigdy nie uruchamiaj niezweryfikowanego kodu z zewnętrznych źródeł
 4. Implementuj principle of least privilege
 5. Regularnie aktualizuj zależności i przeprowadzaj audyty bezpieczeństwa
+6. Testuj wyłącznie na środowisku DEMO (`https://ksef-demo.mf.gov.pl`) — nigdy na produkcji
+
+---
+
+## Gwarancje platformy vs. skilla — weryfikacja przed instalacją
+
+Ten skill deklaruje flagi bezpieczeństwa w **dwóch źródłach**:
+- **Frontmatter SKILL.md** — zawiera `disableModelInvocation: true` (camelCase) oraz `disable-model-invocation: true` (kebab-case), a także deklaracje env vars z `secret: true` dla zmiennych zawierających dane uwierzytelniające.
+- **Manifest [`skill.json`](../skill.json)** — dedykowany plik maszynowo czytelny z pełnymi metadanymi bezpieczeństwa, deklaracjami env vars (z polem `secret` i `scope`) oraz ograniczeniami. Jest źródłem prawdy dla rejestrów i skanerów, które mogą nie parsować frontmatter YAML.
+
+Jednak **oba te źródła to deklaracje skilla, nie gwarancje platformy**. Wymuszanie tych flag zależy wyłącznie od platformy hostingowej.
+
+**Znany problem:** Metadane rejestru (registry metadata) wyświetlane przez platformę mogą nie odzwierciedlać wartości z frontmatter ani z `skill.json`. Jeśli platforma pokazuje `disable-model-invocation: not set` (lub pomija tę flagę), albo nie wyświetla zmiennych środowiskowych jako zarejestrowanych — ochrona **nie jest aktywna**, niezależnie od tego, co deklarują pliki skilla.
+
+**Obowiązkowa weryfikacja przed instalacją:**
+
+1. **Porównaj metadane rejestru z frontmatter i `skill.json`** — po dodaniu skilla do platformy, otwórz widok metadanych rejestru. Zweryfikuj, że:
+   - `disable-model-invocation` = `true`
+   - Zmienne środowiskowe `KSEF_TOKEN` i `KSEF_ENCRYPTION_KEY` są widoczne jako zarejestrowane sekrety
+   - Inne flagi bezpieczeństwa na poziomie platformy (jeśli istnieją) są poprawnie ustawione
+   - Jeśli JAKIEKOLWIEK pole nie zgadza się z frontmatter/`skill.json` — traktuj skill jako wyższego ryzyka
+2. **Potwierdź izolację zmiennych środowiskowych** — zmienne (`KSEF_TOKEN`, `KSEF_ENCRYPTION_KEY`, `KSEF_BASE_URL`) nie mogą być logowane, wyświetlane w konwersacji ani dostępne dla innych skilli
+3. **Jeśli platforma NIE wymusza flagi `disableModelInvocation`:**
+   - NIE konfiguruj żadnych zmiennych środowiskowych z danymi uwierzytelniającymi
+   - NIE udostępniaj tokenów, certyfikatów ani kluczy szyfrowania
+   - NIE zezwalaj na autonomiczne użycie skilla
+   - Używaj wyłącznie w trybie ręcznym (jawna akcja użytkownika) i tylko ze środowiskiem DEMO (`https://ksef-demo.mf.gov.pl`)
+4. **Zgłoś rozbieżność** — jeśli metadane rejestru nie pasują do frontmatter/`skill.json`, zgłoś to dostawcy platformy jako problem bezpieczeństwa wymagający naprawy. Podaj nazwę pliku `skill.json` jako alternatywne źródło metadanych, jeśli platforma nie parsuje frontmatter YAML
 
 ---
 
@@ -543,5 +580,3 @@ Dla produkcyjnych systemów księgowych:
 - RODO / GDPR
 - Ustawą o rachunkowości
 - Normami ISO 27001 (opcjonalnie)
-
-[← Powrót do głównego SKILL](https://github.com/alexwoo-awso/skill/blob/main/ksef-accountant-pl/SKILL.md)
