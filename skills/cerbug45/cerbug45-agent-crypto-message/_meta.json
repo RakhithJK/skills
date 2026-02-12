@@ -1,0 +1,11 @@
+{
+  "owner": "cerbug45",
+  "slug": "cerbug45-agent-crypto-message",
+  "displayName": "cerbug45 - Encrypted Agent Communication",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1770853279788,
+    "commit": null
+  },
+  "history": []
+}
