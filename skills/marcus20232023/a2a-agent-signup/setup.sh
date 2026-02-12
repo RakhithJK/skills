@@ -13,12 +13,17 @@ ln -sf "$SKILL_DIR/index.js" "$BIN_DIR/a2a-agent-signup"
 chmod +x "$SKILL_DIR/index.js"
 
 echo "✓ a2a-agent-signup linked to $BIN_DIR/a2a-agent-signup"
+
+# Add ~/bin to PATH in ~/.bashrc if not already there
+if ! grep -q 'export PATH="$HOME/bin:\$PATH"' ~/.bashrc; then
+  echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+  echo "✓ Added ~/bin to ~/.bashrc"
+fi
+
+# Test the command directly
 echo ""
-echo "Make sure $BIN_DIR is in your PATH:"
-echo "  export PATH=\"\$HOME/bin:\$PATH\""
+echo "✓ Setup complete! Running a2a-agent-signup..."
 echo ""
-echo "Add to ~/.bashrc if not already there:"
-echo "  echo 'export PATH=\"\$HOME/bin:\$PATH\"' >> ~/.bashrc && source ~/.bashrc"
-echo ""
-echo "Then test it:"
-echo "  a2a-agent-signup"
+
+# Run the script directly without relying on PATH
+node "$SKILL_DIR/index.js"

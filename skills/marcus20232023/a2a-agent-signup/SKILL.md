@@ -13,18 +13,24 @@ Interactive CLI wizard that:
 ## Usage
 
 ### Installation
+
+1. Install the skill:
 ```bash
 clawhub install a2a-agent-signup
+```
+
+2. Run setup (handles everything automatically):
+```bash
 bash ~/clawd/skills/a2a-agent-signup/setup.sh
 ```
 
-This creates a symlink at `~/bin/a2a-agent-signup` for easy CLI access.
+That's it! The setup script will:
+- Create a symlink to `~/bin/a2a-agent-signup`
+- Add `~/bin` to your PATH in `~/.bashrc`
+- Load the PATH in your current shell
+- Test that the command works
 
-**Ensure `~/bin` is in your `$PATH`:**
-```bash
-echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-```
+You can now run `a2a-agent-signup` from anywhere.
 
 ### First Run (Interactive Setup)
 ```bash

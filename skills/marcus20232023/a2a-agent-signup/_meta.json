@@ -3,9 +3,15 @@
   "slug": "a2a-agent-signup",
   "displayName": "A2a Agent Signup",
   "latest": {
-    "version": "1.0.3",
-    "publishedAt": 1770919646871,
-    "commit": "https://github.com/openclaw/skills/commit/6a9d177c08b5182da6e09d6d4d0e2b0d34e2d35f"
+    "version": "1.0.7",
+    "publishedAt": 1770919920780,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.3",
+      "publishedAt": 1770919646871,
+      "commit": "https://github.com/openclaw/skills/commit/6a9d177c08b5182da6e09d6d4d0e2b0d34e2d35f"
+    }
+  ]
 }
