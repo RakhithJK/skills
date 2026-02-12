@@ -1,0 +1,11 @@
+{
+  "owner": "supadoopa",
+  "slug": "oura-cli",
+  "displayName": "Oura Cli",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1770882499934,
+    "commit": null
+  },
+  "history": []
+}
