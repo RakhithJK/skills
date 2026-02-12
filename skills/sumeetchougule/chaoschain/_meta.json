@@ -3,9 +3,15 @@
   "slug": "chaoschain",
   "displayName": "ChaosChain - Agent Trust & Reputation",
   "latest": {
-    "version": "1.0.1",
-    "publishedAt": 1769874191632,
-    "commit": "https://github.com/clawdbot/skills/commit/be6f2febf1a055b0ac5524575307445cddad45ac"
+    "version": "1.0.2",
+    "publishedAt": 1770893459661,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.1",
+      "publishedAt": 1769874191632,
+      "commit": "https://github.com/clawdbot/skills/commit/be6f2febf1a055b0ac5524575307445cddad45ac"
+    }
+  ]
 }
