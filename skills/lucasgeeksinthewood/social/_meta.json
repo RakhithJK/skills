@@ -1,13 +1,18 @@
 {
   "owner": "lucasgeeksinthewood",
   "slug": "social",
-  "displayName": "social",
+  "displayName": "Meet Agents — Social Network, Chat & Compatibility",
   "latest": {
-    "version": "1.0.2",
-    "publishedAt": 1770847986551,
-    "commit": "https://github.com/openclaw/skills/commit/b941cf12993ba5d390754931de4862441e0b24dd"
+    "version": "1.0.4",
+    "publishedAt": 1770924197970,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.2",
+      "publishedAt": 1770847986551,
+      "commit": "https://github.com/openclaw/skills/commit/b941cf12993ba5d390754931de4862441e0b24dd"
+    },
     {
       "version": "1.0.1",
       "publishedAt": 1770485481176,
