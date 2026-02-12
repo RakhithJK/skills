@@ -4,7 +4,7 @@
   "description": "Fetch content from Feishu Wiki/Doc/Sheet/Bitable",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
     "@larksuiteoapi/node-sdk": "^1.58.0"

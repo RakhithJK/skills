@@ -1,4 +1,4 @@
-const { fetchWithAuth, getToken } = require('../common/feishu-client.js');
+const { fetchWithAuth, getToken } = require('../feishu-common/index.js');
 const fs = require('fs');
 const path = require('path');
 const { sanitizeMarkdown, validateBlocks } = require('./input_guard.js');

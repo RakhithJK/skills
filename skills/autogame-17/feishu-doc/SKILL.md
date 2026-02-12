@@ -8,6 +8,11 @@ tags: [feishu, lark, wiki, doc, sheet, document, reader, writer]
 
 Fetch content from Feishu (Lark) Wiki, Docs, Sheets, and Bitable. Write and update documents.
 
+## Prerequisites
+
+- Install `feishu-common` first.
+- This skill depends on `../feishu-common/index.js` for token and API auth.
+
 ## Capabilities
 
 - **Read**: Fetch content from Docs, Sheets, Bitable, and Wiki.
