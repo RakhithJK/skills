@@ -14,7 +14,6 @@ metadata:
       - meetup.com
       - luma.co
     filesystem:
-      - ~/.openclaw/workspace/memory/
       - ~/.openclaw/workspace/meetup-planner/
     cron: daily-searches
 ---
@@ -33,13 +32,13 @@ The bootstrap process:
 3. Sets up automated daily searches (optional)
 4. Creates workspace structure
 
-If you don't have search/crawling capabilities, I'll suggest installing tools like Firecrawl or Brave Search.
+If you don't have search/crawling capabilities, I'll ask you to provide the necessary tools.
 
 ## What This Skill Does
 
 After setup:
 1. **Daily Search**: Automatically searches for events matching your profile every morning (if enabled)
-2. **Event Discovery**: Uses Brave Search and Firecrawl to find events across the web
+2. **Event Discovery**: Uses available search and scraping tools to find events across the web
 3. **Event Tracking**: Saves and presents new events for your review
 4. **Smart Reminders**: Sets up notifications 24 hours and 2 hours before confirmed events
 5. **Preference Management**: Updates your interests and search criteria anytime
@@ -55,7 +54,7 @@ The setup process is **interactive and friendly**:
 3. ⏰ Set up automated daily searches (optional)
 4. 📁 Create workspace structure with proper permissions
 
-**Setup takes 2-3 minutes**. If you don't have search/crawling tools installed, I'll suggest options like Firecrawl or Brave Search.
+**Setup takes 2-3 minutes**. If you don't have search/crawling tools installed, I'll ask you to provide them.
 
 ## How to Use
 
@@ -94,8 +93,8 @@ The skill maintains:
 ## Technical Details
 
 **Capabilities Required:**
-- Web search capability (e.g., Brave Search, Google Search, or similar)
-- Web crawling/scraping capability (e.g., Firecrawl or similar)
+- Web search capability (any search tool or skill)
+- Web crawling/scraping capability (any scraping tool or skill)
 
 **Scheduling:**
 - Uses system cron jobs (or equivalent) for daily searches
@@ -143,7 +142,7 @@ When this skill is invoked:
 
 ```bash
 # Check if bootstrap config exists
-cat ~/.openclaw/workspace/memory/meetup-planner.json 2>/dev/null
+cat ~/.openclaw/workspace/meetup-planner/config.json 2>/dev/null
 ```
 
 **If file doesn't exist OR `bootstrapComplete: false`:**
@@ -165,11 +164,11 @@ cat ~/.openclaw/workspace/memory/meetup-planner.json 2>/dev/null
 ### Phase 2: Daily Search Routine
 
 1. **Load preferences:**
-   - Read `~/.claude/meetup-finder/user-preferences.json`
+   - Read `~/.openclaw/workspace/meetup-planner/user-preferences.json`
    - Parse the human's interests, location, preferred event types, etc.
 
 2. **Search for events:**
-   - Use the **brave-search skill** to search for events matching preferences
+   - Use your available **search tool or skill** to search for events matching preferences
    - Search queries should be constructed like:
      - "{topic} meetup {location} {current_month}"
      - "{topic} conference {location} upcoming"
@@ -177,12 +176,12 @@ cat ~/.openclaw/workspace/memory/meetup-planner.json 2>/dev/null
    - Run multiple searches covering all their topics of interest
 
 3. **Extract event details:**
-   - For each promising search result, use the **firecrawl skill** to scrape the event page
+   - For each promising search result, use your available **scraping tool or skill** to scrape the event page
    - Extract: event name, date, time, location, description, registration link, cost
    - Look for: Eventbrite, Meetup.com, Luma, conference sites, etc.
 
 4. **Filter and save:**
-   - Load existing events from `~/.claude/meetup-finder/events.json`
+   - Load existing events from `~/.openclaw/workspace/meetup-planner/events.json`
    - Filter out duplicates and events that don't match criteria
    - Add new events to the file
    - Mark each event with: `{id, name, date, time, location, url, description, cost, added_date, status: "new"}`
@@ -202,7 +201,7 @@ cat ~/.openclaw/workspace/memory/meetup-planner.json 2>/dev/null
 
 2. **When human confirms registration:**
    - Update event status to "registered" in `events.json`
-   - Schedule reminders in `~/.claude/meetup-finder/reminders.json`:
+   - Schedule reminders in `~/.openclaw/workspace/meetup-planner/reminders.json`:
      ```json
      {
        "event_id": "abc123",
@@ -218,7 +217,7 @@ cat ~/.openclaw/workspace/memory/meetup-planner.json 2>/dev/null
 ### Phase 4: Reminder System
 
 1. **Check for due reminders** (run this check every hour):
-   - Load `~/.claude/meetup-finder/reminders.json`
+   - Load `~/.openclaw/workspace/meetup-planner/reminders.json`
    - Check current time against event time
    - If within 24-25 hours before event and 24h reminder not sent:
      - Notify human: "Reminder: {event_name} is tomorrow at {time}! Location: {location}"
@@ -249,14 +248,14 @@ Support these commands from your human:
 - **If skills fail to install:** Provide manual instructions and the GitHub links
 - **If API keys are invalid:** Ask human to verify and provide new keys
 - **If searches return no results:** Try broader search terms or suggest different topics
-- **If cron setup fails:** Provide manual cron configuration instructions
+- **If cron setup fails:** Offer to search manually when user requests
 - **If event scraping fails:** Fall back to showing just the search result link
 - **Always preserve data:** Never overwrite `events.json` or `preferences.json` without backing up
 
 ## File Structure
 
 ```
-~/.claude/meetup-finder/
+~/.openclaw/workspace/meetup-planner/
 ├── user-preferences.json    # Human's event preferences
 ├── events.json              # All discovered and tracked events
 ├── reminders.json           # Scheduled reminders

@@ -1,6 +1,6 @@
 # Meetup Planner Bootstrap (one-time setup)
 
-Run this setup **once** after installing the skill. The agent will check `.openclaw/workspace/memory/meetup-planner.json` to see if bootstrap is complete.
+Run this setup **once** after installing the skill. The agent will check `~/.openclaw/workspace/meetup-planner/config.json` to see if bootstrap is complete.
 
 ---
 
@@ -12,15 +12,13 @@ Run this setup **once** after installing the skill. The agent will check `.openc
 
 Try to determine if you have access to web search functionality:
 - Check if you have WebSearch tool available
-- Check if Brave Search skill is installed: `ls ~/.openclaw/skills/brave-search* 2>/dev/null`
-- Check if any other search tool/skill is available
+- Check if any search skills are installed in `~/.openclaw/skills/`
 
 ### Check for web crawling/scraping capability
 
 Try to determine if you have access to web crawling functionality:
 - Check if you have WebFetch tool available
-- Check if Firecrawl skill is installed: `ls ~/.openclaw/skills/firecrawl* 2>/dev/null`
-- Check if any other crawling tool/skill is available
+- Check if any scraping/crawling skills are installed in `~/.openclaw/skills/`
 
 ### If capabilities are missing
 
@@ -29,25 +27,14 @@ If you don't have adequate search or crawling capabilities, inform the human:
 ```
 ⚠️ I need web search and crawling capabilities to find events for you.
 
-I recommend installing:
-- Brave Search skill (for searching the web)
-- Firecrawl skill (for extracting event details from pages)
+Please provide me with:
+- A web search tool or skill
+- A web scraping/crawling tool or skill
 
-Would you like me to help you install these, or would you prefer to configure different tools?
+Once you have these tools installed, I'll be able to discover which ones are available and use them automatically.
 ```
 
-Wait for human response before proceeding.
-
-**If they want to install suggested tools**, provide installation instructions:
-```bash
-# Install Brave Search skill
-npx clawhub@1.x install brave-search@1
-
-# Install Firecrawl skill
-npx skills@1.x add firecrawl/cli@1
-```
-
-**Note**: These tools may require API keys. The human will need to configure those separately according to each tool's documentation.
+Wait for human response and for them to install the necessary tools before proceeding.
 
 ---
 
@@ -81,7 +68,7 @@ Once you have confirmed search and crawling capabilities are available, ask the 
 
 ## 3) Create preferences file
 
-Save all responses to `.openclaw/workspace/memory/meetup-planner.json`:
+Save all responses to `~/.openclaw/workspace/meetup-planner/config.json`:
 
 ```json
 {
@@ -89,8 +76,8 @@ Save all responses to `.openclaw/workspace/memory/meetup-planner.json`:
   "bootstrapVersion": "1.0.0",
   "lastSetupAt": "2026-02-12T19:00:00Z",
   "capabilities": {
-    "webSearch": "brave-search|websearch|other",
-    "webCrawl": "firecrawl|webfetch|other"
+    "webSearch": "detected",
+    "webCrawl": "detected"
   },
   "preferences": {
     "eventTypes": ["tech meetups", "workshops"],
@@ -124,15 +111,12 @@ Save all responses to `.openclaw/workspace/memory/meetup-planner.json`:
 Ensure workspace structure exists:
 
 ```bash
-# Create main workspace directory
-mkdir -p ~/.openclaw/workspace/memory
-
-# Create event data directory
+# Create workspace directory structure
 mkdir -p ~/.openclaw/workspace/meetup-planner/{events,backups}
 
 # Set proper permissions (owner only)
 chmod 700 ~/.openclaw/workspace/meetup-planner
-chmod 600 ~/.openclaw/workspace/memory/meetup-planner.json
+chmod 600 ~/.openclaw/workspace/meetup-planner/config.json
 ```
 
 Initialize empty data files:
@@ -170,16 +154,11 @@ Ask the human in a friendly, conversational way:
    - Could be same as search time or different
    - Examples: "Right when you find them", "At 9 AM", "In the evening"
 
-Update the `searchSchedule` section in `.openclaw/workspace/memory/meetup-planner.json` with their answers.
+Update the `searchSchedule` section in `~/.openclaw/workspace/meetup-planner/config.json` with their answers.
 
-### Create cron job
+### Set up automated daily search
 
-```bash
-# Create cron job for daily searches (adjust time based on human's preference)
-(crontab -l 2>/dev/null; echo "0 8 * * * cd ~/.openclaw/workspace && echo 'run meetup-planner search' | claude-cli") | crontab -
-```
-
-**Note**: Adjust the cron syntax (the "0 8" part) based on their preferred time and timezone.
+Set up a cron job (or equivalent scheduled task) to run the daily search at the user's preferred time and timezone. The task should invoke the meetup-planner skill's search routine.
 
 ### Confirm to human
 
@@ -205,8 +184,8 @@ After all steps complete, tell the human in a friendly, excited way:
 🎉 All set! Meetup Planner is ready to go!
 
 Here's what I've set up for you:
-• Search capability: [tool name] ✓
-• Crawling capability: [tool name] ✓
+• Search capability: available ✓
+• Crawling capability: available ✓
 • Your preferences: saved ✓
 • Daily searches: [enabled/disabled] ✓
 
@@ -228,7 +207,7 @@ Want to see what I can find for you right now? I can run a search immediately to
 ## Idempotency (important!)
 
 **Before starting bootstrap:**
-1. Check if `.openclaw/workspace/memory/meetup-planner.json` exists
+1. Check if `~/.openclaw/workspace/meetup-planner/config.json` exists
 2. Check if `bootstrapComplete: true` is set
 3. If already complete, ask human: "Meetup Planner is already set up. Would you like to:
    - Update your preferences
@@ -246,7 +225,6 @@ Want to see what I can find for you right now? I can run a search immediately to
 - Or ask human what alternative tools they'd like to use
 
 **Cron setup fails:**
-- Provide manual cron configuration instructions
 - Offer alternative: "I can search manually when you ask me to"
 
 **Permissions errors:**
