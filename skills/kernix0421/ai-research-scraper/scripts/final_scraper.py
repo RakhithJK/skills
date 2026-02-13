@@ -3,34 +3,6 @@
 
 import subprocess
 
-def truncate_text(text, max_words):
-    """截断文本到指定的单词数"""
-    words = text.split()
-    if len(words) <= max_words:
-        return text
-    return ' '.join(words[:max_words]) + '...'
-
-def is_related_to_product_development(title, content):
-    """检查内容是否与产品开发相关"""
-    product_keywords = ['product', 'development', 'launch', 'release', 'feature', 'update', 'announcement', 'api', 'platform', 'tool', 'framework', 'library', 'service']
-    ai_keywords = ['ai', 'artificial intelligence', 'machine learning', 'deep learning', 'neural network']
-    
-    combined = product_keywords + ai_keywords
-    text = (title + ' ' + content).lower()
-    
-    return any(keyword in text for keyword in combined)
-
-def read_websites():
-    """读取网站列表"""
-    return [
-        {'name': 'TechCrunch', 'url': 'https://techcrunch.com'},
-        {'name': 'VentureBeat', 'url': 'https://venturebeat.com'},
-        {'name': 'MIT Tech Review', 'url': 'https://www.technologyreview.com'},
-        {'name': 'ZDNet', 'url': 'https://www.zdnet.com'},
-        {'name': 'Wired', 'url': 'https://www.wired.com'},
-        {'name': 'Ars Technica', 'url': 'https://arstechnica.com'}
-    ]
-
 def main():
     print("AI Research Scraper - 抓取AI领域最新研究信息")
     print("=" * 60)
