@@ -328,15 +328,37 @@ def cmd_upload(args):
     """Upload files to portal."""
     config = _load_config()
 
-    # Resolve files
+    # Resolve files (restricted to workspace + /tmp)
+    allowed_roots: list[Path] = [Path("/tmp").resolve()]
+    cwd = Path.cwd()
+    if (cwd / "skills").is_dir():
+        allowed_roots.append(cwd.resolve())
+    ws = os.environ.get("OPENCLAW_WORKSPACE")
+    if ws:
+        allowed_roots.append(Path(ws).resolve())
+
+    def _is_allowed(p: Path) -> bool:
+        s = str(p)
+        return any(s.startswith(str(a) + "/") or s == str(a) for a in allowed_roots)
+
     files: list[Path] = []
     for pattern in args.file:
         path = Path(pattern).expanduser()
         if path.is_file():
-            files.append(path.resolve())
+            resolved = path.resolve()
+            if not _is_allowed(resolved):
+                print(f"ERROR: Refusing to upload '{pattern}' — must be inside workspace or /tmp")
+                return 1
+            files.append(resolved)
         else:
             parent = path.parent if path.parent.exists() else Path.cwd()
-            files.extend(sorted(m.resolve() for m in parent.glob(path.name) if m.is_file()))
+            for m in sorted(parent.glob(path.name)):
+                if m.is_file():
+                    resolved = m.resolve()
+                    if not _is_allowed(resolved):
+                        print(f"ERROR: Refusing to upload '{m}' — must be inside workspace or /tmp")
+                        return 1
+                    files.append(resolved)
 
     if not files:
         print("ERROR: No files found to upload")
