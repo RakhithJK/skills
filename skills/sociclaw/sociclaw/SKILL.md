@@ -4,11 +4,23 @@ description: "An autonomous social media manager agent that researches, plans, a
 homepage: https://sociclaw.com
 user-invocable: true
 disable-model-invocation: false
-metadata: {"version":"0.1.2","tags":["social-media","x","twitter","automation","content","image-api","trello","notion","credits","persistent-memory"]}
+command-dispatch: true
+emoji: "🔵"
+requires:
+  bins: ["python3"]
+  env: []
+  config: []
+requirements:
+  bins: ["python3"]
+  env: []
+  config: []
+metadata:
+  version: 0.1.7
+  tags: ["social-media", "x", "twitter", "automation", "content", "image-api", "trello", "notion", "credits", "persistent-memory"]
 ---
 # SociClaw Skill
 
-SociClaw is an AI agent dedicated to managing social media accounts autonomously. Drafts are synced to Trello/Notion, and images are generated via the SociClaw image API.
+SociClaw is an AI agent dedicated to managing social media accounts autonomously. Drafts can be synced to Trello/Notion, and images are optional via a configured SociClaw Image API.
 
 ## Response Language
 
@@ -72,7 +84,9 @@ SociClaw is an AI agent dedicated to managing social media accounts autonomously
 
 ## Onboarding Rules (Required vs Optional)
 
-Required baseline for a functional starter flow:
+No environment variables are required for text-only planning and content generation.
+
+Required baseline inputs for the setup wizard:
 - provider
 - provider_user_id
 - user_niche
@@ -86,8 +100,31 @@ Optional, only ask if user opts in:
 - advanced gateway/server variables
 
 If using provisioning flow:
-- Do not ask end-users for `OPENCLAW_PROVISION_SECRET`.
+- Do not ask end-users for any upstream admin secret.
 - Keep server-side secrets out of user chat.
+
+## Runtime Permissions & Data Handling (Transparency)
+
+Local files written by default:
+- `.sociclaw/runtime_config.json` (setup answers)
+- `.sociclaw/company_profile.md` (brand brain)
+- `.sociclaw/planned_posts.json` (generated plan)
+- `.sociclaw/memory.db` (persistent memory to reduce repetition)
+- `.sociclaw/generated_images/` (local backups of generated images)
+- `.tmp/sociclaw_state.json` (local provisioned API key + wallet address)
+- `.tmp/sociclaw_sessions.db` (topup sessions)
+
+Network calls (only when features are enabled/used):
+- Provisioning gateway (`SOCICLAW_PROVISION_URL`): sends `{provider, provider_user_id, create_api_key}` and receives an API key.
+- Image API (`SOCICLAW_IMAGE_API_BASE_URL`): sends prompts, model name, and optional logo/image input (as `image_url` and/or `image_data_url`) to generate images and to manage credits (topups).
+- Trello/Notion APIs: only if the user opted into those integrations.
+- Trend research: only if `XAI_API_KEY` is configured and research is enabled.
+
+Local/remote image input safety defaults:
+- Local image paths are restricted to allowlisted directories (default: `.sociclaw` and `.tmp`).
+- `SOCICLAW_ALLOWED_IMAGE_INPUT_DIRS` can widen local image input roots.
+- Absolute roots in `SOCICLAW_ALLOWED_IMAGE_INPUT_DIRS` are ignored unless `SOCICLAW_ALLOW_ABSOLUTE_IMAGE_INPUT_DIRS=true`.
+- Remote logo URL fetching is disabled by default (`SOCICLAW_ALLOW_IMAGE_URL_INPUT=false`) and requires `SOCICLAW_ALLOWED_IMAGE_URL_HOSTS` allowlist when enabled.
 
 ## Strategy: Strategic Social Media Agent (X)
 
@@ -206,28 +243,48 @@ Claim topup after transfer confirmation.
 
 ### `/sociclaw update`
 Maintenance command pattern: check/apply latest skill update on host (mapped to CLI `check-update` / `self-update`).
+Self-update is disabled by default. Enable it only on trusted hosts:
+
+`SOCICLAW_SELF_UPDATE_ENABLED=true`
 
 ### `/sociclaw reset`
 Factory reset local runtime state (config, local session DB, local brand profile, local provisioned user state, persistent memory DB). Requires explicit confirmation.
 
-## Image Generation (SociClaw API)
-### Provisioning (Recommended)
+## Image Generation (Optional)
+
+SociClaw supports img2img workflows (example: `nano-banana`). Those models require an input image (logo) to work.
+The setup wizard collects `brand_logo_url` which can be a URL or a local path (restricted by allowlists).
+
+### Provisioning (Recommended for multi-user installs)
 
 To auto-create users + API keys without exposing your admin secret, deploy a small gateway on your backend (Vercel) and set:
 
 ```bash
 SOCICLAW_PROVISION_URL=https://api.sociclaw.com/api/sociclaw/provision
+SOCICLAW_IMAGE_API_BASE_URL=https://<your-image-api-domain>
 ```
 
-The gateway keeps `OPENCLAW_PROVISION_SECRET` **server-side**. End-users never see it.
-`SOCICLAW_PROVISION_UPSTREAM_URL` is configured only on your API project.
-`SOCICLAW_INTERNAL_TOKEN` is optional and typically **not** used for user-installed skills on personal VPS/mac mini setups.
+The gateway keeps the upstream admin secret **server-side**. End-users never see it.
+
+Optional gateway auth (only if your gateway requires it):
+
+```bash
+SOCICLAW_INTERNAL_TOKEN=your_internal_token
+```
+
+Optional hardening knobs:
+- `SOCICLAW_ALLOW_IMAGE_URL_INPUT` (default: false) controls remote logo URL fallback.
+- `SOCICLAW_ALLOWED_IMAGE_URL_HOSTS` (required if enabling remote URL input): comma-separated allowlist for remote logo fetch fallback.
+- `SOCICLAW_ALLOWED_IMAGE_INPUT_DIRS` (recommended): `.sociclaw,.tmp` paths allowed for local image input.
+- `SOCICLAW_ALLOW_ABSOLUTE_IMAGE_INPUT_DIRS` (default: false) allows absolute dir entries in `SOCICLAW_ALLOWED_IMAGE_INPUT_DIRS`.
+- `SOCICLAW_SELF_UPDATE_ENABLED` (default: false) controls if `/sociclaw update` is available.
 
 ### Single-Account Mode (Optional)
 
 If you don't want provisioning, you can run images with a single API key:
 
 ```bash
+SOCICLAW_IMAGE_API_BASE_URL=https://<your-image-api-domain>
 SOCICLAW_IMAGE_API_KEY=your_sociclaw_image_api_key
 SOCICLAW_IMAGE_MODEL=nano-banana
 ```
@@ -253,10 +310,10 @@ Example:
 git clone https://github.com/sociclaw/sociclaw.git ~/.openclaw/skills/sociclaw
 ```
 
-One-command install/update (Linux/macOS):
+Install/update:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/sociclaw/sociclaw/main/tools/update_sociclaw.sh)
+git -C ~/.openclaw/skills/sociclaw pull --ff-only
 ```
 
 Then start OpenClaw and run:
