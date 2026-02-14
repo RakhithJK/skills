@@ -20,15 +20,14 @@ An [OpenClaw](https://openclaw.dev) skill that wraps the Cursor Cloud Agents HTT
 ## Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/Parcosta/cursor-cloud-agents.git
-cd cursor-cloud-agents
+# Install the skill
+clawhub install cursor-cloud-agents
 
 # Set your Cursor API key
 export CURSOR_API_KEY="your_cursor_api_key_here"
 
 # List your agents
-./scripts/cursor-api.sh list
+cursor-cloud-agents list
 
 # Launch an agent
 ./scripts/cursor-api.sh launch \
@@ -42,13 +41,35 @@ export CURSOR_API_KEY="your_cursor_api_key_here"
 ./scripts/cursor-api.sh conversation <agent-id>
 ```
 
+### Short Commands (cca aliases)
+
+For faster daily usage, enable short commands:
+
+```bash
+# Source the aliases in your shell
+source scripts/cca-aliases.sh
+
+# Now use 'cca' instead of 'cursor-api.sh'
+cca list                              # List agents
+cca launch --repo owner/repo ...      # Launch agent
+cca status <agent-id>                 # Check status
+cca conversation <agent-id>           # Get conversation
+cca followup <agent-id> --prompt "..." # Send followup
+cca delete <agent-id>                 # Delete agent
+```
+
+Add to your `~/.bashrc` or `~/.zshrc` to enable permanently:
+```bash
+source ~/.openclaw/workspace/projects/cursor-cloud-agents/scripts/cca-aliases.sh
+```
+
 ## Installation
 
 ### As an OpenClaw Skill
 
-1. Clone this repository into your OpenClaw skills directory:
+1. Install from clawhub:
    ```bash
-   git clone https://github.com/Parcosta/cursor-cloud-agents.git ~/.openclaw/skills/cursor-cloud-agents
+   clawhub install cursor-cloud-agents
    ```
 
 2. Add your Cursor API key to `~/.openclaw/.env`:
@@ -58,13 +79,50 @@ export CURSOR_API_KEY="your_cursor_api_key_here"
 
 3. OpenClaw will automatically discover the skill and use `SKILL.md` for guidance.
 
+### Manual Installation (Not Recommended)
+
+If you need to install manually (e.g., for development):
+```bash
+git clone https://github.com/Parcosta/cursor-cloud-agents.git ~/.openclaw/skills/cursor-cloud-agents
+```
+
 ### Standalone Usage
 
-The script can also be used independently:
+After installation, use the skill directly:
 
 ```bash
-./scripts/cursor-api.sh --help
+cursor-cloud-agents --help
 ```
+
+### Short Commands (Optional)
+
+For faster daily usage, enable short-form `cca` aliases by sourcing the aliases file:
+
+```bash
+# One-time setup: Add to your ~/.bashrc or ~/.zshrc
+echo 'source ~/.openclaw/workspace/projects/cursor-cloud-agents/scripts/cca-aliases.sh' >> ~/.bashrc
+
+# Or source manually for current session
+source ~/.openclaw/workspace/projects/cursor-cloud-agents/scripts/cca-aliases.sh
+```
+
+Then use short commands:
+
+```bash
+cca list              # List all agents
+cca ls                # Short for 'list'
+cca launch --repo owner/repo --prompt "Add tests"
+cca status <agent-id>
+cca conv <agent-id>   # Short for 'conversation'
+cca fu <agent-id> --prompt "..." # Short for 'followup'
+cca rm <agent-id>     # Short for 'delete'
+```
+
+All standard commands work with `cca` prefix, plus these extra-short aliases:
+- `cca ls` → `cca list`
+- `cca conv` → `cca conversation`
+- `cca fu` → `cca followup`
+- `cca rm` → `cca delete`
 
 ## Commands
 
@@ -163,11 +221,16 @@ cursor-cloud-agents/
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork the repository on GitHub
+2. Clone your fork for development:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/cursor-cloud-agents.git
+   cd cursor-cloud-agents
+   ```
+3. Create a feature branch (`git checkout -b feature/amazing-feature`)
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
 
 Please ensure:
 - All tests pass (`bats tests/`)

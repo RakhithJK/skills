@@ -1,9 +1,108 @@
 ---
 name: cursor-cloud-agents
 description: "Deploy Cursor AI agents to GitHub repos. Automatically write code, generate tests, create documentation, and open PRs using your existing Cursor subscription."
+requirements:
+  env:
+    - CURSOR_API_KEY
+  binaries:
+    - bash
+    - curl
+    - jq
+    - base64
+  files:
+    read:
+      - ~/.openclaw/.env
+      - ~/.openclaw/.env.local
+      - .env
+      - ~/.cursor/config.json
+    write:
+      - ~/.cache/cursor-api/
+security:
+  notes: |
+    This skill reads CURSOR_API_KEY from multiple locations for convenience:
+    environment variable, ~/.openclaw/.env, ~/.openclaw/.env.local, .env, 
+    and ~/.cursor/config.json. Cache at ~/.cache/cursor-api/ is unencrypted.
+    See SECURITY.md for full details.
 ---
 
 # Cursor Cloud Agents Skill
+
+## ⚡ Quick Reference
+
+Most common commands and patterns:
+
+```bash
+# Launch an agent (uses default model: gpt-5.2)
+cursor-api.sh launch --repo owner/repo --prompt "Add tests for auth module"
+
+# Check agent status
+cursor-api.sh status <agent-id>
+
+# Get conversation history
+cursor-api.sh conversation <agent-id>
+
+# Send follow-up message
+cursor-api.sh followup <agent-id> --prompt "Also add edge case tests"
+
+# List all agents
+cursor-api.sh list
+
+# Check usage/quota
+cursor-api.sh usage
+```
+
+**Common Options:**
+- `--model <name>` - Specify model (default: gpt-5.2)
+- `--branch <name>` - Target branch
+- `--no-pr` - Don't auto-create PR
+- `--no-cache` - Bypass cache
+- `--verbose` - Debug output
+- `--background` - Run agent in background mode
+
+**Background Tasks:**
+```bash
+cursor-api.sh launch --repo owner/repo --prompt "..." --background
+cursor-api.sh bg-list
+cursor-api.sh bg-status <task-id>
+cursor-api.sh bg-logs <task-id>
+```
+
+**Max Runtime (Background Tasks):**
+```bash
+# Default is 24 hours
+ cursor-api.sh launch --repo owner/repo --prompt "..." --background
+
+# Custom max runtime (2 hours)
+cursor-api.sh launch --repo owner/repo --prompt "..." --background --max-runtime 7200
+
+# Unlimited runtime (not recommended)
+cursor-api.sh launch --repo owner/repo --prompt "..." --background --max-runtime 0
+
+# Set default via environment variable
+export CURSOR_BG_MAX_RUNTIME=43200  # 12 hours
+cursor-api.sh launch --repo owner/repo --prompt "..." --background
+```
+
+**Short Commands (cca aliases):**
+
+For faster daily usage, source the cca-aliases.sh file:
+```bash
+source scripts/cca-aliases.sh
+```
+
+Then use `cca` instead of `cursor-api.sh`:
+```bash
+cca list                    # List agents
+cca launch --repo ...       # Launch agent
+cca status <id>             # Check status
+cca conversation <id>       # Get conversation
+cca followup <id> --prompt  # Send followup
+cca delete <id>             # Delete agent
+```
+
+**Exit Codes:** 0=Success, 1=API Error, 2=Auth, 3=Rate Limit, 4=Repo Access, 5=Invalid Args
+
+---
 
 ## Overview
 
@@ -115,6 +214,33 @@ cursor-api.sh conversation agent_123
 
 **Best for:** Complex tasks requiring multiple iterations
 
+### Pattern D: Background Mode
+
+For long-running tasks, launch agents in background mode and check on them later.
+
+```bash
+# Launch in background
+result=$(cursor-api.sh launch --repo owner/repo --prompt "Refactor entire codebase" --background)
+task_id=$(echo "$result" | jq -r '.background_task_id')
+echo "Task started: $task_id"
+
+# List active background tasks
+cursor-api.sh bg-list
+
+# Check specific task status
+cursor-api.sh bg-status $task_id
+
+# View logs
+cursor-api.sh bg-logs $task_id
+
+# List all tasks including completed ones
+cursor-api.sh bg-list --all
+```
+
+Background tasks are monitored automatically and logs are saved to `~/.cache/cursor-api/background-tasks/`.
+
+**Best for:** Long-running tasks (10+ minutes), batch operations, CI/CD integration
+
 ## Commands Reference
 
 ### List Agents
@@ -128,7 +254,7 @@ Returns all agents with status, repo, and creation time.
 ### Launch Agent
 
 ```bash
-cursor-api.sh launch --repo owner/repo --prompt "Your task description" [--model model-name] [--branch branch-name] [--no-pr]
+cursor-api.sh launch --repo owner/repo --prompt "Your task description" [--model model-name] [--branch branch-name] [--no-pr] [--background]
 ```
 
 Options:
@@ -137,8 +263,11 @@ Options:
 - `--model` (optional): Model to use (defaults to `gpt-5.2` if not specified)
 - `--branch` (optional): Target branch name (auto-generated if omitted)
 - `--no-pr` (optional): Don't auto-create a PR
+- `--background` (optional): Run agent in background mode
 
 **Note:** When launched without `--model`, the skill automatically uses `gpt-5.2` and displays a message indicating which model is being used.
+
+**Background Mode:** When using `--background`, the command returns immediately with a `background_task_id`. Use `bg-list`, `bg-status`, and `bg-logs` to monitor progress.
 
 ### Check Status
 
@@ -227,6 +356,23 @@ cursor-api.sh clear-cache
 ```
 
 Clears the response cache.
+
+### Background Task Commands
+
+```bash
+cursor-api.sh bg-list [--all]
+```
+List background tasks. By default, excludes completed tasks. Use `--all` to include finished tasks.
+
+```bash
+cursor-api.sh bg-status <task-id>
+```
+Get detailed status of a background task including current agent state.
+
+```bash
+cursor-api.sh bg-logs <task-id>
+```
+Show logs for a background task. Logs include status changes and any PR URLs created.
 
 ## Rate Limiting
 
@@ -336,7 +482,23 @@ cursor-api.sh list | jq -r '.[] | select(.status == "FINISHED") | .id' | while r
 done
 ```
 
-### 5. Handle Errors Gracefully
+### 5. Choose Appropriate Max Runtime for Background Tasks
+
+Typical task durations:
+- Quick fixes (typos, small bugs): 5-15 minutes → `--max-runtime 900`
+- Feature implementation: 30-60 minutes → `--max-runtime 3600`
+- Large refactors: 2-6 hours → `--max-runtime 21600`
+- Complex migrations: 6-24 hours → `--max-runtime 86400` (default)
+
+```bash
+# Check remaining time
+ cursor-api.sh bg-status <task-id> | jq '.remaining_seconds'
+
+# Set custom max runtime
+ cursor-api.sh launch --repo owner/repo --prompt "Migrate database schema" --background --max-runtime 43200  # 12 hours
+```
+
+### 6. Handle Errors Gracefully
 
 Always check exit codes in scripts:
 

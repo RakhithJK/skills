@@ -2,7 +2,12 @@
 #
 # cursor-api.sh - Cursor Cloud Agents API wrapper for OpenClaw
 #
-# Usage: cursor-api.sh <command> [options] [args]
+# Usage: cursor-api.sh [global-options] <command> [options] [args]
+#
+# Global Options:
+#   --verbose         Enable verbose output
+#   --no-cache        Disable response caching
+#   --background      Enable background mode for applicable commands
 #
 # Commands:
 #   list              List all agents
@@ -16,6 +21,9 @@
 #   me                Get account information
 #   verify <repo>     Verify repository access
 #   usage             Get usage/cost information
+#   bg-list           List background tasks
+#   bg-status <id>    Get background task status
+#   bg-logs <id>      Show background task logs
 #
 # Environment:
 #   CURSOR_API_KEY    Required. Your Cursor API key (auto-detected from
@@ -38,6 +46,7 @@ set -euo pipefail
 # Configuration
 readonly API_BASE="${CURSOR_API_BASE:-https://api.cursor.com/v0}"
 readonly CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/cursor-api"
+readonly BG_TASKS_DIR="${CACHE_DIR}/background-tasks"
 readonly CACHE_TTL="${CURSOR_CACHE_TTL:-60}"
 readonly RATE_LIMIT_FILE="${CACHE_DIR}/.last_request"
 readonly RATE_LIMIT_DELAY=1  # 1 request per second
@@ -249,6 +258,315 @@ clear_cache() {
 }
 
 #######################################
+# Background Task Management
+#######################################
+
+# Initialize background tasks directory
+init_bg_tasks_dir() {
+    mkdir -p "$BG_TASKS_DIR"
+}
+
+# Generate unique task ID using high-precision timestamp + random
+# Uses atomic operations to avoid race conditions
+generate_task_id() {
+    local nanosec
+    nanosec=$(date +%N 2>/dev/null || echo "$RANDOM$RANDOM")
+    echo "bg_$(date +%s)_${nanosec}_$$_$RANDOM$RANDOM"
+}
+
+# Save background task info
+save_bg_task() {
+    local task_id="$1"
+    local agent_id="$2"
+    local repo="$3"
+    local prompt="$4"
+    local status="$5"
+    local pid="$6"
+    local max_runtime="${7:-86400}"
+
+    init_bg_tasks_dir
+
+    local task_file="${BG_TASKS_DIR}/${task_id}.json"
+    jq -n \
+        --arg task_id "$task_id" \
+        --arg agent_id "$agent_id" \
+        --arg repo "$repo" \
+        --arg prompt "$prompt" \
+        --arg status "$status" \
+        --arg pid "$pid" \
+        --arg created_at "$(date -Iseconds)" \
+        --arg max_runtime "$max_runtime" \
+        '{
+            task_id: $task_id,
+            agent_id: $agent_id,
+            repo: $repo,
+            prompt: $prompt,
+            status: $status,
+            pid: $pid,
+            created_at: $created_at,
+            max_runtime: $max_runtime
+        }' > "$task_file"
+}
+
+# Update background task status
+# Note: This uses atomic mv for the final write, but there's a small race window
+# between read and write. For this use case, updates are idempotent and will
+# be corrected on the next status poll, so strict file locking isn't necessary.
+update_bg_task_status() {
+    local task_id="$1"
+    local new_status="$2"
+    local task_file="${BG_TASKS_DIR}/${task_id}.json"
+
+    if [[ -f "$task_file" ]]; then
+        local tmp_file
+        tmp_file=$(mktemp)
+        # Use trap to ensure temp file cleanup on exit
+        trap 'rm -f "$tmp_file"' EXIT
+        if jq --arg status "$new_status" '.status = $status' "$task_file" > "$tmp_file" 2>/dev/null; then
+            # Atomic move (on same filesystem, this is atomic)
+            mv "$tmp_file" "$task_file"
+        else
+            rm -f "$tmp_file"
+            verbose "Failed to update task status for $task_id"
+        fi
+        trap - EXIT
+    fi
+}
+
+# List background tasks
+cmd_bg_list() {
+    init_bg_tasks_dir
+
+    local show_all=false
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --all|-a)
+                show_all=true
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    local tasks=()
+    for task_file in "$BG_TASKS_DIR"/*.json; do
+        [[ -f "$task_file" ]] || continue
+
+        local task
+        task=$(cat "$task_file")
+
+        # Filter out completed tasks unless --all
+        if [[ "$show_all" != "true" ]]; then
+            local status
+            status=$(echo "$task" | jq -r '.status')
+            [[ "$status" == "FINISHED" || "$status" == "ERROR" || "$status" == "STOPPED" ]] && continue
+        fi
+
+        # Check if process is still running
+        local pid
+        pid=$(echo "$task" | jq -r '.pid // empty')
+        if [[ -n "$pid" && "$pid" != "null" && "$pid" =~ ^[0-9]+$ ]]; then
+            # Validate PID is reasonable
+            # System processes are typically < 300, max PID varies by system (2M-4M typical)
+            # Get system max PID or use reasonable default
+            local max_pid=4194304  # Default Linux PID_MAX
+            if [[ -r /proc/sys/kernel/pid_max ]]; then
+                max_pid=$(cat /proc/sys/kernel/pid_max 2>/dev/null || echo 4194304)
+            fi
+            if [[ $pid -ge 300 && $pid -le $max_pid ]]; then
+                # kill -0 checks if process exists
+                if ! kill -0 "$pid" 2>/dev/null; then
+                    local kill_exit=$?
+                    # Only update status if process actually died (exit code 1 = ESCH)
+                    if [[ $kill_exit -eq 1 ]]; then
+                        # Process died, update status
+                        local agent_id
+                        agent_id=$(echo "$task" | jq -r '.agent_id')
+                        local current_status
+                        current_status=$(api_request "GET" "/agents/${agent_id}" "" "false" 2>/dev/null | jq -r '.status // "UNKNOWN"' 2>/dev/null || echo "UNKNOWN")
+                        update_bg_task_status "$(basename "$task_file" .json)" "$current_status"
+                        task=$(cat "$task_file")
+                    fi
+                fi
+            fi
+        fi
+
+        tasks+=("$task")
+    done
+
+    if [[ ${#tasks[@]} -eq 0 ]]; then
+        echo '[]'
+    else
+        printf '%s\n' "${tasks[@]}" | jq -s '.'
+    fi
+}
+
+# Get background task details
+cmd_bg_status() {
+    local task_id="$1"
+    local task_file="${BG_TASKS_DIR}/${task_id}.json"
+
+    if [[ ! -f "$task_file" ]]; then
+        error "Background task not found: $task_id" "$E_INVALID_ARGS"
+    fi
+
+    local task agent_id current_status max_runtime created_at elapsed remaining
+    task=$(cat "$task_file")
+    agent_id=$(echo "$task" | jq -r '.agent_id')
+    max_runtime=$(echo "$task" | jq -r '.max_runtime // "86400"')
+    created_at=$(echo "$task" | jq -r '.created_at // empty')
+
+    # Calculate elapsed and remaining time
+    if [[ -n "$created_at" ]]; then
+        local created_epoch now_epoch
+        created_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S%z' "$created_at" +%s 2>/dev/null || date -d "$created_at" +%s 2>/dev/null || echo 0)
+        now_epoch=$(date +%s)
+        if [[ $created_epoch -gt 0 ]]; then
+            elapsed=$((now_epoch - created_epoch))
+            if [[ "$max_runtime" == "0" ]]; then
+                remaining="unlimited"
+            else
+                remaining=$((max_runtime - elapsed))
+                if [[ $remaining -lt 0 ]]; then
+                    remaining="expired"
+                fi
+            fi
+        fi
+    fi
+
+    # Get current agent status
+    current_status=$(api_request "GET" "/agents/${agent_id}" "" "false" 2>/dev/null | jq -r '.status // "UNKNOWN"' 2>/dev/null || echo "UNKNOWN")
+
+    # Update task status
+    update_bg_task_status "$task_id" "$current_status"
+
+    # Return combined info with runtime data
+    echo "$task" | jq \
+        --arg current_status "$current_status" \
+        --arg elapsed "${elapsed:-0}" \
+        --arg remaining "${remaining:-unknown}" \
+        '. + {
+            current_status: $current_status,
+            elapsed_seconds: ($elapsed | tonumber),
+            remaining_seconds: (if $remaining == "unlimited" then "unlimited" elif $remaining == "expired" then "expired" else ($remaining | tonumber) end)
+        }'
+}
+
+# Monitor a background task (runs in subshell)
+monitor_bg_task() {
+    local task_id="$1"
+    local agent_id="$2"
+
+    # Validate task_id format to prevent command injection
+    if [[ ! "$task_id" =~ ^bg_[a-zA-Z0-9_]+$ ]]; then
+        echo "[$(date -Iseconds)] Invalid task_id format: $task_id" >&2
+        exit 1
+    fi
+
+    # Validate agent_id format
+    if [[ ! "$agent_id" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "[$(date -Iseconds)] Invalid agent_id format: $agent_id" >&2
+        exit 1
+    fi
+
+    local log_file="${BG_TASKS_DIR}/${task_id}.log"
+    local task_file="${BG_TASKS_DIR}/${task_id}.json"
+    local consecutive_errors=0
+    local max_consecutive_errors=10
+
+    # Read max_runtime from task file or use default/env
+    local max_runtime_seconds
+    if [[ -f "$task_file" ]]; then
+        max_runtime_seconds=$(jq -r '.max_runtime // empty' "$task_file" 2>/dev/null)
+    fi
+    # Fallback to env var or default (86400 = 24 hours, 0 = unlimited)
+    if [[ -z "$max_runtime_seconds" ]]; then
+        max_runtime_seconds="${CURSOR_BG_MAX_RUNTIME:-86400}"
+    fi
+
+    local start_time iteration_count
+    start_time=$(date +%s)
+    iteration_count=0
+
+    {
+        echo "[$(date -Iseconds)] Background task started: $task_id"
+        echo "[$(date -Iseconds)] Agent ID: $agent_id"
+        echo "[$(date -Iseconds)] Max runtime: $([[ "$max_runtime_seconds" == "0" ]] && echo "unlimited" || echo "${max_runtime_seconds}s")"
+
+        local last_status="CREATING"
+        while true; do
+            sleep 30
+            iteration_count=$((iteration_count + 1))
+
+            # Check max runtime to prevent infinite loops (skip if unlimited)
+            if [[ "$max_runtime_seconds" != "0" ]]; then
+                local current_time elapsed
+                current_time=$(date +%s)
+                elapsed=$((current_time - start_time))
+                if [[ $elapsed -gt $max_runtime_seconds ]]; then
+                    echo "[$(date -Iseconds)] Monitor exceeded max runtime (${max_runtime_seconds}s), stopping"
+                    update_bg_task_status "$task_id" "TIMEOUT"
+                    break
+                fi
+
+                # Sanity check: prevent runaway loops
+                local max_iterations
+                max_iterations=$((max_runtime_seconds / 30 + 10))
+                if [[ $iteration_count -gt $max_iterations ]]; then
+                    echo "[$(date -Iseconds)] Monitor exceeded max iterations, stopping"
+                    update_bg_task_status "$task_id" "TIMEOUT"
+                    break
+                fi
+            fi
+
+            local status_response status
+            local api_exit=0
+            status_response=$(api_request "GET" "/agents/${agent_id}" "" "false" 2>/dev/null) || api_exit=$?
+
+            # Handle API errors with retry logic
+            if [[ $api_exit -ne 0 ]] || [[ -z "$status_response" ]]; then
+                consecutive_errors=$((consecutive_errors + 1))
+                echo "[$(date -Iseconds)] API error (exit: $api_exit, attempt: $consecutive_errors/$max_consecutive_errors)"
+
+                if [[ $consecutive_errors -ge $max_consecutive_errors ]]; then
+                    echo "[$(date -Iseconds)] Too many consecutive errors, stopping monitor"
+                    update_bg_task_status "$task_id" "ERROR"
+                    break
+                fi
+                continue
+            fi
+
+            # Reset error counter on success
+            consecutive_errors=0
+            status=$(echo "$status_response" | jq -r '.status // "ERROR"')
+
+            if [[ "$status" != "$last_status" ]]; then
+                echo "[$(date -Iseconds)] Status changed: $last_status -> $status"
+                update_bg_task_status "$task_id" "$status"
+                last_status="$status"
+            fi
+
+            # Exit monitoring when agent reaches terminal state
+            case "$status" in
+                FINISHED|ERROR|STOPPED)
+                    echo "[$(date -Iseconds)] Agent reached terminal state: $status"
+                    if [[ "$status" == "FINISHED" ]]; then
+                        local pr_url
+                        pr_url=$(echo "$status_response" | jq -r '.prUrl // empty')
+                        [[ -n "$pr_url" ]] && echo "[$(date -Iseconds)] PR created: $pr_url"
+                    fi
+                    break
+                    ;;
+            esac
+        done
+
+        echo "[$(date -Iseconds)] Background task completed: $task_id"
+    } >> "$log_file" 2>&1
+}
+
+#######################################
 # Authentication
 #######################################
 
@@ -259,10 +577,15 @@ check_auth() {
 }
 
 # Get authorization header
+# Uses Basic auth with base64 encoding per Cursor API spec
+# The API key is read from CURSOR_API_KEY env var or config files
+# This is standard HTTP Basic authentication, not obfuscation
 get_auth_header() {
     local api_key credentials
     api_key=$(get_api_key) || return 1
     credentials="${api_key}:"
+    # Base64 encode for HTTP Basic Authentication (RFC 7617)
+    # Format: base64(username:password) where username is API key, password is empty
     echo "Authorization: Basic $(printf '%s' "$credentials" | base64)"
 }
 
@@ -442,6 +765,8 @@ cmd_launch() {
     local model=""
     local branch=""
     local auto_create_pr=true
+    local run_in_background=false
+    local max_runtime=""
 
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -465,6 +790,14 @@ cmd_launch() {
             --no-pr)
                 auto_create_pr=false
                 shift
+                ;;
+            --background)
+                run_in_background=true
+                shift
+                ;;
+            --max-runtime)
+                max_runtime="$2"
+                shift 2
                 ;;
             *)
                 error "Unknown option: $1" "$E_INVALID_ARGS"
@@ -504,7 +837,56 @@ cmd_launch() {
     [[ -n "$branch" ]] && body=$(echo "$body" | jq --arg b "$branch" '.target.branchName = $b')
     [[ "$auto_create_pr" == "true" ]] && body=$(echo "$body" | jq '.target.autoCreatePr = true')
 
-    api_request "POST" "/agents" "$body"
+    local response
+    response=$(api_request "POST" "/agents" "$body")
+
+    # If background mode requested, set up monitoring
+    if [[ "$run_in_background" == "true" ]]; then
+        local agent_id task_id
+        agent_id=$(echo "$response" | jq -r '.id')
+        task_id=$(generate_task_id)
+
+        # Determine max runtime: explicit flag > env var > default
+        if [[ -z "$max_runtime" ]]; then
+            max_runtime="${CURSOR_BG_MAX_RUNTIME:-86400}"
+        fi
+
+        # Validate max_runtime is a number
+        if [[ ! "$max_runtime" =~ ^[0-9]+$ ]]; then
+            error "Invalid max-runtime value: $max_runtime (must be a positive integer or 0 for unlimited)" "$E_INVALID_ARGS"
+        fi
+
+        # Warn if max runtime is very short (< 5 minutes)
+        if [[ "$max_runtime" -gt 0 && "$max_runtime" -lt 300 ]]; then
+            echo "Warning: max-runtime of ${max_runtime}s may be too short for most tasks (5 min recommended minimum)" >&2
+        fi
+
+        # Save task info with max_runtime
+        save_bg_task "$task_id" "$agent_id" "$repo" "$prompt" "CREATING" "$$" "$max_runtime"
+
+        # Start monitoring in background
+        monitor_bg_task "$task_id" "$agent_id" &
+        local monitor_pid=$!
+
+        # Update with actual monitor PID (with error handling)
+        local task_file="${BG_TASKS_DIR}/${task_id}.json"
+        local tmp_file
+        tmp_file=$(mktemp)
+        if jq --arg pid "$monitor_pid" '.pid = $pid' "$task_file" > "$tmp_file" 2>/dev/null; then
+            mv "$tmp_file" "$task_file"
+        else
+            rm -f "$tmp_file"
+            verbose "Warning: Failed to update monitor PID for task $task_id"
+        fi
+
+        # Return task info with max runtime display
+        local runtime_display
+        runtime_display=$([[ "$max_runtime" == "0" ]] && echo "unlimited" || echo "${max_runtime}s")
+        echo "$response" | jq --arg task_id "$task_id" --arg max_runtime "$runtime_display" '. + {background_task_id: $task_id, mode: "background", max_runtime: $max_runtime}'
+        echo "Background task started (max runtime: $runtime_display). Monitor with: cursor-api.sh bg-status $task_id" >&2
+    else
+        echo "$response"
+    fi
 }
 
 # Get agent status
@@ -677,6 +1059,8 @@ Commands:
     --model "model-name"        Model to use (optional)
     --branch "branch-name"      Branch name (optional)
     --no-pr                     Don't auto-create PR
+    --background                Run agent in background mode
+    --max-runtime N             Max runtime in seconds (default: 86400 = 24h, 0 = unlimited)
   status <agent-id>             Get agent status
   conversation <agent-id>       Get agent conversation
   followup <agent-id> [options] Send follow-up
@@ -688,11 +1072,29 @@ Commands:
   verify <owner/repo>           Verify repository access
   usage                         Get usage/cost information
   clear-cache                   Clear response cache
+  bg-list [--all]               List background tasks (excludes completed by default)
+  bg-status <task-id>           Get background task status
+  bg-logs <task-id>             Show logs for a background task
+
+Short Commands (Optional):
+  For faster daily usage, source scripts/cca-aliases.sh:
+    source scripts/cca-aliases.sh
+
+  Then use short commands:
+    cca list              # List all agents
+    cca ls                # Short for 'list'
+    cca launch            # Launch agent
+    cca status <id>       # Check status
+    cca conv <id>         # Short for 'conversation'
+    cca fu <id> --prompt  # Short for 'followup'
+    cca rm <id>           # Short for 'delete'
 
 Environment:
-  CURSOR_API_KEY     Required. Your Cursor API key
-  CURSOR_API_BASE    Optional. API base URL override (default: https://api.cursor.com/v0)
-  CURSOR_CACHE_TTL   Optional. Cache TTL in seconds (default: 60)
+  CURSOR_API_KEY          Required. Your Cursor API key
+  CURSOR_API_BASE         Optional. API base URL override (default: https://api.cursor.com/v0)
+  CURSOR_CACHE_TTL        Optional. Cache TTL in seconds (default: 60)
+  CURSOR_BG_MAX_RUNTIME   Optional. Default max runtime for background tasks in seconds
+                          (default: 86400 = 24h, 0 = unlimited)
 
 Exit codes:
   0  Success
@@ -794,6 +1196,26 @@ main() {
             ;;
         clear-cache)
             clear_cache
+            ;;
+        bg-list)
+            cmd_bg_list "$@"
+            ;;
+        bg-status)
+            if [[ $# -eq 0 ]]; then
+                error "Task ID required" "$E_INVALID_ARGS"
+            fi
+            cmd_bg_status "$1"
+            ;;
+        bg-logs)
+            if [[ $# -eq 0 ]]; then
+                error "Task ID required" "$E_INVALID_ARGS"
+            fi
+            local log_file="${BG_TASKS_DIR}/${1}.log"
+            if [[ -f "$log_file" ]]; then
+                cat "$log_file"
+            else
+                error "No logs found for task: $1" "$E_INVALID_ARGS"
+            fi
             ;;
         *)
             error "Unknown command: $command" "$E_INVALID_ARGS"

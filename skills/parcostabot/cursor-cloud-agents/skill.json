@@ -1,6 +1,6 @@
 {
   "name": "cursor-cloud-agents",
-  "version": "1.2.1",
+  "version": "1.3.3",
   "description": "Launch Cursor AI agents on GitHub repos to write code, tests, and docs automatically",
   "summary": "Deploy Cursor's cloud AI agents to your GitHub repositories. Automatically write code, generate tests, create documentation, and open PRs. Perfect for outsourcing coding tasks, getting second opinions on implementations, and scaling your development workflow with AI.",
   "tags": [
