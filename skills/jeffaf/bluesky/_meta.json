@@ -3,11 +3,16 @@
   "slug": "bluesky",
   "displayName": "Bluesky",
   "latest": {
-    "version": "1.5.3",
-    "publishedAt": 1770395438272,
-    "commit": "https://github.com/openclaw/skills/commit/8d3bc7fba3b420f9f54fc6a2393150aaadfe2419"
+    "version": "1.6.0",
+    "publishedAt": 1771078559971,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.5.3",
+      "publishedAt": 1770395438272,
+      "commit": "https://github.com/openclaw/skills/commit/8d3bc7fba3b420f9f54fc6a2393150aaadfe2419"
+    },
     {
       "version": "1.5.2",
       "publishedAt": 1770255022356,
