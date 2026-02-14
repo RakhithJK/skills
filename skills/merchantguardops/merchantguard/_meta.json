@@ -1,0 +1,11 @@
+{
+  "owner": "merchantguardops",
+  "slug": "merchantguard",
+  "displayName": "MerchantGuard",
+  "latest": {
+    "version": "2.0.0",
+    "publishedAt": 1771034558143,
+    "commit": null
+  },
+  "history": []
+}
