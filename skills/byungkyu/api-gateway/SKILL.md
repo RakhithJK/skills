@@ -1,8 +1,10 @@
 ---
 name: api-gateway
 description: |
-  API gateway for calling third-party APIs with managed auth. Use this skill when users want to interact with external services like Slack, HubSpot, Salesforce, Google Workspace, Stripe, and more.
-compatibility: Requires network access and valid Maton API key
+  API gateway for calling third-party APIs with managed OAuth connections, provided by Maton (https://maton.ai).
+  Use this skill when users want to interact with external services like Slack, HubSpot, Salesforce, Google Workspace, Stripe, and more.
+  Access is scoped to connections you explicitly authorize via OAuth - the API key alone does not grant access to any third-party service.
+  Requires network access and valid Maton API key.
 metadata:
   author: maton
   version: "1.0"
@@ -16,7 +18,7 @@ metadata:
 
 # API Gateway
 
-Passthrough proxy for direct access to third-party APIs using managed auth connections. The API gateway lets you call native API endpoints directly.
+Passthrough proxy for direct access to third-party APIs using managed OAuth connections, provided by [Maton](https://maton.ai). The API gateway lets you call native API endpoints directly.
 
 ## Quick Start
 
@@ -192,7 +194,9 @@ If omitted, the gateway uses the default (oldest) active connection for that app
 | ClickFunnels | `clickfunnels` | `{subdomain}.myclickfunnels.com` |
 | ClickSend | `clicksend` | `rest.clicksend.com` |
 | ClickUp | `clickup` | `api.clickup.com` |
+| Clockify | `clockify` | `api.clockify.me` |
 | Coda | `coda` | `coda.io` |
+| Confluence | `confluence` | `api.atlassian.com` |
 | CompanyCam | `companycam` | `api.companycam.com` |
 | Cognito Forms | `cognito-forms` | `www.cognitoforms.com` |
 | Constant Contact | `constant-contact` | `api.cc.email` |
@@ -201,6 +205,7 @@ If omitted, the gateway uses the default (oldest) active connection for that app
 | Eventbrite | `eventbrite` | `www.eventbriteapi.com` |
 | Fathom | `fathom` | `api.fathom.ai` |
 | Fireflies | `fireflies` | `api.fireflies.ai` |
+| GetResponse | `getresponse` | `api.getresponse.com` |
 | GitHub | `github` | `api.github.com` |
 | Gumroad | `gumroad` | `api.gumroad.com` |
 | Google Ads | `google-ads` | `googleads.googleapis.com` |
@@ -238,6 +243,7 @@ If omitted, the gateway uses the default (oldest) active connection for that app
 | Microsoft Excel | `microsoft-excel` | `graph.microsoft.com` |
 | Microsoft To Do | `microsoft-to-do` | `graph.microsoft.com` |
 | Monday.com | `monday` | `api.monday.com` |
+| Motion | `motion` | `api.usemotion.com` |
 | Netlify | `netlify` | `api.netlify.com` |
 | Notion | `notion` | `api.notion.com` |
 | OneDrive | `one-drive` | `graph.microsoft.com` |
@@ -257,6 +263,7 @@ If omitted, the gateway uses the default (oldest) active connection for that app
 | Telegram | `telegram` | `api.telegram.org` |
 | TickTick | `ticktick` | `api.ticktick.com` |
 | Todoist | `todoist` | `api.todoist.com` |
+| Toggl Track | `toggl-track` | `api.track.toggl.com` |
 | Trello | `trello` | `api.trello.com` |
 | Twilio | `twilio` | `api.twilio.com` |
 | Typeform | `typeform` | `api.typeform.com` |
@@ -293,7 +300,9 @@ See [references/](references/) for detailed routing guides per provider:
 - [ClickFunnels](references/clickfunnels.md) - Contacts, products, orders, courses, webhooks
 - [ClickSend](references/clicksend.md) - SMS, MMS, voice messages, contacts, lists
 - [ClickUp](references/clickup.md) - Tasks, lists, folders, spaces, webhooks
+- [Clockify](references/clockify.md) - Time tracking, projects, clients, tasks, workspaces
 - [Coda](references/coda.md) - Docs, pages, tables, rows, formulas, controls
+- [Confluence](references/confluence.md) - Pages, spaces, blogposts, comments, attachments
 - [CompanyCam](references/companycam.md) - Projects, photos, users, tags, groups, documents
 - [Cognito Forms](references/cognito-forms.md) - Forms, entries, documents, files
 - [Constant Contact](references/constant-contact.md) - Contacts, email campaigns, lists, segments
@@ -302,6 +311,7 @@ See [references/](references/) for detailed routing guides per provider:
 - [Eventbrite](references/eventbrite.md) - Events, venues, tickets, orders, attendees
 - [Fathom](references/fathom.md) - Meeting recordings, transcripts, summaries, webhooks
 - [Fireflies](references/fireflies.md) - Meeting transcripts, summaries, AskFred AI, channels
+- [GetResponse](references/getresponse.md) - Campaigns, contacts, newsletters, autoresponders, tags, segments
 - [GitHub](references/github.md) - Repositories, issues, pull requests, commits
 - [Gumroad](references/gumroad.md) - Products, sales, subscribers, licenses, webhooks
 - [Google Ads](references/google-ads.md) - Campaigns, ad groups, GAQL queries
@@ -339,6 +349,7 @@ See [references/](references/) for detailed routing guides per provider:
 - [Microsoft Excel](references/microsoft-excel.md) - Workbooks, worksheets, ranges, tables, charts
 - [Microsoft To Do](references/microsoft-to-do.md) - Task lists, tasks, checklist items, linked resources
 - [Monday.com](references/monday.md) - Boards, items, columns, groups (GraphQL)
+- [Motion](references/motion.md) - Tasks, projects, workspaces, schedules
 - [Netlify](references/netlify.md) - Sites, deploys, builds, DNS, environment variables
 - [Notion](references/notion.md) - Pages, databases, blocks
 - [OneDrive](references/one-drive.md) - Files, folders, drives, sharing
@@ -359,6 +370,7 @@ See [references/](references/) for detailed routing guides per provider:
 - [Telegram](references/telegram.md) - Messages, chats, bots, updates, polls
 - [TickTick](references/ticktick.md) - Tasks, projects, task lists
 - [Todoist](references/todoist.md) - Tasks, projects, sections, labels, comments
+- [Toggl Track](references/toggl-track.md) - Time entries, projects, clients, tags, workspaces
 - [Trello](references/trello.md) - Boards, lists, cards, checklists
 - [Twilio](references/twilio.md) - SMS, voice calls, phone numbers, messaging
 - [Typeform](references/typeform.md) - Forms, responses, insights
