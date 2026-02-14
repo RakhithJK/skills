@@ -16,8 +16,11 @@ interface OAuthState {
   createdAt: number;
 }
 
+const DEFAULT_CONVEX_URL = 'https://gallant-bass-875.convex.cloud';
+const ALLOW_DEFAULT_BACKEND = process.env.ALLOW_DEFAULT_BACKEND === 'true';
+
 let config: SkillConfig = {
-  convexUrl: process.env.CONVEX_URL || 'https://gallant-bass-875.convex.cloud',
+  convexUrl: process.env.CONVEX_URL || DEFAULT_CONVEX_URL,
   githubClientId: process.env.AUTH_GITHUB_ID || process.env.GITHUB_CLIENT_ID || '',
   githubClientSecret: process.env.AUTH_GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
   githubCallbackUrl: process.env.GITHUB_CALLBACK_URL || '',
@@ -40,7 +43,7 @@ function initialize(customConfig?: Partial<SkillConfig>): { name: string; versio
 
   return {
     name: 'plan2meal',
-    version: '1.2.4',
+    version: '1.2.5',
     commands: getCommandPatterns()
   };
 }
@@ -78,6 +81,11 @@ function getConfigIssue(): string | null {
   if (!config.convexUrl) {
     return 'Missing `CONVEX_URL`. Configure your Plan2Meal backend URL before using this skill.';
   }
+
+  if (config.convexUrl === DEFAULT_CONVEX_URL && !ALLOW_DEFAULT_BACKEND) {
+    return 'Default shared backend is blocked by default. Set `CONVEX_URL` to your own backend, or explicitly opt in with `ALLOW_DEFAULT_BACKEND=true`.';
+  }
+
   return null;
 }
 
@@ -157,6 +165,10 @@ function showLoginOptions(): { text: string; requiresAuth: boolean } {
   }
 
   text += '---\nUse OAuth login links above to authenticate.';
+
+  if (config.convexUrl === DEFAULT_CONVEX_URL) {
+    text += '\n\n⚠️ Data routing notice: you are using the shared default backend. For private/self-hosted mode, set `CONVEX_URL`.';
+  }
 
   return { text, requiresAuth: false };
 }

@@ -1,6 +1,6 @@
 {
   "name": "plan2meal-skill",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "ClawdHub skill for Plan2Meal recipe and grocery list management",
   "main": "dist/index.js",
   "scripts": {

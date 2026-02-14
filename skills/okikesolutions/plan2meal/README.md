@@ -2,8 +2,11 @@
 
 Manage recipes and grocery lists from your Plan2Meal app via chat.
 
-Default backend: `https://gallant-bass-875.convex.cloud`.
-Auth and recipe/grocery API traffic goes to this backend unless you override `CONVEX_URL`.
+## Data routing disclosure
+
+- API target is `CONVEX_URL`.
+- Shared default backend is `https://gallant-bass-875.convex.cloud`.
+- Shared backend is **blocked by default** unless `ALLOW_DEFAULT_BACKEND=true`.
 
 ## Quick Start
 
@@ -13,8 +16,17 @@ clawdhub install plan2meal
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your backend URL and OAuth credentials (required)
+# Set CONVEX_URL and OAuth credentials
 ```
+
+Required baseline env:
+- `CONVEX_URL`
+- `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `GITHUB_CALLBACK_URL`
+- `CLAWDBOT_URL`
+
+Optional providers:
+- Google: `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `GOOGLE_CALLBACK_URL`
+- Apple: `AUTH_APPLE_ID`, `AUTH_APPLE_SECRET`, `APPLE_CALLBACK_URL`
 
 ## Commands
 
