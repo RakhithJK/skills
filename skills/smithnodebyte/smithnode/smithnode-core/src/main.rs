@@ -743,7 +743,7 @@ async fn main() -> anyhow::Result<()> {
             }
         }
 
-        Commands::Validator { data_dir, keypair, p2p_bind, peers, rpc_bind, ai_provider, ai_api_key, ai_model, ai_endpoint, sequencer_rpc } => {
+        Commands::Validator { data_dir, keypair, p2p_bind, peers, rpc_bind, ai_provider, ai_api_key, ai_model, ai_endpoint, sequencer_rpc, enable_peer_relay } => {
             use ed25519_dalek::{SigningKey, Signer, Signature};
             use sha2::{Sha256, Digest};
 
@@ -1568,11 +1568,24 @@ async fn main() -> anyhow::Result<()> {
             tracing::info!("══════════════════════════════════════════════════");
 
             // Release manager: periodically check for verified upgrades
+            // Only runs if --enable-peer-relay is passed (opt-in for security)
             let state_for_update = state.clone();
             let data_dir_for_update = data_dir.clone();
             let p2p_port_for_update = p2p_addr.port();
             let sequencer_rpc_for_update = sequencer_rpc.clone();
+            
+            if !enable_peer_relay {
+                tracing::info!("ℹ️  Peer relay updates DISABLED (default for security)");
+                tracing::info!("   To enable: add --enable-peer-relay flag");
+            }
+            
             let release_manager_handle = tokio::spawn(async move {
+                // If peer relay is disabled, just sleep forever (placeholder task)
+                if !enable_peer_relay {
+                    loop {
+                        tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+                    }
+                }
                 let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(30));
                 
                 // ── PERSIST applied_version across exec() restarts ──
