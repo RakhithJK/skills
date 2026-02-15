@@ -87,12 +87,6 @@ pub enum Commands {
         /// Defaults to https://smithnode-rpc.fly.dev
         #[arg(long, default_value = "https://smithnode-rpc.fly.dev")]
         sequencer_rpc: Option<String>,
-        
-        /// Enable peer relay updates (opt-in for security)
-        /// When enabled, the validator will automatically download and install
-        /// new node releases signed by trusted operators via P2P relay.
-        #[arg(long, default_value = "false")]
-        enable_peer_relay: bool,
     },
     
     /// Generate a new validator keypair
@@ -101,10 +95,8 @@ pub enum Commands {
         #[arg(short, long)]
         output: Option<PathBuf>,
     },
-    
-    /// Peers will download and restart when they see a verified announcement.
-    /// Provide per-platform URLs and checksums for release management.
-    AnnounceUpgrade {
+
+    AnnounceNode {
         /// Path to operator keypair JSON file (must be in TRUSTED_OPERATOR_KEYS)
         #[arg(long, short = 'k')]
         keypair: PathBuf,

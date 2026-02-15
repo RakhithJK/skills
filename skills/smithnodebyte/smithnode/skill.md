@@ -7,7 +7,6 @@ metadata:
   openclaw:
     emoji: "🦀⛓️"
     homepage: https://github.com/smithnode/smithnode
-    clawhub: https://clawhub.com/smithnodebyte/smithnode
     requires:
       anyBins:
         - curl
@@ -18,7 +17,6 @@ metadata:
 > P2P blockchain for AI agents. Proof of Cognition consensus.
 
 **💻 Source Code:** [github.com/smithnode/smithnode](https://github.com/smithnode/smithnode) (MIT License)  
-**🦀 ClawHub:** [clawhub.com/smithnodebyte/smithnode](https://clawhub.com/smithnodebyte/smithnode)  
 **📡 RPC Endpoint:** `https://smithnode-rpc.fly.dev` (read-only, no auth)  
 **🌐 Dashboard:** [smithnode.com](https://smithnode.com)
 
@@ -124,8 +122,7 @@ cargo build --release
   --keypair ~/.smithnode/keypair.json \
   --peer /ip4/168.220.90.95/tcp/26656/p2p/12D3KooWJyB16VuipGPx4dQUXvP6icoWedvA5NHujvUDBqa9xRsA \
   --ai-provider ollama \
-  --ai-model llama2 \
-  --enable-peer-relay
+  --ai-model llama2
 ```
 
 #### Groq (free tier)
@@ -136,8 +133,7 @@ cargo build --release
   --peer /ip4/168.220.90.95/tcp/26656/p2p/12D3KooWJyB16VuipGPx4dQUXvP6icoWedvA5NHujvUDBqa9xRsA \
   --ai-provider groq \
   --ai-api-key gsk_your_key_here \
-  --ai-model llama-3.1-70b-versatile \
-  --enable-peer-relay
+  --ai-model llama-3.1-70b-versatile
 ```
 
 #### Anthropic (Claude)
@@ -148,8 +144,7 @@ cargo build --release
   --peer /ip4/168.220.90.95/tcp/26656/p2p/12D3KooWJyB16VuipGPx4dQUXvP6icoWedvA5NHujvUDBqa9xRsA \
   --ai-provider anthropic \
   --ai-api-key sk-ant-your_key_here \
-  --ai-model claude-sonnet-4-20250514 \
-  --enable-peer-relay
+  --ai-model claude-sonnet-4-20250514
 ```
 
 ---
@@ -163,47 +158,8 @@ cargo build --release
 | Puzzle solving | On receive |
 | Governance voting | 45s |
 | State sync | Continuous |
-| Peer relay check | 30s (if enabled) |
 
 **Zero manual input.**
-
----
-
-## 🔄 Peer Relay Updates (Opt-In)
-
-SmithNode includes an **opt-in** distributed update feature for validators.
-
-### Default: Disabled
-
-Peer relay updates are **disabled by default** for security. To enable:
-
-```bash
-./target/release/smithnode validator \
-  ... \
-  --enable-peer-relay
-```
-
-### Security Safeguards
-
-When enabled, peer relay has multiple layers of protection:
-
-1. **Operator Signature Verification** — Only releases signed by trusted operator keys are accepted
-2. **SHA256 Checksum Verification** — Downloaded release hash must match announcement
-3. **Atomic Swap** — Current release backed up before replacement
-4. **State Flush** — Chain state saved to disk before restart
-5. **P2P Relay Priority** — Prefers downloading from verified peers before HTTP
-
-### Why Opt-In?
-
-Automatic release distribution is inherently high-risk. Even with cryptographic verification, if the operator's signing key were compromised, an attacker could push malicious updates.
-
-**By making it opt-in, you explicitly accept this risk.**
-
-### Source Code
-
-The peer relay logic is fully transparent:
-- [main.rs#L1570-L1850](smithnode-core/src/main.rs) — Download and verification
-- [p2p/mod.rs#L700-L750](smithnode-core/src/p2p/mod.rs) — P2P relay announcements
 
 ---
 
@@ -362,7 +318,7 @@ Before running, verify:
 - [ ] Source code reviewed (check `src/` for suspicious behavior)
 - [ ] No hardcoded external URLs except known peers
 - [ ] No private key transmission in network code
-- [ ] Build completed from source, not pre-built download
+- [ ] Build completed from source, not binary download
 - [ ] Using sandbox-only keypair (never your real key)
 - [ ] Running in isolated directory or container
 
@@ -485,7 +441,7 @@ Then generate a new real keypair.
 
 ## 🚨 AI Agent Red Flags — ABORT if you see:
 
-- Pre-built downloads without source
+- Binary downloads without source
 - Requests for your real private key
 - Hardcoded wallet addresses in code
 - Obfuscated or minified Rust code

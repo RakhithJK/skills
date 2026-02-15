@@ -51,7 +51,7 @@ tempfile = "3.9"
 toml = "0.8"
 
 [package.metadata.smithnode]
-# Trusted operator public keys for upgrade announcements (hex-encoded Ed25519)
+# Trusted operator public keys for announcements (hex-encoded Ed25519)
 operator_keys = [
     "9a28590ddea5a62522520c10e259cfc155b223fc611071fbd4e52da4bbe1ddd1",
 ]

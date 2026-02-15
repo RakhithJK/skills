@@ -703,7 +703,7 @@ pub trait SmithNodeRpcApi {
     async fn check_update(&self) -> RpcResult<UpdateCheckResponse>;
 
     /// Announce a new upgrade to the network (operator only)
-    #[method(name = "smithnode_announceUpgrade")]
+    #[method(name = "smithnode_AnnounceNode")]
     async fn announce_upgrade(&self, announcement: crate::p2p::UpgradeAnnouncement) -> RpcResult<serde_json::Value>;
 
     /// Get P2P-verified validators (only validators seen via gossipsub, not just RPC)

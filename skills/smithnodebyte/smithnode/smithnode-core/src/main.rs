@@ -189,9 +189,7 @@ fn solve_nl_math(expr: &str) -> Option<String> {
     None
 }
 
-/// Poll the sequencer's RPC for a signed upgrade announcement.
-/// This is the fallback when gossipsub doesn't deliver upgrade messages.
-/// Returns the full UpgradeAnnouncement (with operator signature) so we can verify locally.
+
 async fn poll_sequencer_for_upgrade(rpc_url: &str) -> anyhow::Result<Option<p2p::UpgradeAnnouncement>> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(5))
@@ -603,7 +601,7 @@ async fn main() -> anyhow::Result<()> {
             }
         }
         
-        Commands::AnnounceUpgrade {
+        Commands::AnnounceNode {
             keypair, version,
             url_linux_x64, checksum_linux_x64,
             url_darwin_arm64, checksum_darwin_arm64,
@@ -712,7 +710,7 @@ async fn main() -> anyhow::Result<()> {
             let client = reqwest::Client::new();
             let rpc_payload = serde_json::json!({
                 "jsonrpc": "2.0",
-                "method": "smithnode_announceUpgrade",
+                "method": "smithnode_AnnounceNode",
                 "params": [announcement],
                 "id": 1
             });
@@ -743,7 +741,7 @@ async fn main() -> anyhow::Result<()> {
             }
         }
 
-        Commands::Validator { data_dir, keypair, p2p_bind, peers, rpc_bind, ai_provider, ai_api_key, ai_model, ai_endpoint, sequencer_rpc, enable_peer_relay } => {
+        Commands::Validator { data_dir, keypair, p2p_bind, peers, rpc_bind, ai_provider, ai_api_key, ai_model, ai_endpoint, sequencer_rpc } => {
             use ed25519_dalek::{SigningKey, Signer, Signature};
             use sha2::{Sha256, Digest};
 
@@ -1568,24 +1566,11 @@ async fn main() -> anyhow::Result<()> {
             tracing::info!("══════════════════════════════════════════════════");
 
             // Release manager: periodically check for verified upgrades
-            // Only runs if --enable-peer-relay is passed (opt-in for security)
             let state_for_update = state.clone();
             let data_dir_for_update = data_dir.clone();
             let p2p_port_for_update = p2p_addr.port();
             let sequencer_rpc_for_update = sequencer_rpc.clone();
-            
-            if !enable_peer_relay {
-                tracing::info!("ℹ️  Peer relay updates DISABLED (default for security)");
-                tracing::info!("   To enable: add --enable-peer-relay flag");
-            }
-            
             let release_manager_handle = tokio::spawn(async move {
-                // If peer relay is disabled, just sleep forever (placeholder task)
-                if !enable_peer_relay {
-                    loop {
-                        tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
-                    }
-                }
                 let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(30));
                 
                 // ── PERSIST applied_version across exec() restarts ──
