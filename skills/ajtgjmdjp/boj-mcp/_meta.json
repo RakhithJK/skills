@@ -3,9 +3,15 @@
   "slug": "boj-mcp",
   "displayName": "Boj Mcp",
   "latest": {
-    "version": "0.1.0",
-    "publishedAt": 1771060184192,
-    "commit": "https://github.com/openclaw/skills/commit/e3f783c0e8a5da7d72d649b0a1a48dd60f55e566"
+    "version": "0.1.2",
+    "publishedAt": 1771100874713,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.1.0",
+      "publishedAt": 1771060184192,
+      "commit": "https://github.com/openclaw/skills/commit/e3f783c0e8a5da7d72d649b0a1a48dd60f55e566"
+    }
+  ]
 }
