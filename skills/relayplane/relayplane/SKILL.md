@@ -1,11 +1,11 @@
 ---
 name: relayplane
-description: Cut API costs 40-60% with intelligent model routing. Auto-routes simple tasks to cheaper models.
+description: Save ~$47/mo on a typical $100/mo OpenClaw spend. Local proxy routes simple tasks to cheaper models automatically.
 user-invocable: true
 model-invocable: false
 disableModelInvocation: true
 homepage: https://relayplane.com
-version: 3.0.0
+version: 3.1.0
 author: Continuum
 license: MIT
 metadata:
@@ -17,11 +17,13 @@ metadata:
 
 # RelayPlane
 
-**Cut your AI API costs by 40-60%** with intelligent model routing.
+**Spend $100/mo on OpenClaw? Keep $47 of it.** 835+ developers already installed.
 
 ## What It Does
 
-RelayPlane is a local proxy that routes your LLM requests to the optimal model based on task complexity. Simple tasks go to cheaper models (Haiku), complex reasoning stays on premium models (Opus).
+RelayPlane is a local proxy that saves you real money by routing simple LLM tasks to cheaper models automatically. Complex reasoning stays on Opus — file reads, status checks, and simple edits go to Haiku. One install, no code changes, automatic fallback if anything fails.
+
+**Pro pays for itself at $60/mo API spend.** If you're spending $100+/mo, expect to save $40-70/mo.
 
 ## Installation
 
