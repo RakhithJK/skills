@@ -23,6 +23,26 @@ require_cmd() {
   command -v "$1" &>/dev/null || die "$1 is required but not installed. $2"
 }
 
+safe_load_creds() {
+  # Safely read KEY=VALUE pairs from a credential file without executing arbitrary shell
+  local file="$1"
+  [[ -f "$file" ]] || return 1
+  while IFS='=' read -r key value; do
+    # Skip comments and empty lines
+    [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
+    # Strip 'export ' prefix if present
+    key="${key#export }"
+    # Trim whitespace
+    key="$(echo "$key" | xargs)"
+    # Strip surrounding quotes from value
+    value="${value#\"}"
+    value="${value%\"}"
+    value="${value#\'}"
+    value="${value%\'}"
+    export "$key=$value"
+  done < "$file"
+}
+
 # ---------------------------------------------------------------------------
 # Find backup files
 # ---------------------------------------------------------------------------
@@ -72,7 +92,7 @@ upload_s3() {
 
   # Load credentials if available
   if [[ -f "$CRED_DIR/aws-credentials" ]]; then
-    source "$CRED_DIR/aws-credentials"
+    safe_load_creds "$CRED_DIR/aws-credentials"
   fi
 
   aws s3 cp "$BACKUP_FILE" "${bucket%/}/$FILENAME" --region "$region"
@@ -87,7 +107,7 @@ upload_r2() {
 
   # Load R2 credentials
   if [[ -f "$CRED_DIR/r2-credentials" ]]; then
-    source "$CRED_DIR/r2-credentials"
+    safe_load_creds "$CRED_DIR/r2-credentials"
   fi
 
   aws s3 cp "$BACKUP_FILE" "s3://${bucket}/$FILENAME" \
@@ -102,7 +122,7 @@ upload_b2() {
 
   # Load B2 credentials
   if [[ -f "$CRED_DIR/b2-credentials" ]]; then
-    source "$CRED_DIR/b2-credentials"
+    safe_load_creds "$CRED_DIR/b2-credentials"
   fi
 
   b2 upload-file "$bucket" "$BACKUP_FILE" "$FILENAME"

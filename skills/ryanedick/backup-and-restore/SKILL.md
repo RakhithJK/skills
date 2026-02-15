@@ -1,11 +1,33 @@
 ---
 name: backup
-description: Backup, restore, disaster recovery, and migration for OpenClaw. Encrypts and stores ~/.openclaw/ locally and to cloud destinations (S3, R2, B2, GCS, Google Drive, rsync).
+description: Backup, restore, disaster recovery, and migration for OpenClaw. Encrypts and stores ~/.openclaw/ locally and to cloud destinations (S3, R2, B2, GCS, Google Drive, rsync). Use when the user asks about backups, snapshots, disaster recovery, migration, or restoring OpenClaw from a backup.
+metadata:
+  {
+    "openclaw":
+      {
+        "requires": { "bins": ["gpg", "tar"], "optionalBins": ["jq", "aws", "gsutil", "gcloud", "b2", "rclone", "rsync"] },
+        "env": ["BACKUP_PASSPHRASE", "BACKUP_ENCRYPT", "BACKUP_RETAIN_DAYS", "BACKUP_STOP_GATEWAY", "BACKUP_DIR"],
+        "credentials": ["~/.openclaw/credentials/backup/backup-passphrase"],
+        "optionalCredentials": ["~/.openclaw/credentials/backup/aws-credentials", "~/.openclaw/credentials/backup/r2-credentials", "~/.openclaw/credentials/backup/b2-credentials", "~/.openclaw/credentials/backup/gcs-key.json", "~/.openclaw/credentials/backup/rclone.conf"],
+      },
+  }
 ---
 
 # Backup Skill
 
 Backup and restore your entire OpenClaw installation — config, credentials, workspace, memory, and skills.
+
+## Requirements
+
+**Required:** `gpg`, `tar` (typically pre-installed on Linux)
+
+**Optional** (for cloud uploads): `jq`, `aws` (S3/R2), `gsutil`/`gcloud` (GCS), `b2` (Backblaze), `rclone` (Google Drive), `rsync`
+
+**Environment variables:** `BACKUP_PASSPHRASE`, `BACKUP_ENCRYPT`, `BACKUP_RETAIN_DAYS`, `BACKUP_STOP_GATEWAY`, `BACKUP_DIR`
+
+**Credential files** (created during setup, stored at `~/.openclaw/credentials/backup/`):
+- `backup-passphrase` — required for encrypted full backups
+- `aws-credentials`, `r2-credentials`, `b2-credentials`, `gcs-key.json`, `rclone.conf` — optional, per cloud provider
 
 ## Quick Start
 
@@ -34,7 +56,7 @@ For guided setup, read `references/setup-guide.md` and follow the conversational
 Every run produces **two files**:
 
 1. **Full backup** (`*-full.tar.gz.gpg`) — everything including credentials, encrypted. For disaster recovery on the same or similar environment.
-2. **Workspace backup** (`*-workspace.tar.gz`) — just `~/.openclaw/workspace/` (memory, skills, files). Unencrypted, safe for any environment. This is the agent's brain.
+2. **Workspace backup** (`*-workspace.tar.gz.gpg`) — just `~/.openclaw/workspace/` (memory, skills, files), encrypted. Safe to restore on any environment without affecting gateway config. This is the agent's brain.
 
 ```bash
 # Default: creates both files
@@ -73,6 +95,8 @@ Saves to `~/backups/openclaw/`.
 ```
 
 Automatically detects workspace backups by filename. Creates a safety copy before extracting.
+
+**Note:** Workspace-only restores don't require a gateway restart — the agent picks up the new files on its next session. Full restores stop and replace the entire `~/.openclaw/` directory, so the gateway needs to be restarted afterward.
 
 ### test-backup.sh — Validate setup
 
@@ -120,7 +144,7 @@ Stored in `~/.openclaw/credentials/backup/`:
 
 - Backups are encrypted by default with AES-256 (GPG symmetric)
 - **Full-mode backups REQUIRE encryption** — the script will refuse to run without a passphrase when mode=full, since credentials would be stored in plaintext
-- Portable-mode backups exclude credentials and can optionally skip encryption
+- Workspace-only backups are also encrypted — they contain personal data (memory, notes, conversations)
 - The passphrase file at `~/.openclaw/credentials/backup/backup-passphrase` should be readable only by the owner (mode 600)
 - On first use, always walk the user through setting a passphrase (see `references/setup-guide.md`)
 - If no passphrase is set, default to portable mode — never store credentials unencrypted

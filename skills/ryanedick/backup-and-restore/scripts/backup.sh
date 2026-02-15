@@ -112,7 +112,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 2. Workspace-only backup (unencrypted, safe for any environment)
+# 2. Workspace-only backup (safe for any environment)
 # ---------------------------------------------------------------------------
 WS_NAME="openclaw-${HOSTNAME_SHORT}-${TIMESTAMP}-workspace.tar.gz"
 WS_PATH="$BACKUP_DIR/$WS_NAME"
@@ -120,6 +120,17 @@ WS_PATH="$BACKUP_DIR/$WS_NAME"
 log "Creating workspace-only backup..."
 tar czf "$WS_PATH" -C "$HOME" .openclaw/workspace/
 log "Workspace archive: $WS_PATH ($(du -h "$WS_PATH" | cut -f1))"
+
+if [[ "$ENCRYPT" == "true" ]]; then
+  log "Encrypting workspace backup..."
+  gpg --batch --yes --symmetric --cipher-algo AES256 \
+    --passphrase "$PASSPHRASE" \
+    --output "${WS_PATH}.gpg" \
+    "$WS_PATH"
+  rm -f "$WS_PATH"
+  WS_PATH="${WS_PATH}.gpg"
+  log "Encrypted: $WS_PATH ($(du -h "$WS_PATH" | cut -f1))"
+fi
 
 # ---------------------------------------------------------------------------
 # Prune old backups

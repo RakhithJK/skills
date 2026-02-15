@@ -17,6 +17,26 @@ CRED_DIR="$OPENCLAW_DIR/credentials/backup"
 log()  { echo "[restore] $(date '+%H:%M:%S') $*"; }
 die()  { echo "[restore] ERROR: $*" >&2; exit 1; }
 
+safe_load_creds() {
+  # Safely read KEY=VALUE pairs from a credential file without executing arbitrary shell
+  local file="$1"
+  [[ -f "$file" ]] || return 1
+  while IFS='=' read -r key value; do
+    # Skip comments and empty lines
+    [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
+    # Strip 'export ' prefix if present
+    key="${key#export }"
+    # Trim whitespace
+    key="$(echo "$key" | xargs)"
+    # Strip surrounding quotes from value
+    value="${value#\"}"
+    value="${value%\"}"
+    value="${value#\'}"
+    value="${value%\'}"
+    export "$key=$value"
+  done < "$file"
+}
+
 # ---------------------------------------------------------------------------
 # Parse arguments
 # ---------------------------------------------------------------------------
@@ -64,7 +84,7 @@ if [[ "$SOURCE" == s3://* ]]; then
   log "Downloading from S3..."
   LOCAL_FILE="$WORK_DIR/$(basename "$SOURCE")"
   if [[ -f "$CRED_DIR/aws-credentials" ]]; then
-    source "$CRED_DIR/aws-credentials"
+    safe_load_creds "$CRED_DIR/aws-credentials"
   fi
   aws s3 cp "$SOURCE" "$LOCAL_FILE"
 

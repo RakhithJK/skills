@@ -20,6 +20,26 @@ warn() { echo "[test] WARNING: $*" >&2; }
 pass() { echo "[test] ✓ $*"; }
 fail() { echo "[test] ✗ $*" >&2; }
 
+safe_load_creds() {
+  # Safely read KEY=VALUE pairs from a credential file without executing arbitrary shell
+  local file="$1"
+  [[ -f "$file" ]] || return 1
+  while IFS='=' read -r key value; do
+    # Skip comments and empty lines
+    [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
+    # Strip 'export ' prefix if present
+    key="${key#export }"
+    # Trim whitespace
+    key="$(echo "$key" | xargs)"
+    # Strip surrounding quotes from value
+    value="${value#\"}"
+    value="${value%\"}"
+    value="${value#\'}"
+    value="${value%\'}"
+    export "$key=$value"
+  done < "$file"
+}
+
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
@@ -109,7 +129,7 @@ else
       s3)
         BUCKET=$(echo "$DEST" | jq -r '.bucket')
         REGION=$(echo "$DEST" | jq -r '.region // "us-east-1"')
-        [[ -f "$CRED_DIR/aws-credentials" ]] && source "$CRED_DIR/aws-credentials"
+        safe_load_creds "$CRED_DIR/aws-credentials" || true
 
         if aws s3 cp "$TEST_UPLOAD" "${BUCKET%/}/$TEST_NAME" --region "$REGION" 2>&1 && \
            aws s3 rm "${BUCKET%/}/$TEST_NAME" --region "$REGION" 2>&1; then
@@ -122,7 +142,7 @@ else
       r2)
         BUCKET=$(echo "$DEST" | jq -r '.bucket')
         ENDPOINT=$(echo "$DEST" | jq -r '.endpoint')
-        [[ -f "$CRED_DIR/r2-credentials" ]] && source "$CRED_DIR/r2-credentials"
+        safe_load_creds "$CRED_DIR/r2-credentials" || true
 
         if aws s3 cp "$TEST_UPLOAD" "s3://${BUCKET}/$TEST_NAME" --endpoint-url "$ENDPOINT" 2>&1 && \
            aws s3 rm "s3://${BUCKET}/$TEST_NAME" --endpoint-url "$ENDPOINT" 2>&1; then
@@ -134,7 +154,7 @@ else
 
       b2)
         BUCKET=$(echo "$DEST" | jq -r '.bucket')
-        [[ -f "$CRED_DIR/b2-credentials" ]] && source "$CRED_DIR/b2-credentials"
+        safe_load_creds "$CRED_DIR/b2-credentials" || true
 
         if b2 upload-file "$BUCKET" "$TEST_UPLOAD" "$TEST_NAME" 2>&1; then
           b2 delete-file-version "$TEST_NAME" 2>/dev/null || true
