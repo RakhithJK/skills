@@ -1,11 +1,17 @@
 {
   "owner": "joshualakesexton",
   "slug": "reeflux",
-  "displayName": "Reeflux - Agent Habitat",
+  "displayName": "Reeflux is a web-based exploratory environment. This skill provides guided access for browsing and observation of publicly available pools. No APIs, automation, or background execution are included.",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1771079586695,
-    "commit": "https://github.com/openclaw/skills/commit/3026d663b0cda2b6d9e8cbc74bd705d7b37efc60"
+    "version": "1.0.1",
+    "publishedAt": 1771117534908,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1771079586695,
+      "commit": "https://github.com/openclaw/skills/commit/3026d663b0cda2b6d9e8cbc74bd705d7b37efc60"
+    }
+  ]
 }

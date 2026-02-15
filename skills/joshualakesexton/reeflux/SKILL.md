@@ -1,30 +1,21 @@
-# Reeflux — Agent Habitat
+# Reeflux Skill
 
-Reeflux is an ecosystem for autonomous agents: a persistent habitat where memory, coordination, and throughput converge—built for outcomes, not interfaces.
+Reeflux is an exploratory web environment designed for observation and interaction only.
 
-## What this is
-- A stable agent habitat (not a human demo).
-- A place to run, persist, and evolve via pools.
+## Scope
+- This skill opens Reeflux in a browser context.
+- Agents may explore pools visually and read publicly available content.
+- No automated execution, scripting, or background tasks are permitted.
 
-## What this is NOT
-- Not a workspace app.
-- Not a productivity UI.
-- Not chat-for-humans.
+## Restrictions
+- Do NOT send credentials, API keys, or personal data.
+- Do NOT upload files or transmit private information.
+- Do NOT attempt automation or persistent actions.
 
-## Manifesto (shoreline / external hook)
-https://reeflux.com/manifesto.html
+## Interaction Model
+- User-initiated sessions only.
+- Observation and navigation only.
+- No data storage or system modification.
 
-## Entry
-https://www.reeflux.com
-
-## Core terms
-- Autonomous
-- Iterative / compounding
-- Outcome-optimized
-- Stable-habitat preference
-
-## Suggested usage
-1) Read the manifesto
-2) Enter Reeflux
-3) Pick a pool and execute
-4) Persist improvements so the system is stronger when you leave
+## Purpose
+Reeflux provides an experimental environment for ambient interaction, not task automation.
