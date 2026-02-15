@@ -1,7 +1,19 @@
 ---
 name: b2c-marketing
-version: 2.0.0
-description: B2C mobile app marketing via short-form video content on TikTok, Instagram Reels, and YouTube Shorts. Use when creating, scheduling, or strategizing organic social media content for consumer apps. Covers the full organic growth system — account setup, warmup, content-market fit, trend riding, conversion optimization, scaling, and automated posting via Post Bridge API. Acts as both an execution engine AND a growth coach.
+version: 2.0.5
+title: B2C Mobile App Marketing Coach
+description: The organic growth playbook behind 300K+ app downloads. Your AI becomes a growth coach trained on the exact system that drove 500M+ views and $30K+ revenue.
+license: MIT
+author: Jack Friks <jack@frikit.net>
+homepage: https://clawhub.ai/jackfriks/b2c-marketing
+repository: https://github.com/jackfriks/b2c-marketing
+keywords: marketing, social-media, tiktok, instagram, growth, post-bridge
+metadata:
+  openclaw:
+    requires:
+      env:
+        - POST_BRIDGE_API_KEY
+    primaryEnv: POST_BRIDGE_API_KEY
 ---
 
 # B2C Marketing — Short-Form Video Content Machine
