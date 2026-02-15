@@ -141,11 +141,27 @@ echo ""
 echo "📈 BRECHA CAMBIARIA:"
 echo "===================="
 DIFF=$(echo "scale=2; $P2P_AVG - $BCV_RATE" | bc)
-# Brecha: cuánto % está el paralelo por encima del oficial (referencia 100% = BCV)
-GAP=$(echo "scale=2; ($P2P_AVG - $BCV_RATE) / $BCV_RATE * 100" | bc)
+
+# Brecha 1: referencia 100% = BCV (oficial)
+# Cuánto % está el paralelo por encima del oficial
+GAP_BCV_REF=$(echo "scale=2; ($P2P_AVG - $BCV_RATE) / $BCV_RATE * 100" | bc)
+
+# Brecha 2: referencia 100% = Paralelo
+# Cuánto % está el oficial debajo del paralelo
+GAP_P2P_REF=$(echo "scale=2; ($BCV_RATE - $P2P_AVG) / $P2P_AVG * 100" | bc)
 
 echo "Diferencia: $DIFF Bs"
-echo "Brecha: $GAP% (el paralelo está $GAP% encima del oficial)"
+echo ""
+echo "📊 Perspectiva 1 (Referencia: BCV = 100%):"
+echo "   Brecha: +$GAP_BCV_REF%"
+echo "   → El paralelo está $GAP_BCV_REF% más caro que el oficial"
+echo ""
+echo "📊 Perspectiva 2 (Referencia: Paralelo = 100%):"
+echo "   Brecha: $GAP_P2P_REF%"
+echo "   → El oficial está $(echo $GAP_P2P_REF | sed 's/-//')% más barato que el paralelo"
+echo ""
+echo "💡 Nota: Son dos formas de ver la misma brecha."
+echo "   En Venezuela se usa más la primera (BCV como referencia)."
 echo ""
 echo "=============================="
 echo "Actualizado: $(date '+%Y-%m-%d %H:%M')"
