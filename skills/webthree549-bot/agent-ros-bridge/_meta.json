@@ -3,9 +3,15 @@
   "slug": "agent-ros-bridge",
   "displayName": "Agent ROS Bridge",
   "latest": {
-    "version": "0.3.2",
-    "publishedAt": 1771153599023,
-    "commit": "https://github.com/openclaw/skills/commit/3850c57c16434059abb60f8b27bd112b51480198"
+    "version": "0.3.3",
+    "publishedAt": 1771167059007,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.3.2",
+      "publishedAt": 1771153599023,
+      "commit": "https://github.com/openclaw/skills/commit/3850c57c16434059abb60f8b27bd112b51480198"
+    }
+  ]
 }

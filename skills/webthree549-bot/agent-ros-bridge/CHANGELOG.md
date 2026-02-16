@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - None
 
-## [0.3.2] - 2025-02-15
+## [0.3.3] - 2025-02-15
 
 ### Release & Submission
 - Production release for ClawHub submission
