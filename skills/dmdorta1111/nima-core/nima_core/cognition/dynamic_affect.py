@@ -250,7 +250,7 @@ class DynamicAffectSystem:
                 # Apply decay based on time since last update
                 self._apply_temporal_decay()
                 
-            except Exception as e:
+            except (OSError, json.JSONDecodeError, KeyError, ValueError) as e:
                 logger.warning(f"Failed to load affect state: {e}")
                 self._current = AffectVector(self.baseline.values.copy(), source="baseline")
         else:
@@ -277,19 +277,29 @@ class DynamicAffectSystem:
                 "saved_at": datetime.now().isoformat(),
             }
             # Atomic write: write to temp file, then rename
+            tmp_path = None
             tmp = tempfile.NamedTemporaryFile(
                 mode='w', 
                 dir=str(self.state_file.parent), 
                 delete=False, 
                 suffix='.tmp'
             )
+            tmp_path = tmp.name
             json.dump(data, tmp, indent=2)
             tmp.flush()
             os.fsync(tmp.fileno())
             tmp.close()
-            os.rename(tmp.name, str(self.state_file))
-        except Exception as e:
+            os.rename(tmp_path, str(self.state_file))
+            tmp_path = None  # Successfully moved
+        except (OSError, IOError) as e:
             logger.warning(f"Failed to save affect state: {e}")
+        finally:
+            # Clean up temp file if rename failed
+            if tmp_path and Path(tmp_path).exists():
+                try:
+                    Path(tmp_path).unlink()
+                except OSError:
+                    pass  # Best effort
     
     def _apply_temporal_decay(self) -> None:
         """

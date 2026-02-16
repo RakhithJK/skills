@@ -402,7 +402,7 @@ class PersonalityManager:
                         finally:
                             if fcntl:
                                 fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-                except Exception as e:
+                except (OSError, json.JSONDecodeError, ValueError) as e:
                     logger.exception(f"Error loading personality state: {e}")
 
     def _save_state(self):
@@ -412,6 +412,7 @@ class PersonalityManager:
                 "current": self.current_profile_name,
                 "custom_profiles": {k: v for k, v in self.profiles.items() if k not in DEFAULT_PROFILES}
             }
+            tmp_path = None
             try:
                 # Atomic write: write to temp file, then rename
                 tmp = tempfile.NamedTemporaryFile(
@@ -420,13 +421,22 @@ class PersonalityManager:
                     delete=False,
                     suffix='.tmp'
                 )
+                tmp_path = tmp.name
                 json.dump(data, tmp, indent=2)
                 tmp.flush()
                 os.fsync(tmp.fileno())
                 tmp.close()
-                os.replace(tmp.name, str(self.state_file))
-            except Exception as e:
+                os.replace(tmp_path, str(self.state_file))
+                tmp_path = None  # Successfully moved
+            except (OSError, IOError) as e:
                 logger.error(f"Error saving personality state: {e}")
+            finally:
+                # Clean up temp file if replace failed
+                if tmp_path and Path(tmp_path).exists():
+                    try:
+                        Path(tmp_path).unlink()
+                    except OSError:
+                        pass  # Best effort
 
     def get_current_profile(self) -> Dict[str, Any]:
         """Get the currently active profile configuration."""

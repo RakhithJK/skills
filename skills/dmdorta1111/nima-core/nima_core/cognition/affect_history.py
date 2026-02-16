@@ -103,7 +103,8 @@ class AffectHistory:
         self.max_snapshots = max_snapshots
         self.max_age_hours = max_age_hours
         self.persist_dir = persist_dir
-        self.identity_name = identity_name
+        # Sanitize identity_name to prevent path traversal attacks
+        self.identity_name = self._sanitize_filename(identity_name)
         self._lock = threading.RLock()
         self._snapshots: List[AffectSnapshot] = []
         
@@ -111,6 +112,37 @@ class AffectHistory:
         if persist_dir:
             persist_dir.mkdir(parents=True, exist_ok=True)
             self._load()
+    
+    @staticmethod
+    def _sanitize_filename(name: str, max_length: int = 100) -> str:
+        """
+        Sanitize a string for safe use in filenames.
+        
+        Prevents path traversal attacks and special character issues.
+        
+        Args:
+            name: Input string (e.g., agent identity name)
+            max_length: Maximum allowed length
+            
+        Returns:
+            Sanitized filename-safe string
+        """
+        import re
+        # Remove path separators and parent directory references
+        name = name.replace('/', '_').replace('\\', '_').replace('..', '')
+        # Keep only alphanumeric, dash, underscore
+        name = re.sub(r'[^a-zA-Z0-9_-]', '_', name)
+        # Collapse multiple underscores
+        name = re.sub(r'_+', '_', name)
+        # Remove leading/trailing underscores
+        name = name.strip('_')
+        # Ensure non-empty (fallback to 'default')
+        if not name:
+            name = 'default'
+        # Truncate if too long
+        if len(name) > max_length:
+            name = name[:max_length]
+        return name
     
     def record(
         self,
@@ -183,18 +215,29 @@ class AffectHistory:
                 "snapshots": [s.to_dict() for s in snapshots],
                 "saved_at": time.time()
             }
-            # Atomic write
+            # Atomic write with proper temp file cleanup
             import tempfile
-            with tempfile.NamedTemporaryFile(
-                mode='w', 
-                dir=self.persist_dir, 
-                delete=False,
-                suffix='.json'
-            ) as f:
-                json.dump(data, f, indent=2)
-                temp_path = Path(f.name)
-            temp_path.replace(path)
-        except Exception as e:
+            temp_path = None
+            try:
+                with tempfile.NamedTemporaryFile(
+                    mode='w', 
+                    dir=self.persist_dir, 
+                    delete=False,
+                    suffix='.json'
+                ) as f:
+                    json.dump(data, f, indent=2)
+                    temp_path = Path(f.name)
+                # Atomic rename
+                temp_path.replace(path)
+                temp_path = None  # Successfully moved, don't delete
+            finally:
+                # Clean up temp file if rename failed
+                if temp_path and temp_path.exists():
+                    try:
+                        temp_path.unlink()
+                    except OSError:
+                        pass  # Best effort cleanup
+        except (OSError, IOError, TypeError, ValueError) as e:
             logger.warning(f"Failed to save affect history: {e}")
     
     def _load(self) -> None:

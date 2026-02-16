@@ -1,19 +1,8 @@
 ---
 name: nima-core
 description: Neural Integrated Memory Architecture — Graph-based memory with LadybugDB, semantic search, dynamic affect, lazy recall. Production-ready for AI agents.
-version: 2.0.3
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🧠",
-        "requires":
-          {
-            "bins": ["python3", "node"],
-            "env": ["NIMA_EMBEDDER", "VOYAGE_API_KEY", "NIMA_DATA_DIR"],
-          },
-      },
-  }
+version: 2.0.5
+metadata: {"clawdbot":{"emoji":"🧠","requires":{"bins":["python3","node"],"env":["NIMA_EMBEDDER","VOYAGE_API_KEY","NIMA_DATA_DIR"]}}}
 ---
 
 # NIMA Core 2.0
@@ -204,6 +193,13 @@ The `install.sh` script:
 ---
 
 ## Changelog
+
+### v2.0.3 — Security Hardening (Feb 15, 2026)
+- **Security:** Fixed path traversal vulnerability in affect_history.py (CRITICAL)
+- **Security:** Fixed temp file resource leaks in 3 files (HIGH)
+- **Fixed:** Corrected non-existent json.JSONEncodeError → TypeError/ValueError
+- **Improved:** Exception handling - replaced 5 generic catches with specific types
+- **Quality:** Better error visibility and debugging throughout
 
 ### v2.0.1 — Thread Safety + Metadata
 - **Fixed:** Thread-safe singleton with double-checked locking
