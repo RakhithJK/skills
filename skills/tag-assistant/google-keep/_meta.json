@@ -1,0 +1,11 @@
+{
+  "owner": "tag-assistant",
+  "slug": "google-keep",
+  "displayName": "Google Keep",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1771174842257,
+    "commit": null
+  },
+  "history": []
+}
