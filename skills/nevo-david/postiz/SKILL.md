@@ -5,6 +5,18 @@ homepage: https://docs.postiz.com/public-api/introduction
 metadata: {"clawdbot":{"emoji":"🌎","requires":{"bins":[],"env":["POSTIZ_API_URL","POSTIZ_API_KEY"]}}}
 ---
 
+## Install Postiz if it doesn't exist
+
+```bash
+npm install -g postiz
+# or
+pnpm install -g postiz
+```
+
+npm release: https://www.npmjs.com/package/postiz
+---
+
+
 | Property | Value |
 |----------|-------|
 | **name** | postiz |
@@ -22,6 +34,7 @@ The fundamental pattern for using Postiz CLI:
 3. **Prepare** - Upload media files if needed
 4. **Post** - Create posts with content, media, and platform-specific settings
 5. **Analyze** - Track performance with platform and post-level analytics
+6. **Resolve** - If analytics returns `{"missing": true}`, run `posts:missing` to list provider content, then `posts:connect` to link it
 
 ```bash
 # 1. Discover
@@ -40,6 +53,10 @@ postiz posts:create -c "Content" -m "image.jpg" -i "<integration-id>"
 # 5. Analyze
 postiz analytics:platform <integration-id> -d 30
 postiz analytics:post <post-id> -d 7
+
+# 6. Resolve (if analytics returns {"missing": true})
+postiz posts:missing <post-id>
+postiz posts:connect <post-id> --release-id "<content-id>"
 ```
 
 ---
@@ -134,6 +151,39 @@ postiz analytics:post <post-id> -d 30
 ```
 
 Returns an array of metrics (e.g. Followers, Impressions, Likes, Comments) with daily data points and percentage change over the period.
+
+**⚠️ IMPORTANT: Missing Release ID Handling**
+
+If `analytics:post` returns `{"missing": true}` instead of an analytics array, the post was published but the platform didn't return a usable post ID. You **must** resolve this before analytics will work:
+
+```bash
+# 1. analytics:post returns {"missing": true}
+postiz analytics:post <post-id>
+
+# 2. Get available content from the provider
+postiz posts:missing <post-id>
+# Returns: [{"id": "7321456789012345678", "url": "https://...cover.jpg"}, ...]
+
+# 3. Connect the correct content to the post
+postiz posts:connect <post-id> --release-id "7321456789012345678"
+
+# 4. Now analytics will work
+postiz analytics:post <post-id>
+```
+
+### Connecting Missing Posts
+
+Some platforms (e.g. TikTok) don't return a post ID immediately after publishing. When this happens, the post's `releaseId` is set to `"missing"` and analytics are unavailable until resolved.
+
+```bash
+# List recent content from the provider for a post with missing release ID
+postiz posts:missing <post-id>
+
+# Connect a post to its published content
+postiz posts:connect <post-id> --release-id "<content-id>"
+```
+
+Returns an empty array if the provider doesn't support this feature or if the post doesn't have a missing release ID.
 
 ### Media Upload
 
@@ -268,31 +318,28 @@ postiz posts:create --json campaign.json
 
 ### Pattern 5: Validate Settings Before Posting
 
-```javascript
-const { execSync } = require('child_process');
+```bash
+#!/bin/bash
 
-function validateAndPost(content, integrationId, settings) {
-  // Get integration settings
-  const settingsResult = execSync(
-    `postiz integrations:settings ${integrationId}`,
-    { encoding: 'utf-8' }
-  );
-  const schema = JSON.parse(settingsResult);
+INTEGRATION_ID="twitter-123"
+CONTENT="Your post content here"
 
-  // Check character limit
-  if (content.length > schema.output.maxLength) {
-    console.warn(`Content exceeds ${schema.output.maxLength} chars, truncating...`);
-    content = content.substring(0, schema.output.maxLength - 3) + '...';
-  }
+# Get integration settings and extract max length
+SETTINGS_JSON=$(postiz integrations:settings "$INTEGRATION_ID")
+MAX_LENGTH=$(echo "$SETTINGS_JSON" | jq '.output.maxLength')
 
-  // Create post
-  const result = execSync(
-    `postiz posts:create -c "${content}" -s "2024-12-31T12:00:00Z" --settings '${JSON.stringify(settings)}' -i "${integrationId}"`,
-    { encoding: 'utf-8' }
-  );
+# Check character limit and truncate if needed
+if [ ${#CONTENT} -gt "$MAX_LENGTH" ]; then
+  echo "Content exceeds $MAX_LENGTH chars, truncating..."
+  CONTENT="${CONTENT:0:$((MAX_LENGTH - 3))}..."
+fi
 
-  return JSON.parse(result);
-}
+# Create post with settings
+postiz posts:create \
+  -c "$CONTENT" \
+  -s "2024-12-31T12:00:00Z" \
+  --settings '{"key": "value"}' \
+  -i "$INTEGRATION_ID"
 ```
 
 ### Pattern 6: Batch Scheduling
@@ -325,31 +372,30 @@ done
 
 ### Pattern 7: Error Handling & Retry
 
-```javascript
-const { execSync } = require('child_process');
+```bash
+#!/bin/bash
 
-async function postWithRetry(content, integrationId, date, maxRetries = 3) {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const result = execSync(
-        `postiz posts:create -c "${content}" -s "${date}" -i "${integrationId}"`,
-        { encoding: 'utf-8', stdio: 'pipe' }
-      );
-      console.log('✅ Post created successfully');
-      return JSON.parse(result);
-    } catch (error) {
-      console.error(`❌ Attempt ${attempt} failed: ${error.message}`);
+CONTENT="Your post content"
+INTEGRATION_ID="twitter-123"
+DATE="2024-12-31T12:00:00Z"
+MAX_RETRIES=3
 
-      if (attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-        console.log(`⏳ Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      } else {
-        throw new Error(`Failed after ${maxRetries} attempts`);
-      }
-    }
-  }
-}
+for attempt in $(seq 1 $MAX_RETRIES); do
+  if postiz posts:create -c "$CONTENT" -s "$DATE" -i "$INTEGRATION_ID"; then
+    echo "Post created successfully"
+    break
+  else
+    echo "Attempt $attempt failed"
+    if [ "$attempt" -lt "$MAX_RETRIES" ]; then
+      DELAY=$((2 ** attempt))
+      echo "Retrying in ${DELAY}s..."
+      sleep "$DELAY"
+    else
+      echo "Failed after $MAX_RETRIES attempts"
+      exit 1
+    fi
+  fi
+done
 ```
 
 ---
@@ -583,7 +629,6 @@ postiz posts:create \
 **Ready-to-use examples:**
 - [examples/EXAMPLES.md](./examples/EXAMPLES.md) - Comprehensive examples
 - [examples/basic-usage.sh](./examples/basic-usage.sh) - Shell script basics
-- [examples/ai-agent-example.js](./examples/ai-agent-example.js) - Node.js agent
 - [examples/post-with-comments.json](./examples/post-with-comments.json) - Threading example
 - [examples/multi-platform-with-settings.json](./examples/multi-platform-with-settings.json) - Campaign example
 - [examples/youtube-video.json](./examples/youtube-video.json) - YouTube with tags
@@ -604,6 +649,7 @@ postiz posts:create \
 8. **Character limits** - Each platform has different limits, check `maxLength` in settings
 9. **Required settings** - Some platforms require specific settings (Reddit needs title, YouTube needs title)
 10. **Media MIME types** - CLI auto-detects from file extension, ensure correct extension
+11. **Analytics returns `{"missing": true}`** - The post was published but the platform didn't return a post ID. Run `posts:missing <post-id>` to get available content, then `posts:connect <post-id> --release-id "<id>"` to link it. Analytics will work after connecting.
 
 ---
 
@@ -636,6 +682,9 @@ postiz analytics:platform <id>                    # Platform analytics (7 days)
 postiz analytics:platform <id> -d 30             # Platform analytics (30 days)
 postiz analytics:post <id>                        # Post analytics (7 days)
 postiz analytics:post <id> -d 30                 # Post analytics (30 days)
+# If analytics:post returns {"missing": true}, resolve it:
+postiz posts:missing <id>                         # List provider content
+postiz posts:connect <id> --release-id "<rid>"    # Connect content to post
 
 # Help
 postiz --help                                     # Show help

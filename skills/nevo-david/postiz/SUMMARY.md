@@ -27,8 +27,7 @@ apps/cli/
 │       └── upload.ts             # Media upload
 │
 ├── examples/                     # Usage examples
-│   ├── basic-usage.sh            # Bash example
-│   └── ai-agent-example.js       # AI agent example
+│   └── basic-usage.sh            # Bash example
 │
 ├── Documentation (5 files)
 │   ├── README.md                 # Main documentation
@@ -157,14 +156,10 @@ postiz upload ./image.png
 
 ### AI Agent Usage
 
-```javascript
-const { execSync } = require('child_process');
-
-function postToSocial(content) {
-  return execSync(`postiz posts:create -c "${content}"`, {
-    env: { ...process.env, POSTIZ_API_KEY: 'your_key' }
-  });
-}
+```bash
+# Post to social media
+export POSTIZ_API_KEY="your_key"
+postiz posts:create -c "Your content here"
 ```
 
 ## ✨ Example Files
@@ -173,11 +168,6 @@ function postToSocial(content) {
    - Shell script demonstration
    - Complete workflow example
    - Error handling
-
-2. **ai-agent-example.js**
-   - Node.js agent implementation
-   - Batch post creation
-   - JSON parsing
 
 ## 🧪 Testing
 
