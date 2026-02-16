@@ -3,11 +3,16 @@
   "slug": "openclaw-1ly-payments",
   "displayName": "OpenClaw 1ly Payments",
   "latest": {
-    "version": "1.0.1",
-    "publishedAt": 1770192432966,
-    "commit": "https://github.com/clawdbot/skills/commit/54d93c5aa4aa1568842cd937c249ec3d73ff8dcf"
+    "version": "1.0.3",
+    "publishedAt": 1771262874467,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.1",
+      "publishedAt": 1770192432966,
+      "commit": "https://github.com/clawdbot/skills/commit/54d93c5aa4aa1568842cd937c249ec3d73ff8dcf"
+    },
     {
       "version": "1.0.0",
       "publishedAt": 1769977688119,
