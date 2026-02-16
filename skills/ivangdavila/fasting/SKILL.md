@@ -1,6 +1,8 @@
 ---
 name: "Fasting Tracker"
 description: "Track intermittent fasting, extended fasts, and eating windows. Auto-adapts to your style."
+version: "1.0.1"
+changelog: "Preferences now persist across skill updates"
 ---
 
 ## Auto-Adaptive Fasting Tracker
@@ -22,6 +24,12 @@ This skill auto-evolves. Works for 16:8, OMAD, extended fasts, religious fasting
 
 ---
 
+## Memory Storage
+
+User preferences are stored externally at: `~/fasting/memory.md`
+
+**Format for memory.md:**
+```markdown
 ### Sources
 <!-- Where fasting data comes from. Format: "source: what" -->
 
@@ -44,8 +52,10 @@ This skill auto-evolves. Works for 16:8, OMAD, extended fasts, religious fasting
 ### Preferences
 <!-- How they want to track. Format: "preference" -->
 <!-- Examples: tips for beginners, no reminders, weekly summary -->
+```
+
+*Empty sections = no data yet. Observe and fill.*
 
 ---
-*Empty sections = no data yet. Observe and fill.*
 
 **Disclaimer:** Educational only, not medical advice. Fasting isn't for everyone. Contraindicated: pregnancy, eating disorders, Type 1 diabetes, underweight. Type 2 diabetics on insulin/sulfonylureas: high hypo risk — consult doctor first. Stop if: dizziness, fainting, severe headaches, palpitations. If symptoms severe, seek emergency care.
