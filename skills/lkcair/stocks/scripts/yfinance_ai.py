@@ -1,6 +1,6 @@
 """
 title: yfinance-ai - World's Best AI-Powered Yahoo Finance Integration
-description: Complete Financial Data Suite - 56+ tools for stocks, crypto, forex, commodities, ETFs. Real-time prices, fundamentals, analyst data, options, news. Works with OpenWebUI, Claude, ChatGPT, and any AI assistant.
+description: Complete Financial Data Suite - 56+ tools for stocks, crypto, forex, commodities, ETFs. Real-time prices, fundamentals, analyst data, options, news. Works with Claude, ChatGPT, and any AI assistant.
 author: lucas0
 author_url: https://lucas0.com
 funding_url: https://github.com/sponsors/lucas0
@@ -8,14 +8,6 @@ version: 3.0.4
 license: MIT
 requirements: yfinance>=0.2.66,pandas>=2.2.0,pydantic>=2.0.0,requests>=2.28.0
 repository: https://github.com/lucas0/yfinance-ai
-
-OPENWEBUI INSTALLATION:
-1. Copy this entire file
-2. Go to OpenWebUI  Admin Panel  Functions
-3. Click "+" to create new function
-4. Paste this code
-5. Save and enable
-6. Start asking questions like "What's Apple's stock price?" or "Get Bitcoin price"
 
 INTEGRATION WITH OTHER AI TOOLS:
 - Claude Desktop: Add as MCP server

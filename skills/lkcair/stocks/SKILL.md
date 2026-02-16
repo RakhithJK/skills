@@ -1,97 +1,131 @@
-# Stocks and Financial Data CLI
+---
+name: stocks
+description: 56+ financial data tools via Yahoo Finance. Auto-routes stock prices, fundamentals, earnings, dividends, options, crypto, forex, commodities, news, and more.
+---
 
-**Description:** Provides access to real-time financial data from Yahoo Finance. Handles stock prices, fundamentals, earnings, dividends, options, cryptocurrency, forex, commodities, and news using a comprehensive set of tools.
+# Stocks Skill
+
+56+ financial tools via Yahoo Finance. Prices, fundamentals, earnings, options, crypto, forex, commodities, news.
+
+## Setup
+
+Run from the skill directory:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python3 -m pip install -r requirements.txt
+```
+
+> **Windows:** use `.venv\Scripts\python3` instead of `.venv/bin/python3`.
+
+## AGNOSTIC OS / One-shot Design ( Goals )
+- This skill is designed to be agnostic to OS and execution environment.
+- It loads only essential context on first use and uses a single-shot interaction pattern for reliability.
+- Basic usage pattern provided in TOOLS.md and the All Functions list in SKILL.md body.
+
+## Quotation / Command Execution Reliability (common pitfall)
+- If a command invocation uses complex shell quoting, it may fail in various environments. Use a here-doc style or a tiny helper script to avoid escaping issues.
+- Prefer running Python via the venv explicitly and keep Python code separate when possible.
+- Example robust pattern:
+  - Here-doc approach (works well in most shells):
+
+```bash
+/venv/stocks/bin/python3 - << 'PY'
+import asyncio, sys
+sys.path.insert(0, '.')
+from yfinance_ai import Tools
+
+t = Tools()
+async def main():
+    r = await t.get_key_ratios(ticker='UNH')
+    print(r)
+asyncio.run(main())
+PY
+```
+- If needed, wrap the call in a small Python script file in the workspace and execute that script to avoid inline quoting entirely.
+- Ensure the virtual environment actually contains the required packages (e.g., pydantic) and install them if missing.
+
+## Agent Quick-Start
+
+After setup, copy the template below into your agent's `TOOLS.md` (or whichever file your framework injects into every session). This is the single most important step — if the agent can see the invocation pattern, it will work every time.
+
+**Replace `SKILL_DIR`** with the absolute path to this skill's directory (e.g. where `scripts/` and `.venv/` live).
+
+````markdown
+# Stocks Skill
+
+## Usage
+
+```bash
+cd SKILL_DIR/scripts && SKILL_DIR/.venv/bin/python3 -c "
+import asyncio, sys
+sys.path.insert(0, '.')
+from yfinance_ai import Tools
+t = Tools()
+async def main():
+    result = await t.METHOD(ARGS)
+    print(result)
+asyncio.run(main())
+" 2>/dev/null
+```
+
+Replace METHOD(ARGS) with any call below. Suppress stderr (2>/dev/null) to hide warnings.
+
+## Common Calls
+
+| Need | Method |
+|---|---|
+| Stock price | `get_stock_price(ticker='AAPL')` |
+| Key ratios (P/E, ROE, margins) | `get_key_ratios(ticker='AAPL')` |
+| Company overview | `get_company_overview(ticker='AAPL')` |
+| Full deep-dive | `get_complete_analysis(ticker='AAPL')` |
+| Compare stocks | `compare_stocks(tickers='AAPL,MSFT,GOOGL')` |
+| Crypto | `get_crypto_price(symbol='BTC')` |
+| Forex | `get_forex_rate(pair='EURUSD')` |
+| Commodities | `get_commodity_price(commodity='gold')` |
+| News | `get_stock_news(ticker='AAPL')` |
+| Market indices | `get_market_indices()` |
+| Dividends | `get_dividends(ticker='AAPL')` |
+| Earnings | `get_earnings_history(ticker='AAPL')` |
+| Analyst recs | `get_analyst_recommendations(ticker='AAPL')` |
+| Options chain | `get_options_chain(ticker='SPY')` |
+| Market open/closed | `get_market_status()` |
+
+## Routing
+
+- Price / quote → `get_stock_price`
+- Ratios / valuation → `get_key_ratios`
+- "Tell me about" → `get_company_overview`
+- Deep dive → `get_complete_analysis`
+- Compare → `compare_stocks`
+- Crypto → `get_crypto_price`
+- Forex → `get_forex_rate`
+- Commodities → `get_commodity_price`
+- News → `get_stock_news`
+````
 
 ---
 
-## AI Agent Usage
+## All Functions
 
-This section describes how AI agents can programmatically use the stock skill's functions.
+See `skill.json` for the full list of 56+ functions, parameters, and trigger keywords. Categories:
 
-**Prerequisites:**
-*   Python 3 must be installed and accessible.
-*   The `yfinance_ai` Python library must be installed in the virtual environment.
+- **Quotes**: `get_stock_price`, `get_stock_quote`, `get_fast_info`, `get_historical_data`
+- **Company**: `get_company_info`, `get_company_overview`, `get_company_officers`
+- **Financials**: `get_income_statement`, `get_balance_sheet`, `get_cash_flow`, `get_key_ratios`, `get_financial_summary`
+- **Earnings**: `get_earnings_history`, `get_earnings_dates`, `get_analyst_estimates`, `get_eps_trend`
+- **Analyst**: `get_analyst_recommendations`, `get_analyst_price_targets`, `get_upgrades_downgrades`
+- **Ownership**: `get_institutional_holders`, `get_insider_transactions`, `get_major_holders`
+- **Dividends**: `get_dividends`, `get_stock_splits`, `get_corporate_actions`
+- **Options**: `get_options_chain`, `get_options_expirations`
+- **Market**: `get_market_indices`, `get_sector_performance`, `get_market_status`
+- **Crypto/Forex/Commodities**: `get_crypto_price`, `get_forex_rate`, `get_commodity_price`
+- **Compare**: `compare_stocks`, `get_peer_comparison`, `get_historical_comparison`
+- **News**: `get_stock_news`, `get_sec_filings`
+- **Utility**: `search_ticker`, `validate_ticker`, `run_self_test`
 
-**Invocation Guidance:**
+## Notes
 
-The stock skill executes a Python script (`scripts/yfinance_ai.py`) which relies on a virtual environment. The exact commands for invocation depend on your operating system and how the virtual environment and scripts are configured.
-
-Refer to your `skill.json` file for the precise paths to the virtual environment and script directory. The `venv` field in `skill.json` specifies the virtual environment path, and the `invocation` field provides a command template.
-
-Below is a conceptual example of how to invoke a function. You will need to adapt the paths to match your system configuration.
-
-**Example: Fetching Apple Stock Price**
-
-1.  **Identify Paths:**
-    *   Find the path to your Python interpreter within the virtual environment (e.g., check `skill.json`'s `venv` field).
-    *   Locate the `scripts` directory for this skill (e.g., relative to the skill's workspace folder).
-
-2.  **Construct Command:**
-    Use the following structure, replacing placeholder paths with your actual system paths:
-
-    ```bash
-    # Example command structure (adjust paths as needed for your OS and setup):
-    # cd <path_to_skill_scripts_directory> && <path_to_venv_python> -c "
-    # import asyncio, sys
-    # sys.path.insert(0, '.') # Add current directory (scripts) to Python path
-    # from yfinance_ai import Tools
-    # t = Tools()
-    # async def main():
-    #     # Replace 'method' with the desired function (e.g., get_stock_price)
-    #     # Replace '{args}' with function parameters (e.g., ticker='AAPL')
-    #     result = await t.method({args})
-    #     print(result)
-    # asyncio.run(main())
-    # " 2>/dev/null
-
-    # Specific example for AAPL using placeholder paths:
-    # cd /path/to/your/workspace/skills/stocks/scripts && /path/to/your/venv/stocks/bin/python3 -c "
-    # import asyncio, sys
-    # sys.path.insert(0, '.')
-    # from yfinance_ai import Tools
-    # t = Tools()
-    # async def main():
-    #     result = await t.get_stock_price(ticker='AAPL')
-    #     print(result)
-    # asyncio.run(main())
-    # " 2>/dev/null
-    ```
-
-**Available Functions:**
-Consult `skill.json` for a complete list of functions, parameters, and triggers. Common functions include:
-*   `get_stock_price(ticker: str)`: Retrieves current stock price and key metrics.
-*   `get_complete_analysis(ticker: str)`: Provides comprehensive analysis (price, fundamentals, earnings, ratings, news).
-*   `compare_stocks(tickers: str)`: Compares multiple stocks side-by-side.
-*   `get_crypto_price(symbol: str)`: Fetches cryptocurrency data.
-*   `get_forex_rate(pair: str)`: Provides foreign exchange rates.
-
----
-
-## Human User Usage
-
-Welcome! This skill provides easy access to financial information.
-
-**How to Use:**
-
-Ask questions about stocks, cryptocurrencies, forex, or commodities using natural language.
-
-Examples:
-*   "What is the price of Apple stock (AAPL)?"
-*   "Show me UnitedHealth Group's (UNH) analysis."
-*   "Compare Google (GOOGL) and Microsoft (MSFT)."
-*   "What is the current price of Bitcoin?"
-*   "What is the EUR to USD exchange rate?"
-
-The skill will interpret your request and fetch the relevant data.
-
-**Key Features:**
-*   Real-time market data
-*   Company profiles and financial summaries
-*   Analyst recommendations and price targets
-*   Earnings information
-*   Cryptocurrency, Forex, and Commodity prices
-
-**Notes:**
-*   Financial data is sourced from Yahoo Finance.
-*   There may be slight delays in real-time data.
-*   For technical invocation guidance, refer to the AI Agent Usage section.
+- Data from Yahoo Finance. Slight real-time delays possible.
+- All functions are async — the `asyncio.run()` wrapper handles this.
+- Works on Linux, macOS, and Windows (adjust venv path for Windows).
