@@ -25,6 +25,38 @@ source .venv/bin/activate
 pip install -e .
 ```
 
+## 🌐 Portal (v3)
+
+Run the portal manually (nothing auto-starts in the background):
+
+```bash
+./start_portal.sh
+```
+
+- Backend binds to `127.0.0.1:8000`
+- Frontend binds to `127.0.0.1:5173`
+- Backend auth strictly uses `RESEARCHVAULT_PORTAL_TOKEN`.
+- `./start_portal.sh` loads token from `.portal_auth` (or generates it) and exports `RESEARCHVAULT_PORTAL_TOKEN` before launching the backend.
+- Use either host for login:
+  - `http://127.0.0.1:5173/#token=<token>`
+  - `http://localhost:5173/#token=<token>`
+- Tokenized URLs are hidden in terminal output by default; read `.portal_auth` (chmod 600) to paste the token manually, or set `RESEARCHVAULT_PORTAL_SHOW_TOKEN=1` to print tokenized URLs.
+- Allowed DB roots are constrained by `RESEARCHVAULT_PORTAL_ALLOWED_DB_ROOTS` (default `~/.researchvault,/tmp`).
+- OpenClaw workspace DB discovery and selection are disabled in Portal mode (paths under `~/.openclaw/workspace` are rejected).
+- Search provider secrets are env-only (read-only in Portal): configure `BRAVE_API_KEY`, `SERPER_API_KEY`, and/or `SEARXNG_BASE_URL` in the backend process environment.
+- Provider secrets are never injected by Portal into vault subprocesses.
+
+Process controls:
+
+```bash
+./start_portal.sh --status
+./start_portal.sh --stop
+```
+
+Ingest SSRF behavior matches CLI defaults:
+- Private/local/link-local targets are blocked by default.
+- Portal checkbox **Allow private networks** maps to CLI `--allow-private-networks`.
+
 ## 🛠️ Key Workflows
 
 ### 1. Project Management

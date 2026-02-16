@@ -5,10 +5,33 @@ import json
 import sys
 import time
 from functools import wraps
+from pathlib import Path
+from urllib.parse import quote
 
 # Path to the research database
 DEFAULT_DB_PATH = os.path.expanduser("~/.researchvault/research_vault.db")
-LEGACY_DB_PATH = os.path.expanduser("~/.openclaw/workspace/memory/research_vault.db")
+
+# Cache the resolved path per-process to avoid repeated heuristic probing.
+_CACHED_DB_PATH = None
+_CACHED_DB_ENV = None
+LOCAL_DB_FILENAME = "research_vault.db"
+
+def _sqlite_uri_rw(path: str) -> str:
+    ap = str(Path(path).resolve())
+    return "file:" + quote(ap, safe="/") + "?mode=rwc"
+
+def _local_fallback_db() -> str:
+    return os.path.abspath(os.path.join(os.getcwd(), LOCAL_DB_FILENAME))
+
+def _dir_writable(path: str) -> bool:
+    try:
+        test_path = os.path.join(path, f".vault_write_test_{uuid.uuid4().hex}")
+        with open(test_path, "w", encoding="utf-8") as handle:
+            handle.write("ok")
+        os.remove(test_path)
+        return True
+    except Exception:
+        return False
 
 def retry_on_lock(retries=5, delay=0.1):
     """Decorator to retry database operations if the database is locked."""
@@ -30,20 +53,56 @@ def retry_on_lock(retries=5, delay=0.1):
     return decorator
 
 def get_db_path():
-    """Resolve the database path with env override and legacy fallback."""
+    """Resolve the database path with env override and default local-first location."""
+    global _CACHED_DB_PATH, _CACHED_DB_ENV
+
     env_path = os.environ.get("RESEARCHVAULT_DB")
     if env_path:
-        return os.path.expanduser(env_path)
-    if os.path.exists(LEGACY_DB_PATH):
-        return LEGACY_DB_PATH
-    return DEFAULT_DB_PATH
+        expanded = os.path.expanduser(env_path)
+        _CACHED_DB_ENV = env_path
+        _CACHED_DB_PATH = expanded
+        return expanded
+
+    if _CACHED_DB_PATH and _CACHED_DB_ENV is None:
+        return _CACHED_DB_PATH
+
+    default = os.path.expanduser(DEFAULT_DB_PATH)
+
+    default_exists = os.path.exists(default)
+
+    if default_exists:
+        _CACHED_DB_ENV = None
+        _CACHED_DB_PATH = default
+        return default
+
+    _CACHED_DB_ENV = None
+    _CACHED_DB_PATH = default
+    return default
 
 def get_connection():
     """Returns a connection to the SQLite database with a busy timeout."""
+    global _CACHED_DB_PATH, _CACHED_DB_ENV
     db_path = get_db_path()
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    # 30 second timeout for busy/locked database
-    return sqlite3.connect(db_path, timeout=30.0)
+    env_path = os.environ.get("RESEARCHVAULT_DB")
+    try:
+        db_dir = os.path.dirname(db_path) or "."
+        os.makedirs(db_dir, exist_ok=True)
+        if not _dir_writable(db_dir):
+            raise PermissionError(f"DB directory not writable: {db_dir}")
+        # 30 second timeout for busy/locked database
+        return sqlite3.connect(_sqlite_uri_rw(db_path), uri=True, timeout=30.0)
+    except (sqlite3.OperationalError, OSError, PermissionError):
+        if env_path:
+            raise
+        fallback = _local_fallback_db()
+        fallback_dir = os.path.dirname(fallback) or "."
+        os.makedirs(fallback_dir, exist_ok=True)
+        if not _dir_writable(fallback_dir):
+            raise
+        conn = sqlite3.connect(_sqlite_uri_rw(fallback), uri=True, timeout=30.0)
+        _CACHED_DB_ENV = None
+        _CACHED_DB_PATH = fallback
+        return conn
 
 def init_db():
     """Initialize the database and run versioned migrations."""

@@ -5,38 +5,77 @@ homepage: https://github.com/lraivisto/ResearchVault
 disable-model-invocation: true
 user-invocable: true
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🦞",
-        "requires": { "python": ">=3.13" },
-        "install":
-          [
-            {
-              "id": "vault-venv",
-              "kind": "exec",
-              "command": "python3 -m venv .venv && . .venv/bin/activate && pip install -e .",
-              "label": "Initialize ResearchVault (Standard)",
-            },
-          ],
-        "config":
-          {
-            "env":
-              {
-                "RESEARCHVAULT_DB":
-                  {
-                    "description": "Optional: Custom path to the SQLite database file.",
-                    "required": false,
-                  },
-                "BRAVE_API_KEY":
-                  {
-                    "description": "Optional: API key for live web search and verification. Set in skills.entries.researchvault.env.BRAVE_API_KEY.",
-                    "required": false,
-                  },
-              },
-          },
-      },
-  }
+  openclaw:
+    emoji: "🦞"
+    requires:
+      python: ">=3.13"
+      env:
+        RESEARCHVAULT_DB:
+          description: "Optional: Custom path to the SQLite database file."
+          required: false
+        BRAVE_API_KEY:
+          description: "Optional: Brave Search API key."
+          required: false
+        SERPER_API_KEY:
+          description: "Optional: Serper API key."
+          required: false
+        SEARXNG_BASE_URL:
+          description: "Optional: SearXNG base URL."
+          required: false
+        RESEARCHVAULT_PORTAL_TOKEN:
+          description: "Optional: static portal token. If unset, start_portal.sh sources/generates .portal_auth and exports this env var."
+          required: false
+        RESEARCHVAULT_PORTAL_ALLOWED_DB_ROOTS:
+          description: "Optional: comma-separated absolute DB roots. Default: ~/.researchvault,/tmp."
+          required: false
+        RESEARCHVAULT_PORTAL_STATE_DIR:
+          description: "Optional: portal state directory (default ~/.researchvault/portal)."
+          required: false
+        RESEARCHVAULT_PORTAL_HOST:
+          description: "Optional: backend bind host."
+          required: false
+        RESEARCHVAULT_PORTAL_PORT:
+          description: "Optional: backend bind port."
+          required: false
+        RESEARCHVAULT_PORTAL_FRONTEND_HOST:
+          description: "Optional: frontend bind host."
+          required: false
+        RESEARCHVAULT_PORTAL_FRONTEND_PORT:
+          description: "Optional: frontend bind port."
+          required: false
+        RESEARCHVAULT_PORTAL_CORS_ORIGINS:
+          description: "Optional: comma-separated CORS origins for backend."
+          required: false
+        RESEARCHVAULT_PORTAL_RELOAD:
+          description: "Optional: set to 'true' for backend auto-reload."
+          required: false
+        RESEARCHVAULT_PORTAL_COOKIE_SECURE:
+          description: "Optional: set to 'true' to mark auth cookie Secure."
+          required: false
+        RESEARCHVAULT_PORTAL_PID_DIR:
+          description: "Optional: start_portal.sh PID/log directory."
+          required: false
+        RESEARCHVAULT_PORTAL_SHOW_TOKEN:
+          description: "Optional: set to '1' to print tokenized portal URLs."
+          required: false
+        RESEARCHVAULT_SEARCH_PROVIDERS:
+          description: "Optional: search provider order override."
+          required: false
+        RESEARCHVAULT_WATCHDOG_INGEST_TOP:
+          description: "Optional: watchdog ingest top-k override."
+          required: false
+        RESEARCHVAULT_VERIFY_INGEST_TOP:
+          description: "Optional: verify ingest top-k override."
+          required: false
+        RESEARCHVAULT_MCP_TRANSPORT:
+          description: "Optional: MCP server transport override."
+          required: false
+        REQUESTS_CA_BUNDLE:
+          description: "Optional: custom CA bundle for HTTPS verification."
+          required: false
+        SSL_CERT_FILE:
+          description: "Optional: custom CA certificate file."
+          required: false
 ---
 
 # ResearchVault 🦞
@@ -77,6 +116,37 @@ pip install -e .
    ```bash
    python scripts/vault.py strategy --id "trends-2026"
    ```
+
+## Portal (Manual Opt-In)
+
+Start the portal explicitly:
+
+```bash
+./start_portal.sh
+```
+
+- Backend: `127.0.0.1:8000`
+- Frontend: `127.0.0.1:5173`
+- Backend auth strictly uses `RESEARCHVAULT_PORTAL_TOKEN`
+- `./start_portal.sh` loads/generates `.portal_auth` and exports `RESEARCHVAULT_PORTAL_TOKEN` before backend launch
+- Token login: URL hash `#token=<token>` (token from `.portal_auth`)
+- Allowed DB roots are controlled by `RESEARCHVAULT_PORTAL_ALLOWED_DB_ROOTS` (default `~/.researchvault,/tmp`)
+- OpenClaw workspace DBs are never discovered or selectable in Portal mode
+- Provider secrets are env-only (`BRAVE_API_KEY`, `SERPER_API_KEY`, `SEARXNG_BASE_URL`) and are not injected into vault subprocesses
+- Both hosts are supported for browser access:
+  - `http://127.0.0.1:5173/#token=<token>`
+  - `http://localhost:5173/#token=<token>`
+
+Operational commands:
+
+```bash
+./start_portal.sh --status
+./start_portal.sh --stop
+```
+
+Security parity with CLI:
+- SSRF blocking is on by default (private/local/link-local targets denied).
+- Portal toggle **Allow private networks** is equivalent to CLI `--allow-private-networks`.
 
 ## Optional Services (Manual Start)
 
