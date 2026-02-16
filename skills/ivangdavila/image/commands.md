@@ -1,5 +1,15 @@
 # Image Processing Commands
 
+**Note:** These are reference commands for manual use. This skill does not execute commands automatically — it provides examples for the user to run themselves.
+
+## Requirements
+
+These commands require locally installed tools:
+- `imagemagick` — for convert/mogrify commands
+- `python` with `pillow` — for Python examples
+
+---
+
 ## ImageMagick
 
 ### Resize

@@ -112,14 +112,16 @@ avatar-user-128@2x.png
 
 ---
 
-## Image CDN Best Practices
+## Image CDN Best Practices (Optional)
 
-When using Cloudinary, imgix, or similar:
+If using a CDN service (Cloudinary, imgix, etc.):
 - Use auto-format: `f_auto`
 - Use auto-quality: `q_auto`
 - Specify exact dimensions in URL
 - Enable lazy loading at edge
 - Set cache headers (1 year for hashed URLs)
+
+**Note:** CDN services require their own API credentials configured separately. This skill does not manage CDN credentials.
 
 ---
 

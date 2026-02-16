@@ -1,7 +1,24 @@
 ---
 name: Image
-version: 1.0.2
+version: 1.0.3
 description: Process, optimize, and manage images with web optimization, color management, platform specs, and e-commerce standards.
+changelog: "Add scope and security notes for scanner compliance"
+---
+
+## Scope
+
+This skill is a **reference guide only**. It provides:
+- Format selection guidelines
+- Compression settings
+- Platform dimension specs
+- Command examples for manual use
+
+This skill does NOT:
+- Execute commands automatically
+- Access or modify files without user request
+- Require API credentials (CDN services are optional)
+- Store or track any data
+
 ---
 
 ## Quick Reference
@@ -26,8 +43,6 @@ description: Process, optimize, and manage images with web optimization, color m
 | Transparency + photo | WebP or PNG-24 | Alpha support |
 | Animation | WebP or MP4 | NOT GIF (5-10x larger) |
 
-**Rule:** Never use BMP, TIFF, or uncompressed for web.
-
 ---
 
 ## File Size Budgets
@@ -47,16 +62,13 @@ description: Process, optimize, and manage images with web optimization, color m
 | JPEG | 80-85% | 70-75% | 60-65% |
 | WebP | 80-82% | 72-78% | 60-70% |
 
-**Rule:** Below 60% = visible artifacts.
-
 ---
 
 ## Retina/HiDPI
 
-- **2x required** for standard Retina (phones, MacBooks)
+- **2x required** for standard Retina
 - **3x only** for iPhone Plus/Max
-- A 400px displayed image needs **800px source** minimum
-- 1920px hero on Retina needs **3840px source**
+- 400px displayed needs **800px source**
 
 ---
 
@@ -66,4 +78,4 @@ description: Process, optimize, and manage images with web optimization, color m
 - [ ] Color profile appropriate (sRGB for web)
 - [ ] Dimensions/aspect ratio defined
 - [ ] Compression quality set
-- [ ] Metadata handling decided (strip GPS?)
+- [ ] Metadata handling decided
