@@ -470,6 +470,42 @@ Same shape as the MCP tool response.
 - All numeric fields except `profile_name`, `position_sizing`, `category_filter`, and `description` are nullable.
 - `category_filter` is `null` when the profile applies to all market categories.
 
+## `get_recent_trades` Response
+
+### MCP Tool Response
+
+```json
+{
+  "wallet_address": "0x1234...abcd",
+  "since": null,
+  "count": 3,
+  "trades": [
+    {
+      "side": "BUY",
+      "size": 10.5,
+      "price": 0.65,
+      "timestamp": 1700000000,
+      "title": "Will X happen?",
+      "outcome": "Yes",
+      "slug": "will-x-happen",
+      "transaction_hash": "0xabc123..."
+    }
+  ]
+}
+```
+
+### REST API Response (`GET /v1/trades/{wallet_address}`)
+
+Same shape as the MCP tool response.
+
+### Field Notes
+
+- `since` is `null` when no timestamp filter was applied.
+- `side` is `"BUY"` or `"SELL"`.
+- `timestamp` is a Unix timestamp (seconds since epoch).
+- `title`, `outcome`, `slug`, and `transaction_hash` may be `null` depending on upstream data availability.
+- `limit` is clamped to 1-100 (default 50).
+
 ## `discover_wallet` Response
 
 ### MCP Tool Response

@@ -1,6 +1,6 @@
 ---
 name: polyvision
-description: Analyze Polymarket prediction market wallets — get copy trading scores (1-10), P&L, win rate, risk metrics (Sharpe ratio, Sortino ratio, max drawdown), red flags, position sizing, market category performance, recent performance (7d/30d/90d), streak analysis, and individual open positions with entry/current prices. Also discover elite traders via daily leaderboard, hot bets from top traders, and random wallet discovery. Connects via MCP server or REST API. Use when evaluating whether to copy trade a Polymarket trader, comparing multiple wallets side-by-side, screening for elite prediction market performers, checking if a wallet has bot-like trading patterns or hidden losses, researching a trader's risk profile, finding today's best open bets, or discovering new traders to follow. Free API key, no daily limits, 6-hour result caching.
+description: Analyze Polymarket prediction market wallets — get copy trading scores (1-10), P&L, win rate, risk metrics (Sharpe ratio, Sortino ratio, max drawdown), red flags, position sizing, market category performance, recent performance (7d/30d/90d), streak analysis, individual open positions with entry/current prices, and recent trade history. Also discover elite traders via daily leaderboard, hot bets from top traders, and random wallet discovery. Connects via MCP server or REST API. Use when evaluating whether to copy trade a Polymarket trader, comparing multiple wallets side-by-side, screening for elite prediction market performers, checking if a wallet has bot-like trading patterns or hidden losses, researching a trader's risk profile, viewing recent trade activity, finding today's best open bets, or discovering new traders to follow. Free API key, no daily limits, 6-hour result caching.
 homepage: https://polyvisionx.com
 license: MIT
 disable-model-invocation: true
@@ -20,6 +20,7 @@ PolyVision analyzes Polymarket prediction market wallets and returns a comprehen
 - User wants to discover or find new Polymarket traders to follow
 - User asks about a daily leaderboard or top traders ranking
 - User wants to see a trader's individual open positions with P&L details
+- User asks about a trader's recent trades, trade history, or latest activity
 - User asks for copy trading strategy recommendations or optimal settings
 - User wants to know what risk profile or parameters to use for copy trading
 
@@ -128,6 +129,18 @@ Get pre-computed copy trading strategy profiles. Returns 3 risk profiles (conser
 
 **Returns:** Scan date, total count, and list of strategy profiles — each with parameters (price range, min score, max trades/day, min trade size, position sizing method), backtest results (win rate, ROI, Sharpe ratio, max drawdown, profit factor, EV/trade, total P&L), cost-adjusted results, and a plain-English description. See `references/response-schemas.md` for the complete field reference.
 
+### `get_recent_trades`
+
+Get recent trades for a Polymarket wallet. Returns trade history with side, size, price, market title, and timestamps.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `wallet_address` | string | Yes | — | Ethereum address (42 chars, starts with `0x`) |
+| `since` | integer | No | — | Unix timestamp — only return trades after this time |
+| `limit` | integer | No | `50` | Max trades to return (1-100) |
+
+**Returns:** Dict with `wallet_address`, `since`, `count`, and `trades` list — each trade with side (BUY/SELL), size, price, timestamp, market title, outcome, slug, and transaction hash. See `references/response-schemas.md` for the complete field reference.
+
 ### `discover_wallet`
 
 Discover a random elite trader from the curated wallet pool (250+). Returns a random wallet address each call — use `analyze_wallet` or `get_score` to investigate it.
@@ -177,6 +190,7 @@ Check system health.
 | "What bets are top traders making?" | `get_hot_bets` | sort=`pnl` | Hot bets sorted by P&L |
 | "Who are the top traders today?" | `get_leaderboard` | — | Daily top-10 ranked traders |
 | "Find me a good trader to follow" | `discover_wallet` | — | Random elite wallet, then `get_score` or `analyze_wallet` |
+| "What trades has this wallet made recently?" | `get_recent_trades` | — | Recent trade history for a wallet |
 | "What strategy should I use for copy trading?" | `get_strategy` | — | 3 risk profiles with backtested parameters |
 | "What's the safest way to copy trade?" | `get_strategy` | — | Conservative profile with low drawdown |
 | "Discover new traders" | `discover_wallet` x3 | — | Multiple random picks to explore |
@@ -217,6 +231,7 @@ Interactive docs and the OpenAPI spec are available at:
 | `GET /v1/hot-bets?page=0&limit=20&sort_by=rank` | GET | Today's hot bets from top traders |
 | `GET /v1/leaderboard?sort_by=rank` | GET | Daily top-10 leaderboard |
 | `GET /v1/strategy` | GET | Pre-computed copy trading strategy profiles (3 risk levels) |
+| `GET /v1/trades/{wallet_address}?since=&limit=50` | GET | Recent trades for a wallet |
 | `GET /v1/discover` | GET | Discover a random elite trader |
 | `GET /health` | GET | Health check (no auth required) |
 
@@ -271,4 +286,5 @@ curl -s https://api.polyvisionx.com/v1/discover \
 | 409 | Email already registered (registration only) | Use existing key or register with a different email |
 | 429 | Rate limited | Wait and retry — Polymarket API has upstream limits |
 | 503 | System at capacity (all analysis slots in use) | Retry in 30-60 seconds |
+| 502 | Upstream Polymarket API error | Retry — the upstream data API may be temporarily unavailable |
 | 504 | Analysis timed out | Retry — the wallet may have extensive history |
