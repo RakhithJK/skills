@@ -1,13 +1,18 @@
 {
   "owner": "issa-me-sush",
   "slug": "openserv-launch",
-  "displayName": "Openserv Launch",
+  "displayName": "OpenServ Launch",
   "latest": {
-    "version": "1.0.1",
-    "publishedAt": 1770765628268,
-    "commit": "https://github.com/openclaw/skills/commit/b1b70a8900127b0561d990e0ea693477998d8c1f"
+    "version": "1.0.3",
+    "publishedAt": 1771275566927,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.1",
+      "publishedAt": 1770765628268,
+      "commit": "https://github.com/openclaw/skills/commit/b1b70a8900127b0561d990e0ea693477998d8c1f"
+    },
     {
       "version": "1.0.0",
       "publishedAt": 1770637663376,
