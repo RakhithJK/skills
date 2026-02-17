@@ -1,6 +1,6 @@
 ---
 name: verk
-description: "Manage tasks, projects, and workflows in Verk — AI-powered task management. Create, update, assign, and track tasks. Add comments, change status, trigger automation flows."
+description: "Manage tasks, projects, and workflows in Verk — AI-powered task management. Create, update, assign, and track tasks. Add comments, change status, list automation flows."
 metadata:
   openclaw:
     emoji: "⚡"
@@ -27,7 +27,6 @@ You can manage tasks, projects, and automation flows in Verk using the `verk-cli
 - **Update task**: `node scripts/verk-cli.mjs tasks update <taskId> [--title "New Title"] [--status STATUS] [--priority PRIORITY] [--assigned userId1,userId2]`
 - **Delete task**: `node scripts/verk-cli.mjs tasks delete <taskId>`
 - **Comment on task**: `node scripts/verk-cli.mjs tasks comment <taskId> --text "Comment text"`
-- **List comments**: `node scripts/verk-cli.mjs tasks comments <taskId>`
 
 ### Projects
 
@@ -36,7 +35,6 @@ You can manage tasks, projects, and automation flows in Verk using the `verk-cli
 ### Flows (Automation Workflows)
 
 - **List flows**: `node scripts/verk-cli.mjs flows list`
-- **Trigger flow**: `node scripts/verk-cli.mjs flows trigger <flowId> [--data '{"key":"value"}']`
 
 ## Valid Values
 
@@ -54,7 +52,8 @@ You can manage tasks, projects, and automation flows in Verk using the `verk-cli
 - When asked to delete or remove a task, use `tasks delete <taskId>`.
 - When asked to comment on or add a note to a task, use `tasks comment <taskId> --text "..."`.
 - When asked about projects, use `projects list`.
-- When asked to run or trigger a workflow, use `flows trigger <flowId>`.
+- When asked about automation workflows, use `flows list`.
+- To see comments on a task, use `tasks get <taskId>` — comments are included in the task response.
 
 ## Output Format
 

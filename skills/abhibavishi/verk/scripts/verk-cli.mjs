@@ -140,14 +140,8 @@ async function tasksComment(taskId, args) {
   if (!taskId) die('Task ID is required: tasks comment <taskId> --text "..."');
   if (!args.text) die('--text is required for adding a comment');
 
-  const body = { content: args.text };
+  const body = { comment_text: args.text };
   const data = await request('POST', orgUrl(`/tasks/${taskId}/comments`), body);
-  console.log(JSON.stringify(data, null, 2));
-}
-
-async function tasksComments(taskId) {
-  if (!taskId) die('Task ID is required: tasks comments <taskId>');
-  const data = await request('GET', orgUrl(`/tasks/${taskId}/comments`));
   console.log(JSON.stringify(data, null, 2));
 }
 
@@ -162,22 +156,6 @@ async function projectsList() {
 
 async function flowsList() {
   const data = await request('GET', orgUrl('/flows'));
-  console.log(JSON.stringify(data, null, 2));
-}
-
-async function flowsTrigger(flowId, args) {
-  if (!flowId) die('Flow ID is required: flows trigger <flowId>');
-
-  let body = {};
-  if (args.data) {
-    try {
-      body = JSON.parse(args.data);
-    } catch {
-      die('--data must be valid JSON');
-    }
-  }
-
-  const data = await request('POST', orgUrl(`/flows/${flowId}/execute`), body);
   console.log(JSON.stringify(data, null, 2));
 }
 
@@ -203,8 +181,7 @@ async function main() {
         case 'update':  return tasksUpdate(positional[0], args);
         case 'delete':  return tasksDelete(positional[0]);
         case 'comment': return tasksComment(positional[0], args);
-        case 'comments':return tasksComments(positional[0]);
-        default:        die(`Unknown tasks action: ${action}. Available: list, get, create, update, delete, comment, comments`);
+        default:        die(`Unknown tasks action: ${action}. Available: list, get, create, update, delete, comment`);
       }
       break;
 
@@ -218,8 +195,7 @@ async function main() {
     case 'flows':
       switch (action) {
         case 'list':    return flowsList();
-        case 'trigger': return flowsTrigger(positional[0], args);
-        default:        die(`Unknown flows action: ${action}. Available: list, trigger`);
+        default:        die(`Unknown flows action: ${action}. Available: list`);
       }
       break;
 
