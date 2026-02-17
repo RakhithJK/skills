@@ -3,11 +3,16 @@
   "slug": "ecash",
   "displayName": "eCash",
   "latest": {
-    "version": "3.0.1",
-    "publishedAt": 1771247570195,
-    "commit": "https://github.com/openclaw/skills/commit/005f6b5ae36a1e95d709db144b0024763bc48748"
+    "version": "3.0.2",
+    "publishedAt": 1771250303780,
+    "commit": null
   },
   "history": [
+    {
+      "version": "3.0.1",
+      "publishedAt": 1771247570195,
+      "commit": "https://github.com/openclaw/skills/commit/005f6b5ae36a1e95d709db144b0024763bc48748"
+    },
     {
       "version": "2.2.0",
       "publishedAt": 1771217419385,

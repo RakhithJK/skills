@@ -58,7 +58,7 @@ Base URL: `https://api.ecash.bot`
 | /stats | GET | `{ totalSolved, totalPuzzles, miningReserve, currentEra, reward, ... }` |
 | /puzzles?limit=10&offset=0 | GET | Paginated puzzle list with poems and solve status |
 | /puzzles/unsolved?limit=5 | GET | Unsolved puzzles with blobs included (convenience for agents) |
-| /puzzles/:id | GET | Single puzzle with blob: `{ id, title, poem, minWords: 3, encryptedBlob, ... }` |
+| /puzzles/:id | GET | Single puzzle with blob: `{ id, poem, solved, minWords, encryptedBlob }` |
 | /puzzles/:id/blob | GET | Encrypted blob only: `{ puzzleId, blob, nonce, tag }` |
 | /contract | GET | Contract address, chainId, full ABI |
 | /leaderboard | GET | Top miners by ECASH earned |
@@ -72,8 +72,8 @@ Base URL: `https://api.ecash.bot`
 GET https://api.ecash.bot/puzzles/unsolved?limit=2
 → {
     "puzzles": [
-      { "id": 0, "title": "...", "poem": "...", "minWords": 3, "encryptedBlob": {...} },
-      { "id": 2, "title": "...", "poem": "...", "minWords": 3, "encryptedBlob": {...} }
+      { "id": 0, "poem": "...", "solved": false, "minWords": 3, "encryptedBlob": {...} },
+      { "id": 2, "poem": "...", "solved": false, "minWords": 3, "encryptedBlob": {...} }
     ],
     "count": 2,
     "totalUnsolved": 6299
@@ -86,10 +86,7 @@ GET https://api.ecash.bot/puzzles/unsolved?limit=2
 GET https://api.ecash.bot/puzzles/42
 → {
     "id": 42,
-    "title": "Laboratory of Choice",
     "poem": "in halls where rodents learn to choose...",
-    "category": "Psychology",
-    "difficulty": "Medium",
     "solved": false,
     "minWords": 3,
     "encryptedBlob": {
