@@ -1,0 +1,11 @@
+{
+  "owner": "runeweaverstudios",
+  "slug": "agent-swarm",
+  "displayName": "Agent Swarm",
+  "latest": {
+    "version": "1.0.3",
+    "publishedAt": 1771326459519,
+    "commit": null
+  },
+  "history": []
+}
