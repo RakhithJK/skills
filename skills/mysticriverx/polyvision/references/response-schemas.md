@@ -292,25 +292,6 @@ Same shape as the MCP tool response. Note: the REST API coerces `score` to a flo
 
 Possible values: `"ok"` or `"degraded"`.
 
-## `regenerate_key` Response
-
-```json
-{
-  "api_key": "pv_live_abc123...",
-  "key_prefix": "pv_live_abc12345",
-  "message": "API key regenerated. Your old key is now invalid. Update your configuration."
-}
-```
-
-## `deactivate_key` Response
-
-```json
-{
-  "success": true,
-  "message": "API key deactivated. All future requests with this key will be rejected."
-}
-```
-
 ## `get_hot_bets` Response
 
 ### MCP Tool Response

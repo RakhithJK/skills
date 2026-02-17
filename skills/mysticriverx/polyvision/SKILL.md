@@ -154,24 +154,6 @@ Check system health.
 
 **Returns:** `{ "status": "ok" }` or `{ "status": "degraded" }`
 
-### `regenerate_key`
-
-Regenerate your API key. The old key is immediately invalidated.
-
-**Parameters:** None
-
-**Returns:** `{ "api_key": "pv_live_...", "key_prefix": "pv_live_...", "message": "..." }`
-
-The new key is shown only once. Update your configuration immediately.
-
-### `deactivate_key`
-
-Permanently deactivate your API key. This is irreversible — use `regenerate_key` instead if you need a replacement.
-
-**Parameters:** None
-
-**Returns:** `{ "success": true, "message": "API key deactivated. All future requests with this key will be rejected." }`
-
 ## Score Tiers
 
 | Tier | Score Range | Recommendation | Meaning |
@@ -230,8 +212,6 @@ Interactive docs and the OpenAPI spec are available at:
 |----------|--------|-------------|
 | `POST /v1/auth/register` | POST | Register and get an API key (no auth required) |
 | `GET /v1/auth/me` | GET | Get current user info and usage stats |
-| `POST /v1/auth/regenerate` | POST | Regenerate API key |
-| `POST /v1/auth/deactivate` | POST | Deactivate API key |
 | `GET /v1/analyze/{wallet_address}?mode=quick` | GET | Full wallet analysis (includes `open_positions_detail`) |
 | `GET /v1/score/{wallet_address}` | GET | Compact copy-trading score |
 | `GET /v1/hot-bets?page=0&limit=20&sort_by=rank` | GET | Today's hot bets from top traders |
