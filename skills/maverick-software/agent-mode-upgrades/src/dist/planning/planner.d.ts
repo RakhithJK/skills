@@ -5,7 +5,9 @@
  */
 import type { TaskPlan, PlanStep, ReflectionResult, LLMCaller, ToolCall, ToolResult, PlanningConfig } from "../types.js";
 /**
- * Check if planning is needed for this goal
+ * Check if planning is needed for this goal.
+ * Creates a new plan if: no plan exists, existing plan is completed/stale,
+ * or the user's goal has pivoted away from the existing plan.
  */
 export declare function shouldGeneratePlan(goal: string, existingPlan: TaskPlan | null, config: PlanningConfig): boolean;
 /**

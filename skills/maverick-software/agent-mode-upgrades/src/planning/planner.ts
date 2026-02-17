@@ -47,7 +47,9 @@ Format your response as JSON:
 Be concise. Only include steps that require tool use or significant work.`;
 
 /**
- * Check if planning is needed for this goal
+ * Check if planning is needed for this goal.
+ * Creates a new plan if: no plan exists, existing plan is completed/stale,
+ * or the user's goal has pivoted away from the existing plan.
  */
 export function shouldGeneratePlan(
   goal: string,
@@ -55,7 +57,16 @@ export function shouldGeneratePlan(
   config: PlanningConfig
 ): boolean {
   if (!config.enabled) return false;
-  if (existingPlan && existingPlan.status === "active") return false;
+
+  // If there's an active plan, check if the goal has pivoted.
+  // A pivot = the new goal is substantially different from the existing plan's goal.
+  if (existingPlan && existingPlan.status === "active") {
+    if (!isGoalPivot(goal, existingPlan.goal)) {
+      return false; // Same goal direction, keep existing plan
+    }
+    // Goal pivoted -- fall through to intent/complexity checks below
+    // to decide if the new goal warrants a plan
+  }
 
   const lowerGoal = goal.toLowerCase();
 
@@ -447,6 +458,57 @@ export function formatPlanForContext(plan: TaskPlan): string {
   }
 
   return lines.join("\n");
+}
+
+// ============================================================================
+// Goal Pivot Detection
+// ============================================================================
+
+/**
+ * Detect if the user's new goal has pivoted away from the existing plan's goal.
+ * Uses keyword overlap: if fewer than 20% of significant words overlap,
+ * the goal has likely changed. Short/conversational messages (< 20 chars)
+ * are not treated as pivots to avoid replanning on follow-ups like "ok" or "yes".
+ */
+function isGoalPivot(newGoal: string, existingGoal: string): boolean {
+  // Short follow-ups (e.g. "yes", "ok", "continue", "go ahead") aren't pivots
+  if (newGoal.trim().length < 20) return false;
+
+  const stopWords = new Set([
+    "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "do", "does", "did", "will", "would", "shall",
+    "should", "may", "might", "must", "can", "could", "to", "of", "in",
+    "for", "on", "with", "at", "by", "from", "as", "into", "through",
+    "during", "before", "after", "above", "below", "between", "out",
+    "off", "over", "under", "again", "further", "then", "once", "here",
+    "there", "when", "where", "why", "how", "all", "both", "each",
+    "few", "more", "most", "other", "some", "such", "no", "nor", "not",
+    "only", "own", "same", "so", "than", "too", "very", "just", "about",
+    "it", "its", "i", "me", "my", "we", "our", "you", "your", "he",
+    "she", "they", "them", "this", "that", "these", "those", "and", "but",
+    "or", "if", "while", "because", "until", "although", "also", "please",
+    "help", "need", "want", "let", "make", "get",
+  ]);
+
+  const extractKeywords = (text: string): Set<string> => {
+    const words = text.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/);
+    return new Set(words.filter((w) => w.length > 2 && !stopWords.has(w)));
+  };
+
+  const newKeywords = extractKeywords(newGoal);
+  const existingKeywords = extractKeywords(existingGoal);
+
+  if (newKeywords.size === 0 || existingKeywords.size === 0) return false;
+
+  // Count overlap
+  let overlap = 0;
+  for (const word of newKeywords) {
+    if (existingKeywords.has(word)) overlap++;
+  }
+
+  // If < 20% of the new goal's keywords appear in the existing plan, it's a pivot
+  const overlapRatio = overlap / newKeywords.size;
+  return overlapRatio < 0.2;
 }
 
 // ============================================================================

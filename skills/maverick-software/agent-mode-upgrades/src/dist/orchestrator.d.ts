@@ -162,6 +162,31 @@ export declare class EnhancedLoopOrchestrator {
      */
     checkpoint(description?: string): Promise<string>;
     /**
+     * Sync step statuses from the LLM's response plan block.
+     * The LLM outputs a :::plan block with step statuses; we parse it after
+     * the run and persist those updates so the next turn is accurate.
+     */
+    syncFromResponse(planData: {
+        steps: Array<{
+            id: string;
+            status: string;
+        }>;
+    }): {
+        stepsCompleted: string[];
+        stepsFailed: string[];
+    };
+    /**
+     * Notify the orchestrator of a tool completion (lightweight tracking).
+     * Called from the hook's onAgentEvent wrapper when a tool result arrives.
+     * Uses a simple heuristic: if a non-error tool matches the active step's
+     * expected action, mark the step as complete.
+     */
+    notifyToolCompletion(toolName: string, isError: boolean): {
+        stepCompleted: boolean;
+        completedStepId?: string;
+        completedStepTitle?: string;
+    };
+    /**
      * Cleanup resources
      */
     cleanup(): Promise<void>;

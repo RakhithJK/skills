@@ -545,6 +545,104 @@ export class EnhancedLoopOrchestrator {
   }
 
   /**
+   * Sync step statuses from the LLM's response plan block.
+   * The LLM outputs a :::plan block with step statuses; we parse it after
+   * the run and persist those updates so the next turn is accurate.
+   */
+  syncFromResponse(planData: {
+    steps: Array<{ id: string; status: string }>;
+  }): { stepsCompleted: string[]; stepsFailed: string[] } {
+    const state = this.stateManager.getOrNull();
+    if (!state?.plan) return { stepsCompleted: [], stepsFailed: [] };
+
+    const stepsCompleted: string[] = [];
+    const stepsFailed: string[] = [];
+
+    for (const step of planData.steps) {
+      const normalizedStatus = step.status.toLowerCase();
+      if (normalizedStatus === "done" || normalizedStatus === "complete") {
+        if (!state.completedStepIds.includes(step.id)) {
+          this.stateManager.completeStep(step.id, "Completed");
+          this.callbacks.onStepCompleted?.(step.id, "Completed");
+          stepsCompleted.push(step.id);
+        }
+      } else if (normalizedStatus === "failed") {
+        if (!state.failedStepIds.includes(step.id)) {
+          this.stateManager.failStep(step.id, "Failed");
+          this.callbacks.onStepFailed?.(step.id, "Failed");
+          stepsFailed.push(step.id);
+        }
+      }
+    }
+
+    // Check if plan is complete
+    if (stepsCompleted.length > 0 && this.stepTracker.isPlanComplete()) {
+      this.callbacks.onPlanCompleted?.();
+    }
+
+    return { stepsCompleted, stepsFailed };
+  }
+
+  /**
+   * Notify the orchestrator of a tool completion (lightweight tracking).
+   * Called from the hook's onAgentEvent wrapper when a tool result arrives.
+   * Uses a simple heuristic: if a non-error tool matches the active step's
+   * expected action, mark the step as complete.
+   */
+  notifyToolCompletion(toolName: string, isError: boolean): {
+    stepCompleted: boolean;
+    completedStepId?: string;
+    completedStepTitle?: string;
+  } {
+    if (!this.initialized) return { stepCompleted: false };
+    const state = this.stateManager.getOrNull();
+    if (!state?.plan || !state.activeStepId) return { stepCompleted: false };
+
+    this.stateManager.recordToolCall();
+    if (isError) return { stepCompleted: false };
+
+    const activeStep = this.stateManager.getActiveStep();
+    if (!activeStep) return { stepCompleted: false };
+
+    // Lightweight heuristic: successful tool that aligns with the step's action
+    const toolLower = toolName.toLowerCase();
+    const actionLower = (activeStep.action ?? "").toLowerCase();
+    const titleLower = (activeStep.title ?? "").toLowerCase();
+
+    const toolActionMap: Record<string, string[]> = {
+      exec: ["run", "execute", "install", "build", "deploy", "setup", "configure", "test", "start"],
+      bash: ["run", "execute", "install", "build", "deploy", "setup", "configure", "test", "start"],
+      write: ["write", "create", "save", "add", "generate", "implement"],
+      edit: ["edit", "modify", "update", "change", "fix", "refactor"],
+      read: ["read", "check", "verify", "inspect", "review", "analyze"],
+      web_search: ["search", "find", "research", "look"],
+      web_fetch: ["fetch", "get", "download", "retrieve"],
+      browser: ["browse", "navigate", "open", "test", "verify"],
+      glob: ["find", "search", "locate"],
+      grep: ["search", "find"],
+      message: ["send", "message", "notify"],
+    };
+
+    const keywords = toolActionMap[toolLower] ?? [];
+    const matches = keywords.some(
+      (kw) => actionLower.includes(kw) || titleLower.includes(kw),
+    );
+
+    if (matches) {
+      this.stateManager.completeStep(activeStep.id, `Completed via ${toolName}`);
+      this.callbacks.onStepCompleted?.(activeStep.id, `Completed via ${toolName}`);
+
+      return {
+        stepCompleted: true,
+        completedStepId: activeStep.id,
+        completedStepTitle: activeStep.title,
+      };
+    }
+
+    return { stepCompleted: false };
+  }
+
+  /**
    * Cleanup resources
    */
   async cleanup(): Promise<void> {
