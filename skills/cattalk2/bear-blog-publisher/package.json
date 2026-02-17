@@ -18,26 +18,49 @@
   "openclaw": {
     "requires": {
       "bins": ["python3"],
-      "python": ["requests", "playwright"]
+      "python": ["requests"]
     },
     "install": [
       {
         "id": "playwright",
         "kind": "python",
         "package": "playwright",
-        "postInstall": "playwright install chromium",
-        "label": "Install Playwright"
+        "label": "Install Playwright Python package"
+      },
+      {
+        "id": "playwright-browsers",
+        "kind": "script",
+        "command": "playwright install chromium",
+        "label": "Download Playwright browsers (~100MB)"
       }
     ],
+    "env": {
+      "BEAR_BLOG_EMAIL": {
+        "description": "Bear Blog email (optional, can also use config file or runtime params)"
+      },
+      "BEAR_BLOG_PASSWORD": {
+        "description": "Bear Blog password (optional, can also use config file or runtime params)"
+      }
+    },
     "config": {
       "schema": {
-        "email": {
-          "type": "string",
-          "description": "Bear Blog email (optional if using env vars or runtime params)"
-        },
-        "password": {
-          "type": "string",
-          "description": "Bear Blog password (optional if using env vars or runtime params)"
+        "skills": {
+          "type": "object",
+          "properties": {
+            "bear-blog-publisher": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "description": "Bear Blog email (optional if using env vars or runtime params)"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Bear Blog password (optional if using env vars or runtime params)"
+                }
+              }
+            }
+          }
         }
       }
     },
