@@ -41,7 +41,7 @@ Result:
 
 Upload this folder to ClawHub:
 
-- `/Users/saschabuehrle/clawhub-skills/cascadeflow`
+- `cascadeflow/` (the skill folder containing `SKILL.md`)
 
 Minimum files included:
 
@@ -52,12 +52,25 @@ Minimum files included:
 
 ## 1) Install CascadeFlow
 
+Fastest base setup (OpenClaw integration extras):
+
 ```bash
-git clone https://github.com/lemony-ai/cascadeflow.git
-cd cascadeflow
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[openclaw,providers]"
+pip install "cascadeflow[openclaw]"
+```
+
+Quick provider variants:
+
+```bash
+# Anthropic-only preset users
+pip install "cascadeflow[openclaw,anthropic]"
+
+# OpenAI-only preset users
+pip install "cascadeflow[openclaw,openai]"
+
+# Mixed preset users (OpenAI + Anthropic + common providers)
+pip install "cascadeflow[openclaw,providers]"
 ```
 
 ## 2) Pick A Preset Config (All 3)
@@ -142,6 +155,9 @@ nohup cascadeflow-gateway --port 8084 --mode agent --config examples/configs/ant
 }
 ```
 
+If server runs elsewhere, users should replace it with their host/IP, e.g.:
+- `http://<server-ip>:8084/v1` or `https://<domain>/v1` (behind proxy/TLS).
+
 ## 6) Create OpenClaw Agent
 
 ```json
@@ -224,5 +240,5 @@ curl -s http://127.0.0.1:8084/stats -H "Authorization: Bearer local-stats-token"
 Run validator:
 
 ```bash
-python3 /Users/saschabuehrle/.codex/skills/.system/skill-creator/scripts/quick_validate.py /Users/saschabuehrle/clawhub-skills/cascadeflow
+python3 /path/to/skill-creator/scripts/quick_validate.py /path/to/cascadeflow
 ```

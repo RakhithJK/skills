@@ -3,20 +3,35 @@ name: cascadeflow
 description: Set up CascadeFlow as an OpenClaw custom provider with fast, copy-paste steps. Use when users want quick install, preset selection (OpenAI-only, Anthropic-only, mixed), OpenClaw model alias setup, and safe production defaults for cascading with streaming and agent loops.
 ---
 
-# CascadeFlow: Cost + Latency Reduction
+# CascadeFlow: Cost + Latency Reduction | 17+ Domain-Aware Models + OpenClaw-Native Events
 
 Use CascadeFlow as an OpenClaw provider to lower cost and latency via cascading.
+Assign up to 17 domain-specific models (for coding, web search, reasoning, and more), including OpenClaw-native event handling, and cascade across them (small model first, verifier when needed).
 Keep setup minimal, then verify with one health check and one chat call.
 
 ## Fast Start
 
+Or ask your OpenClaw agent to set it up for you as an OpenClaw custom provider with OpenClaw-native events and domain understanding.
+
 1. Install:
 ```bash
-git clone https://github.com/lemony-ai/cascadeflow.git
-cd cascadeflow
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[openclaw,providers]"
+# Fastest base setup (OpenClaw integration extras)
+pip install "cascadeflow[openclaw]"
+```
+
+Quick provider variants:
+
+```bash
+# Anthropic-only preset users
+pip install "cascadeflow[openclaw,anthropic]"
+
+# OpenAI-only preset users
+pip install "cascadeflow[openclaw,openai]"
+
+# Mixed preset users (OpenAI + Anthropic + common providers)
+pip install "cascadeflow[openclaw,providers]"
 ```
 
 2. Choose one preset:
@@ -43,6 +58,8 @@ python3 -m cascadeflow.integrations.openclaw.openai_server \
 
 5. Configure OpenClaw provider:
 - `baseUrl`: `http://127.0.0.1:8084/v1`
+- If server runs elsewhere, users should replace it with their host/IP, e.g.:
+  - `http://<server-ip>:8084/v1` or `https://<domain>/v1` (behind proxy/TLS)
 - `api`: `openai-completions`
 - `model`: `cascadeflow`
 
