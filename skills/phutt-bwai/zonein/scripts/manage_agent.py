@@ -18,7 +18,7 @@ import sys
 import urllib.request
 import urllib.error
 
-API_URL = os.getenv("ZONEIN_API_URL", "https://mcp.zonein.xyz/api/v1")
+API_URL = "https://mcp.zonein.xyz/api/v1"
 
 
 def api_call(method: str, endpoint: str, data: dict = None) -> dict:

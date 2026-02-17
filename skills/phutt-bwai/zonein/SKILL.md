@@ -77,14 +77,17 @@ export ZONEIN_API_KEY="zn_your_key_here"
 **Read-only commands (safe to run without asking):**
 `signals`, `leaderboard`, `consensus`, `trader`, `perp-signals`, `perp-traders`, `perp-top`, `perp-categories`, `perp-coins`, `perp-trader`, `agents`, `agent-get`, `agent-stats`, `agent-trades`, `agent-vault`, `agent-templates`, `agent-assets`, `agent-categories`, `agent-balance`, `agent-positions`, `agent-deposit`, `agent-orders`, `status`
 
-**Financial commands (ALWAYS ask user for confirmation before executing):**
+**Financial commands (require `--confirm` flag — script refuses without it):**
 `agent-fund`, `agent-open`, `agent-close`, `agent-withdraw`, `agent-enable`, `agent-deploy`
 
+You MUST ask the user for approval first. Only add `--confirm` after the user explicitly says yes.
+
 **Example — user deposits USDC and asks to check balance:**
-- You run: `agent-balance <id>` (read-only, safe)
+- You run: `agent-balance <id>` (read-only, safe — no `--confirm` needed)
 - You see: `arbitrum_usdc: 200, needs_funding: true`
 - You tell the user: "Your vault has 200 USDC on Arbitrum but it hasn't been bridged to Hyperliquid yet. Would you like me to bridge it now so your agent can start trading?"
-- Only run `agent-fund <id>` after user confirms
+- User says yes → you run: `agent-fund <id> --confirm`
+- Without `--confirm`, the script will refuse to execute and return an error
 
 All commands use the bundled Python script. **Always use these commands — never write inline API calls.**
 
@@ -266,7 +269,8 @@ Returns: `deposit_address` (send USDC on Arbitrum One to this address).
 | `agent_id` | str | yes | Agent ID |
 
 After sending USDC to the vault address on Arbitrum, call this to auto-bridge funds into Hyperliquid.
-Privy sponsors gas — no ETH needed. Returns `tx_hash` and `amount` bridged.
+**Important:** The bridge transaction requires a small amount of ETH on Arbitrum for gas fees (typically ~0.0001–0.0005 ETH). Ask the user to send a small amount of ETH (e.g. 0.001 ETH) to the same vault address on Arbitrum One before running this command.
+Returns `tx_hash` and `amount` bridged.
 
 ### `agent-open` — Open a position (manual order via chat)
 
@@ -358,8 +362,9 @@ The vault (deposit address) is auto-created with the agent. The create response 
 1. Show user the deposit address from the create response (or use `agent-deposit <agent_id>`)
 2. Tell user: "Send USDC to this address on Arbitrum One."
 3. `agent-balance <agent_id>` — check `arbitrum_usdc` field to confirm deposit arrived
-4. `agent-fund <agent_id>` — bridge USDC from Arbitrum into Hyperliquid (gasless, no ETH needed)
-5. `agent-balance <agent_id>` — confirm Hyperliquid `account_value` shows the funds
+4. Tell user: "Also send a small amount of ETH (~0.001 ETH) to the same vault address on Arbitrum One for gas fees."
+5. `agent-fund <agent_id> --confirm` — bridge USDC from Arbitrum into Hyperliquid (requires ETH for gas)
+6. `agent-balance <agent_id>` — confirm Hyperliquid `account_value` shows the funds
 
 **Step 7: Monitor**
 - `agent-balance <agent_id>` — check vault balance
@@ -374,8 +379,9 @@ The vault (deposit address) is auto-created with the agent. The create response 
 1. `agent-deposit <agent_id>` — get vault address
 2. User sends USDC to vault address on **Arbitrum One**
 3. `agent-balance <agent_id>` — check `arbitrum_usdc` to verify deposit arrived
-4. `agent-fund <agent_id>` — bridge USDC from Arbitrum → Hyperliquid (gasless)
-5. `agent-balance <agent_id>` — confirm `account_value` on Hyperliquid
+4. User also sends a small amount of ETH (~0.001 ETH) to the same vault address for gas fees
+5. `agent-fund <agent_id> --confirm` — bridge USDC from Arbitrum → Hyperliquid (requires ETH for gas)
+6. `agent-balance <agent_id>` — confirm `account_value` on Hyperliquid
 
 **Withdraw:**
 1. `agent-disable <agent_id>` — must disable agent first
@@ -483,9 +489,14 @@ Long: $[X] | Short: $[X]
 
 ## Security & Privacy
 
-- Only your API key leaves the machine (sent to mcp.zonein.xyz)
-- No personal data is sent beyond the key
-- All data is read-only (the script only makes GET requests)
+- Only your API key leaves the machine (sent as `X-API-Key` header to `mcp.zonein.xyz`)
+- No personal data is sent beyond the key and query parameters
+- **Local files read:** `~/.openclaw/openclaw.json` is read **only** as a fallback to locate `ZONEIN_API_KEY` if the environment variable is not set. No other local files are accessed.
+- **Local files written:** none
+- **Read-only commands** (GET requests): signals, leaderboard, consensus, trader lookups, agent status, balance, positions, order history
+- **Write commands** (POST/PATCH/DELETE requests): agent creation, agent configuration updates, fund bridging, manual order placement, withdrawals, agent enable/disable/delete
+- **Confirmation policy:** Financial commands (`agent-fund`, `agent-open`, `agent-close`, `agent-withdraw`, `agent-deploy`, `agent-enable`) are **programmatically gated** — the script refuses to execute unless `--confirm` is explicitly passed. The agent must first ask the user for approval, then include `--confirm` only after the user agrees. This prevents prompt injection from bypassing confirmation. If you only need signals/data, use a read-only API key to prevent unintended financial actions.
+- The scripts connect **only** to `https://mcp.zonein.xyz/api/v1` — no other endpoints, no package installs, no filesystem writes
 
 ## Trust Statement
 
