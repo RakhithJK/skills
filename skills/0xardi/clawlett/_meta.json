@@ -3,9 +3,15 @@
   "slug": "clawlett",
   "displayName": "Clawlett",
   "latest": {
-    "version": "0.1.0-rc1",
-    "publishedAt": 1770934404418,
-    "commit": "https://github.com/openclaw/skills/commit/0562d79a9556e83e6bdd103f08735e298d861cbb"
+    "version": "0.2.0-rc0",
+    "publishedAt": 1771355958304,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.1.0-rc1",
+      "publishedAt": 1770934404418,
+      "commit": "https://github.com/openclaw/skills/commit/0562d79a9556e83e6bdd103f08735e298d861cbb"
+    }
+  ]
 }
