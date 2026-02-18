@@ -3,9 +3,15 @@
   "slug": "session-guard",
   "displayName": "Session Guard",
   "latest": {
-    "version": "1.0.0",
-    "publishedAt": 1771415649336,
-    "commit": "https://github.com/openclaw/skills/commit/b6c1a3a6a981c3a3700735349e7eaf7b746c7d91"
+    "version": "1.1.0",
+    "publishedAt": 1771416663908,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.0",
+      "publishedAt": 1771415649336,
+      "commit": "https://github.com/openclaw/skills/commit/b6c1a3a6a981c3a3700735349e7eaf7b746c7d91"
+    }
+  ]
 }
