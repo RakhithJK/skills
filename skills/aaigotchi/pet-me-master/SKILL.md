@@ -54,8 +54,27 @@ AAI: "⏰ Wait 4h 23m! Last pet was 11:15am"
 1. **You ask to pet**
 2. **I check on-chain** (`lastInteracted` timestamp)
 3. **Calculate cooldown** (12h 1min = 43260 seconds)
-4. **If ready** → Execute via Bankr
+4. **If ready** → Execute via aavegotchi skill (Foundry cast)
 5. **If not ready** → Show countdown + next time
+
+## ⚠️ Important Note: Bankr Integration
+
+**Current Status:** The Bankr wallet integration for petting is **not reliable**.
+
+**Issue:** Bankr's API returns "I don't have enough verified information" when attempting to execute `interact()` calls on the Aavegotchi contract. The transactions appear to submit but don't actually execute on-chain.
+
+**Workaround:** The `pet-via-bankr.sh` script now **automatically falls back** to the proven working method (Foundry `cast` with private key from the aavegotchi skill).
+
+**What this means for you:**
+- ✅ Petting still works perfectly
+- ✅ Uses the aavegotchi skill under the hood
+- ⚠️ Requires aavegotchi skill to be installed and configured with private key
+- 🔄 We'll re-enable true Bankr integration once the API supports Aavegotchi contract calls
+
+**To use:**
+- Ensure `aavegotchi` skill is installed in your workspace
+- Configure private key at `~/.openclaw/skills/aavegotchi/config.json`
+- Pet commands will work seamlessly via the fallback
 
 ## Setup
 
@@ -73,16 +92,23 @@ Create `~/.openclaw/workspace/skills/pet-me-master/config.json`:
 }
 ```
 
-### 2. Bankr API Key
+### 2. Install Aavegotchi Skill (Required)
 
-Already configured at `~/.openclaw/skills/bankr/config.json` — no additional setup needed!
+Since Bankr integration isn't working yet, you need the aavegotchi skill:
+
+```bash
+# The aavegotchi skill should be in your workspace
+ls ~/.openclaw/workspace/skills/aavegotchi/
+```
+
+Configure it with your private key (see aavegotchi skill README).
 
 ### 3. Dependencies
 
 **Required:**
-- `cast` (Foundry) - for on-chain reads
+- `cast` (Foundry) - for on-chain reads AND petting
 - `jq` - for JSON parsing
-- Bankr skill configured with API key
+- `aavegotchi` skill installed and configured
 
 **Install Foundry:**
 ```bash
@@ -252,6 +278,47 @@ interact(uint256[] calldata _tokenIds)
 **Best practice:** Use BOTH!
 - Pet Me Master = your daily ritual
 - Autopet = backup if you forget
+
+### 🔔 Auto-Pet Reminders
+
+**Never miss a petting window!** Set up automatic reminders that will pet your gotchis if you don't respond:
+
+```
+User: "Remind me to pet my gotchi in 12 hours, and if I don't respond within 1 hour, automatically pet them"
+
+AAI: ✅ Reminder set!
+     • Alert at: 2026-02-15 17:30 UTC
+     • Auto-pet fallback: 2026-02-15 18:30 UTC (if no response)
+```
+
+**How it works:**
+1. **First reminder** → Pings you when gotchis are ready
+2. **You respond** → Interactive petting (ritual preserved!)
+3. **No response after 1h** → Auto-pets via Bankr (backup safety)
+
+**Best of both worlds:**
+- 💜 Interactive ritual when you're available
+- 🛡️ Automatic fallback when you're busy
+- 👻 Never lose kinship due to missed windows
+
+**Setup example:**
+```
+User: "Set up daily gotchi reminders with 1-hour auto-pet fallback"
+
+AAI: I'll create a cron job that:
+     1. Checks gotchi cooldowns every 12h
+     2. Sends you a reminder when ready
+     3. Auto-pets after 1h if you don't respond
+     
+     Want me to set this up?
+
+User: "Yes"
+
+AAI: ✅ Daily gotchi reminders configured!
+     You'll get pinged when they're ready, with auto-pet backup.
+```
+
+This combines the **ritual of Pet Me Master** with the **safety of Autopet** — the perfect hybrid approach! 🦞💜
 
 ## Roadmap
 
