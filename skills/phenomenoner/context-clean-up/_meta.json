@@ -3,11 +3,16 @@
   "slug": "context-clean-up",
   "displayName": "Context Clean Up",
   "latest": {
-    "version": "1.0.2",
-    "publishedAt": 1770804975173,
-    "commit": "https://github.com/openclaw/skills/commit/f7685cc2659cb0ceafc02fadcbbb5c7993ae4e7f"
+    "version": "1.0.4",
+    "publishedAt": 1771447733986,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.0.2",
+      "publishedAt": 1770804975173,
+      "commit": "https://github.com/openclaw/skills/commit/f7685cc2659cb0ceafc02fadcbbb5c7993ae4e7f"
+    },
     {
       "version": "1.0.1",
       "publishedAt": 1770618964778,
