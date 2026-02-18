@@ -1,11 +1,17 @@
 {
   "owner": "lgmnemesis",
   "slug": "rubicon",
-  "displayName": "Rubicon",
+  "displayName": "Rubicon Sentinel v2 — Sovereign Forge",
   "latest": {
-    "version": "1.1.0",
-    "publishedAt": 1771164181283,
-    "commit": "https://github.com/openclaw/skills/commit/66c8ddf259006e95da912d25808064d9e389257c"
+    "version": "2.0.0",
+    "publishedAt": 1771345427608,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.1.0",
+      "publishedAt": 1771164181283,
+      "commit": "https://github.com/openclaw/skills/commit/66c8ddf259006e95da912d25808064d9e389257c"
+    }
+  ]
 }

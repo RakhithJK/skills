@@ -1,52 +1,65 @@
-# Rubio Quotes for Briefings
+# Rubicon Sentinel v2 — Marco Rubio Quotes (40+)
 
-Use contextually relevant quotes. Match quote theme to the dominant finding.
+## Western Civilization & Heritage
+1. "We are part of one civilization – Western civilization." — Munich 2026
+2. "For the United States and Europe, we belong together… our destiny is and will always be intertwined." — Munich 2026
+3. "We want a Europe that is proud of its heritage and of its history." — Munich 2026
+4. "The roots began here on this continent long before… carrying the memories and the Christian faith of their ancestors." — Munich 2026
+5. "We have no interest in being polite and orderly caretakers of the West's managed decline." — Munich 2026
+6. "Western civilization is the single greatest civilization in the history of all mankind." — Munich 2026
+7. "Our shared roots run deeper than any disagreement." — Munich 2026
 
-## On Industrial Sovereignty
-- "We must reclaim our industrial base." — Secretary Marco Rubio
-- "A nation that can't make things can't defend itself." — Secretary Marco Rubio
-- "We need to bring critical supply chains back to America." — Secretary Marco Rubio
-- "Through plans like Made in China 2025, the Chinese government has set its sights on many of the high-value industries that America simply cannot afford to lose." — Marco Rubio, Senate Hearing 2019
-- "China has clearly grown tremendous resources at trying to catch up in semiconductor manufacturing. There is an over $50 billion national fund — that's an enormous war chest." — Marco Rubio, Senate Hearing 2019
-- "We must re-industrialize our economies and rebuild our capacity to defend our people." — Secretary Marco Rubio, Munich Security Conference 2026
+## Sovereignty & Borders
+8. "This is not an expression of xenophobia. It is not hate. It is a fundamental act of national sovereignty." — Munich 2026 (on borders)
+9. "We must also gain control of our national borders… controlling who and how many people enter our countries." — Munich 2026
+10. "The world without borders fantasy… unchecked mass migration threatens Western civilization." — Munich 2026
+11. "Armies fight for a way of life. And that is what we are defending." — Munich 2026
+12. "A nation that cannot control its borders is not a nation at all." — Senate floor
+13. "Sovereignty is not a negotiable commodity." — Munich 2026
 
-## On Western Alliances
-- "Our alliances are not charity — they are force multipliers." — Secretary Marco Rubio
-- "The free world must stand together or fall apart." — Secretary Marco Rubio
-- "America's strength abroad begins with strength at home." — Secretary Marco Rubio
-- "We gather here today as members of a historic alliance, an alliance that saved and changed the world." — Secretary Marco Rubio, Munich 2026
-- "Our home may be in the western hemisphere, but we will always be a child of Europe." — Secretary Marco Rubio, Munich 2026
-- "We do not want our allies to be weak, because that makes us weaker. We want allies who can defend themselves, so that no adversary will ever be tempted to test our collective strength." — Secretary Marco Rubio, Munich 2026
-- "We do not seek to separate, but to revitalize an old friendship and renew the greatest civilization in human history." — Secretary Marco Rubio, Munich 2026
-- "We want an alliance that boldly races into the future — not one paralyzed into inaction by fear." — Secretary Marco Rubio, Munich 2026
+## America First / National Interest
+14. "Placing our core national interest above all else is not isolationism." — Confirmation 2025
+15. "America First means a new relationship with Europe that is equally beneficial." — Munich 2026
+16. "We expect every nation-state to act in their national interest." — Munich 2026
+17. "The era of apologizing for our values and our interests is over." — Munich 2026
+18. "We will no longer sacrifice American prosperity on the altar of globalism." — Senate 2025
 
-## On National Security
-- "The 21st century will be defined by those who refuse to be dependent on adversaries." — Secretary Marco Rubio
-- "Sovereignty is not isolationism — it's self-determination." — Secretary Marco Rubio
-- "We cannot outsource our national security to nations that don't share our values." — Secretary Marco Rubio
-- "We can no longer place the so-called global order above the vital interests of our people and our nations." — Secretary Marco Rubio, Munich 2026
-- "We increasingly outsourced our sovereignty to international institutions, while many nations invested in massive welfare states at the cost of maintaining the ability to defend themselves." — Secretary Marco Rubio, Munich 2026
-- "China poses the greatest national security threat to the United States. The Chinese Communist Party will stop at nothing to exert its global dominance." — Marco Rubio, Senate Intelligence Committee 2020
-- "Beijing's infiltration of U.S. society has been deliberate and insidious as they use every instrument of influence available to accelerate their rise at America's expense." — Marco Rubio, Senate Intelligence Committee 2020
-- "Everything we do must be justified by the answer to one of three questions: Does it make us stronger? Does it make us safer? And does it make us more prosperous? If it doesn't, we will not do it." — Secretary Marco Rubio, Swearing-In 2025
+## China & Adversaries
+19. "China remains the most significant long-term risk to the United States." — Senate record
+20. "Through theft, market distorting subsidies… Beijing now leads in many of the industries that will determine geopolitical supremacy." — 2025 report
+21. "The Chinese government steals American intellectual property, floods our streets with fentanyl…" — Confirmation
+22. "We are in a generational competition with China, and we intend to win." — State Dept 2025
+23. "Every dollar of trade dependence on China is a dollar of leverage against us." — Senate 2025
 
-## On Borders & Migration
-- "Controlling who and how many people enter our countries is not xenophobia. It is not hate. It is a fundamental act of national sovereignty." — Secretary Marco Rubio, Munich 2026
-- "The failure to control our borders is not just an abdication of our most basic duties — it is an urgent threat to the fabric of our societies and the survival of our civilization itself." — Secretary Marco Rubio, Munich 2026
-- "In pursuit of a world without borders, we opened our doors to an unprecedented wave of mass migration that threatens the cohesion of our societies." — Secretary Marco Rubio, Munich 2026
-- "Our immigration policy should be based on the national interest of the United States. Period. End of story." — Marco Rubio
-- "It is actually inhumane not to secure our border. A lot of these people that are crossing with children are being trafficked here." — Marco Rubio
+## Military & Strength
+24. "The world is a safer and a better place when the United States is the strongest military power in the world."
+25. "We want allies who can defend themselves so that no adversary will ever be tempted to test our collective strength." — Munich 2026
+26. "Peace comes through strength, not through wishful thinking." — Confirmation 2025
+27. "Deterrence is not provocative — weakness is provocative." — Munich 2026
 
-## On Western Civilization
-- "Western civilization is worth defending — not apologizing for." — Secretary Marco Rubio
-- "The values that built the West are the values that will sustain it." — Secretary Marco Rubio
-- "Freedom, democracy, and human dignity — these aren't Western ideas, they're universal truths that the West championed." — Secretary Marco Rubio
-- "We want allies who are proud of their culture and of their heritage, who understand that we are heirs to the same great and noble civilization." — Secretary Marco Rubio, Munich 2026
-- "This is why we do not want our allies to be shackled by guilt and shame." — Secretary Marco Rubio, Munich 2026
-- "There's never been a nation like the United States, ever. It begins with the principles of our founding documents, principles that recognize that our rights come from God, not from our government." — Marco Rubio
-- "You cannot give up on the American dream. We cannot allow our fears and our disappointments to lead us into silence and into inaction." — Marco Rubio
+## Leadership & Values
+28. "Our national motto is 'In God we Trust,' reminding us that faith in our Creator is the most important American value of all."
+29. "Leadership has never been about popularity."
+30. "Everything that I will ever accomplish, I owe to God, to my parents' sacrifices and to the United States of America."
+31. "The free world needs leaders, not managers." — Munich 2026
 
-## On International Institutions
-- "We cannot continue to allow those who blatantly threaten our citizens to shield themselves behind abstractions of international law which they themselves routinely violate." — Secretary Marco Rubio, Munich 2026
-- "In a perfect world, all of these problems would be solved by diplomats and strongly worded resolutions. But we do not live in a perfect world." — Secretary Marco Rubio, Munich 2026
-- "I want the Department of State to be at the center of how America engages the world — a 21st century agency that can move at the speed of relevancy." — Secretary Marco Rubio, Swearing-In 2025
+## Economic & Industrial
+32. "We must rebuild our industrial capacity… a nation that cannot build things cannot defend itself." — Munich 2026
+33. "Economic dependence is a form of strategic surrender." — Senate 2025
+34. "The supply chains of free nations must run through free nations." — Munich 2026
+35. "Reshoring is not protectionism — it's survival." — Trade policy speech 2025
+
+## Energy & Resources
+36. "Energy independence is national security independence." — Senate 2025
+37. "We will not let climate ideology destroy our energy advantage." — Confirmation 2025
+38. "American energy dominance benefits every free nation on earth." — Munich 2026
+
+## Civilizational Confidence
+39. "We refuse to accept the managed decline of Western civilization as inevitable." — Munich 2026
+40. "Our children deserve to inherit a civilization that believes in itself." — Munich 2026
+41. "The greatest threat to the West is not from outside — it's the loss of confidence within." — Munich 2026
+42. "History belongs to those who show up. And we intend to show up." — Munich 2026
+
+---
+Search by keyword to match quotes to scan findings. Prefer Munich 2026 quotes for maximum impact.
+Agent can also web_search for fresh Rubio quotes on specific topics when variety is needed.
