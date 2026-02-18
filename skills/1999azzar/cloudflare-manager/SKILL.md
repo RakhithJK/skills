@@ -1,68 +1,38 @@
 ---
 name: cloudflare-manager
-description: Manage Cloudflare DNS records, Tunnels (cloudflared), and Zero Trust policies. Use when user wants to "point domain", "expose localhost", or "block IP".
+description: Manage Cloudflare DNS records, Tunnels (cloudflared), and Zero Trust policies. Use for pointing domains, exposing local services via tunnels, and updating ingress rules.
+metadata: {"openclaw":{"requires":{"bins":["python3","cloudflared"],"env":["CLOUDFLARE_API_TOKEN","CLOUDFLARE_ZONE_ID"]},"install":[{"id":"cf-setup","kind":"exec","command":"bash scripts/install.sh"}]}}
 ---
 
 # Cloudflare Manager
 
-## Configuration
-Requires the following environment variables in `.env`:
+Standardized system for managing Cloudflare infrastructure and local tunnel ingress.
 
-| Variable | Description | Required? |
-| :--- | :--- | :--- |
-| `CLOUDFLARE_API_TOKEN` | API Token with Zone.DNS permissions | Yes |
-| `CLOUDFLARE_ZONE_ID` | The Zone ID to manage | Yes |
+## Prerequisites
+- **Binary**: `python3` and `cloudflared` must be installed.
+- **Credentials**: `CLOUDFLARE_API_TOKEN` (minimal Zone permissions) and `CLOUDFLARE_ZONE_ID`.
 
-Legacy support: `CF_API_TOKEN` and `CF_ZONE_ID` are also accepted.
+## Setup
+1. Define credentials in the environment or a local `.env` file.
+2. Initialize the local environment: `bash scripts/install.sh`.
 
-## Installation
-This skill requires Python dependencies (`requests`, `PyYAML`).
-Run the install script to set up a local virtual environment:
-```bash
-./scripts/install.sh
-```
+## Core Workflows
 
-## Usage
-- **Role**: Cloud Engineer.
-- **Trigger**: "Create DNS record", "Setup tunnel", "Expose port 3000".
-- **Output**: JSON status or CLI command results.
+### 1. DNS Management
+Add, list, or delete DNS records via Cloudflare API.
+- **List**: `python3 $WORKSPACE/skills/cloudflare-manager/scripts/cf_manager.py list-dns`
+- **Add**: `python3 $WORKSPACE/skills/cloudflare-manager/scripts/cf_manager.py add-dns --type A --name <subdomain> --content <ip>`
 
-### Commands
-#### `scripts/cf_manager.py`
-The main CLI wrapper. Use the venv python to run it.
-
-**Syntax:**
-```bash
-.venv/bin/python3 scripts/cf_manager.py [OPTIONS] <COMMAND>
-```
-
-**Options:**
-- `--dry-run`: Simulate actions without applying changes (DNS or Ingress).
-
-**Examples:**
-```bash
-# List DNS Records
-.venv/bin/python3 scripts/cf_manager.py list-dns
-
-# Add DNS Record
-.venv/bin/python3 scripts/cf_manager.py add-dns --type A --name subdomain --content 1.2.3.4
-
-# Update Ingress (Tunnel)
-.venv/bin/python3 scripts/cf_manager.py update-ingress --hostname app.example.com --service http://localhost:3000
-```
+### 2. Tunnel Ingress (Local)
+Update `/etc/cloudflared/config.yml` and restart the tunnel service.
+- **Update**: `python3 $WORKSPACE/skills/cloudflare-manager/scripts/cf_manager.py update-ingress --hostname <host> --service <url>`
+- **Safety**: Use `--dry-run` to preview configuration changes before application.
 
 ## Security & Permissions
-- **API Token Scope**: Follow the *Principle of Least Privilege*. Create a token with **Zone:DNS:Edit** and **Zone:Settings:Edit** permissions only for the specific zone. Avoid using Global API Keys.
-- **Privileged Operations**:
-  - The `update-ingress` command modifies `/etc/cloudflared/config.yml` and restarts the service.
-  - **Sudo Access**: Requires sudo to run `tee` and `systemctl`.
-  - **Least Privilege**: Do NOT grant full sudo. Use the example in `references/sudoers.example` to restrict sudo access to only the necessary commands.
-  - **Safeguard**: Use `--dry-run` to preview the config changes without writing to disk or restarting services.
+- **Sudo Usage**: The `update-ingress` command requires `sudo` to write to system directories and restart the `cloudflared` service.
+- **Least Privilege**: Configure restricted sudo access using the pattern in `references/sudoers.example`.
+- **Token Isolation**: Ensure API tokens are scoped narrowly to specific zones and permissions.
 
-## Capabilities
-1.  **DNS Management**: Add/Edit/Delete A/CNAME records.
-2.  **Tunnels**: `cloudflared` config management (requires sudo).
-3.  **Security**: Access Policies, WAF rules.
-
-## Reference Materials
-- [Tunnel Guide](references/tunnel-guide.md)
+## Reference
+- **Sudoers Pattern**: See [references/sudoers.example](references/sudoers.example).
+- **Tunnel Logic**: See [references/tunnel-guide.md](references/tunnel-guide.md).
