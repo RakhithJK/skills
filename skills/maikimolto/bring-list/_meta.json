@@ -1,13 +1,18 @@
 {
   "owner": "maikimolto",
   "slug": "bring-list",
-  "displayName": "Bring! Shopping Lists",
+  "displayName": "Bring List",
   "latest": {
-    "version": "1.2.0",
-    "publishedAt": 1771247768729,
-    "commit": "https://github.com/openclaw/skills/commit/0b79f87120502c53d187b1147c0af105864db6be"
+    "version": "1.2.1",
+    "publishedAt": 1771313703703,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.2.0",
+      "publishedAt": 1771247768729,
+      "commit": "https://github.com/openclaw/skills/commit/0b79f87120502c53d187b1147c0af105864db6be"
+    },
     {
       "version": "1.1.2",
       "publishedAt": 1771244811002,

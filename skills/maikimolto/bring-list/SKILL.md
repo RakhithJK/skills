@@ -1,6 +1,6 @@
 ---
 name: bring-list
-description: "Manage Bring! shopping lists. Add, remove, complete, and view items on shared shopping lists. Use when the user wants to manage grocery/shopping lists, add items to buy, check off purchased items, or view what's on their Bring! list."
+description: "The best Bring! skill on ClawHub. Zero dependencies, VirusTotal clean, OpenClaw HIGH CONFIDENCE. Full CRUD, batch ops, default list, and guided agent setup — your AI sets it all up for you."
 ---
 
 # Bring! Shopping Lists
