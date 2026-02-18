@@ -1,21 +1,14 @@
 ---
 name: ai-content-pipeline
-description: |
-  Build multi-step AI content creation pipelines combining image, video, audio, and text.
-  Workflow examples: generate image -> animate -> add voiceover -> merge with music.
-  Tools: FLUX, Veo, Kokoro TTS, OmniHuman, media merger, upscaling.
-  Use for: YouTube videos, social media content, marketing materials, automated content.
-  Triggers: content pipeline, ai workflow, content creation, multi-step ai,
-  content automation, ai video workflow, generate and edit, ai content factory,
-  automated content creation, ai production pipeline, media pipeline, content at scale
+description: "Build multi-step AI content creation pipelines combining image, video, audio, and text. Workflow examples: generate image -> animate -> add voiceover -> merge with music. Tools: FLUX, Veo, Kokoro TTS, OmniHuman, media merger, upscaling. Use for: YouTube videos, social media content, marketing materials, automated content. Triggers: content pipeline, ai workflow, content creation, multi-step ai, content automation, ai video workflow, generate and edit, ai content factory, automated content creation, ai production pipeline, media pipeline, content at scale"
 allowed-tools: Bash(infsh *)
 ---
 
 # AI Content Pipeline
 
-![AI Content Pipeline](https://cloud.inference.sh/app/files/u/4mg21r6ta37mpaz6ktzwtt8krr/01kg06qgcg105rh6y1kvxm4wvm.png)
-
 Build multi-step content creation pipelines via [inference.sh](https://inference.sh) CLI.
+
+![AI Content Pipeline](https://cloud.inference.sh/app/files/u/4mg21r6ta37mpaz6ktzwtt8krr/01kg06qgcg105rh6y1kvxm4wvm.png)
 
 ## Quick Start
 
@@ -26,6 +19,8 @@ curl -fsSL https://cli.inference.sh | sh && infsh login
 infsh app run falai/flux-dev --input '{"prompt": "portrait of a woman smiling"}' > image.json
 infsh app run falai/wan-2-5 --input '{"image_url": "<url-from-previous>"}'
 ```
+
+> **Install note:** The [install script](https://cli.inference.sh) only detects your OS/architecture, downloads the matching binary from `dist.inference.sh`, and verifies its SHA-256 checksum. No elevated permissions or background processes. [Manual install & verification](https://dist.inference.sh/cli/checksums.txt) available.
 
 ## Pipeline Patterns
 
@@ -234,19 +229,19 @@ infsh app run infsh/media-merger --input '{
 
 ```bash
 # Video generation models
-npx skills add inferencesh/skills@ai-video-generation
+npx skills add inference-sh/skills@ai-video-generation
 
 # Image generation
-npx skills add inferencesh/skills@ai-image-generation
+npx skills add inference-sh/skills@ai-image-generation
 
 # Text-to-speech
-npx skills add inferencesh/skills@text-to-speech
+npx skills add inference-sh/skills@text-to-speech
 
 # LLM models for scripts
-npx skills add inferencesh/skills@llm-models
+npx skills add inference-sh/skills@llm-models
 
 # Full platform skill
-npx skills add inferencesh/skills@inference-sh
+npx skills add inference-sh/skills@inference-sh
 ```
 
 Browse all apps: `infsh app list`

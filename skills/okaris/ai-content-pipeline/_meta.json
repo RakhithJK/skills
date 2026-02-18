@@ -3,9 +3,15 @@
   "slug": "ai-content-pipeline",
   "displayName": "Ai Content Pipeline",
   "latest": {
-    "version": "0.1.0",
-    "publishedAt": 1770656856537,
-    "commit": "https://github.com/openclaw/skills/commit/c1479c4e3aff73682632802bfc7a6152d854f259"
+    "version": "0.1.5",
+    "publishedAt": 1771402985747,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.1.0",
+      "publishedAt": 1770656856537,
+      "commit": "https://github.com/openclaw/skills/commit/c1479c4e3aff73682632802bfc7a6152d854f259"
+    }
+  ]
 }
