@@ -25,9 +25,9 @@ Access the LinkedIn API with managed OAuth authentication. Share posts, manage a
 # Get current user profile
 python <<'EOF'
 import urllib.request, os, json
-req = urllib.request.Request('https://gateway.maton.ai/linkedin/v2/me')
+req = urllib.request.Request('https://gateway.maton.ai/linkedin/rest/me')
 req.add_header('Authorization', f'Bearer {os.environ["MATON_API_KEY"]}')
-req.add_header('X-Restli-Protocol-Version', '2.0.0')
+req.add_header('LinkedIn-Version', '202506')
 print(json.dumps(json.load(urllib.request.urlopen(req)), indent=2))
 EOF
 ```
@@ -35,7 +35,7 @@ EOF
 ## Base URL
 
 ```
-https://gateway.maton.ai/linkedin/v2/{resource}
+https://gateway.maton.ai/linkedin/rest/{resource}
 ```
 
 The gateway proxies requests to `api.linkedin.com` and automatically injects your OAuth token.
@@ -62,10 +62,10 @@ export MATON_API_KEY="YOUR_API_KEY"
 
 ### Required Headers
 
-LinkedIn API v2 requires the REST protocol version header:
+LinkedIn REST API requires the version header:
 
 ```
-X-Restli-Protocol-Version: 2.0.0
+LinkedIn-Version: 202506
 ```
 
 ## Connection Management
@@ -142,8 +142,9 @@ If you have multiple LinkedIn connections, specify which one to use with the `Ma
 ```bash
 python <<'EOF'
 import urllib.request, os, json
-req = urllib.request.Request('https://gateway.maton.ai/linkedin/v2/userinfo')
+req = urllib.request.Request('https://gateway.maton.ai/linkedin/rest/me')
 req.add_header('Authorization', f'Bearer {os.environ["MATON_API_KEY"]}')
+req.add_header('LinkedIn-Version', '202506')
 req.add_header('Maton-Connection', 'ba10eb9e-b590-4e95-8c2e-3901ff94642a')
 print(json.dumps(json.load(urllib.request.urlopen(req)), indent=2))
 EOF
@@ -155,37 +156,22 @@ If omitted, the gateway uses the default (oldest) active connection.
 
 ### Profile
 
-#### Get User Info (OpenID Connect)
-
-```bash
-GET /linkedin/v2/userinfo
-```
-
-Returns basic profile information including name, email, and profile picture.
-
-**Response:**
-```json
-{
-  "sub": "782bbtaQ",
-  "name": "John Doe",
-  "given_name": "John",
-  "family_name": "Doe",
-  "picture": "https://media.licdn.com/dms/image/...",
-  "email": "john@example.com",
-  "email_verified": true,
-  "locale": "en-US"
-}
-```
-
 #### Get Current User Profile
 
 ```bash
-GET /linkedin/v2/me
+GET /linkedin/rest/me
+LinkedIn-Version: 202506
 ```
 
-**With Field Projection:**
+**Example:**
 ```bash
-GET /linkedin/v2/me?projection=(id,firstName,lastName,profilePicture)
+python <<'EOF'
+import urllib.request, os, json
+req = urllib.request.Request('https://gateway.maton.ai/linkedin/rest/me')
+req.add_header('Authorization', f'Bearer {os.environ["MATON_API_KEY"]}')
+req.add_header('LinkedIn-Version', '202506')
+print(json.dumps(json.load(urllib.request.urlopen(req)), indent=2))
+EOF
 ```
 
 **Response:**
@@ -202,96 +188,74 @@ GET /linkedin/v2/me?projection=(id,firstName,lastName,profilePicture)
   },
   "localizedLastName": "Doe",
   "id": "yrZCpj2Z12",
+  "vanityName": "johndoe",
+  "localizedHeadline": "Software Engineer at Example Corp",
   "profilePicture": {
     "displayImage": "urn:li:digitalmediaAsset:C4D00AAAAbBCDEFGhiJ"
   }
 }
 ```
 
-### Sharing Posts (UGC Posts)
+### Sharing Posts
 
 #### Create a Text Post
 
 ```bash
-POST /linkedin/v2/ugcPosts
+POST /linkedin/rest/posts
 Content-Type: application/json
-X-Restli-Protocol-Version: 2.0.0
+LinkedIn-Version: 202506
 
 {
   "author": "urn:li:person:{personId}",
   "lifecycleState": "PUBLISHED",
-  "specificContent": {
-    "com.linkedin.ugc.ShareContent": {
-      "shareCommentary": {
-        "text": "Hello LinkedIn! This is my first API post."
-      },
-      "shareMediaCategory": "NONE"
-    }
-  },
-  "visibility": {
-    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+  "visibility": "PUBLIC",
+  "commentary": "Hello LinkedIn! This is my first API post.",
+  "distribution": {
+    "feedDistribution": "MAIN_FEED"
   }
 }
 ```
 
-**Response:** `201 Created` with `X-RestLi-Id` header containing the post URN.
+**Response:** `201 Created` with `x-restli-id` header containing the post URN.
 
 #### Create an Article/URL Share
 
 ```bash
-POST /linkedin/v2/ugcPosts
+POST /linkedin/rest/posts
 Content-Type: application/json
-X-Restli-Protocol-Version: 2.0.0
+LinkedIn-Version: 202506
 
 {
   "author": "urn:li:person:{personId}",
   "lifecycleState": "PUBLISHED",
-  "specificContent": {
-    "com.linkedin.ugc.ShareContent": {
-      "shareCommentary": {
-        "text": "Check out this great article!"
-      },
-      "shareMediaCategory": "ARTICLE",
-      "media": [
-        {
-          "status": "READY",
-          "originalUrl": "https://example.com/article",
-          "title": {
-            "text": "Article Title"
-          },
-          "description": {
-            "text": "Article description here"
-          }
-        }
-      ]
-    }
+  "visibility": "PUBLIC",
+  "commentary": "Check out this great article!",
+  "distribution": {
+    "feedDistribution": "MAIN_FEED"
   },
-  "visibility": {
-    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+  "content": {
+    "article": {
+      "source": "https://example.com/article",
+      "title": "Article Title",
+      "description": "Article description here"
+    }
   }
 }
 ```
 
 #### Create an Image Post
 
-First, register the image upload, then upload the image, then create the post.
+First, initialize the image upload, then upload the image, then create the post.
 
-**Step 1: Register Image Upload**
+**Step 1: Initialize Image Upload**
 ```bash
-POST /linkedin/v2/assets?action=registerUpload
+POST /linkedin/rest/images?action=initializeUpload
 Content-Type: application/json
-X-Restli-Protocol-Version: 2.0.0
+LinkedIn-Version: 202506
 
 {
-  "registerUploadRequest": {
-    "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
-    "owner": "urn:li:person:{personId}",
-    "serviceRelationships": [
-      {
-        "relationshipType": "OWNER",
-        "identifier": "urn:li:userGeneratedContent"
-      }
-    ]
+  "initializeUploadRequest": {
+    "owner": "urn:li:person:{personId}"
   }
 }
 ```
@@ -300,12 +264,9 @@ X-Restli-Protocol-Version: 2.0.0
 ```json
 {
   "value": {
-    "uploadMechanism": {
-      "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest": {
-        "uploadUrl": "https://api.linkedin.com/mediaUpload/..."
-      }
-    },
-    "asset": "urn:li:digitalmediaAsset:C5522AQGTYER3k3ByHQ"
+    "uploadUrlExpiresAt": 1770541529250,
+    "uploadUrl": "https://www.linkedin.com/dms-uploads/...",
+    "image": "urn:li:image:D4D10AQH4GJAjaFCkHQ"
   }
 }
 ```
@@ -320,32 +281,23 @@ Content-Type: image/png
 
 **Step 3: Create Image Post**
 ```bash
-POST /linkedin/v2/ugcPosts
+POST /linkedin/rest/posts
 Content-Type: application/json
-X-Restli-Protocol-Version: 2.0.0
+LinkedIn-Version: 202506
 
 {
   "author": "urn:li:person:{personId}",
   "lifecycleState": "PUBLISHED",
-  "specificContent": {
-    "com.linkedin.ugc.ShareContent": {
-      "shareCommentary": {
-        "text": "Check out this image!"
-      },
-      "shareMediaCategory": "IMAGE",
-      "media": [
-        {
-          "status": "READY",
-          "media": "urn:li:digitalmediaAsset:C5522AQGTYER3k3ByHQ",
-          "title": {
-            "text": "Image Title"
-          }
-        }
-      ]
-    }
+  "visibility": "PUBLIC",
+  "commentary": "Check out this image!",
+  "distribution": {
+    "feedDistribution": "MAIN_FEED"
   },
-  "visibility": {
-    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+  "content": {
+    "media": {
+      "id": "urn:li:image:D4D10AQH4GJAjaFCkHQ",
+      "title": "Image Title"
+    }
   }
 }
 ```
@@ -368,13 +320,12 @@ X-Restli-Protocol-Version: 2.0.0
 
 ### Ad Library (Public Data)
 
-The Ad Library API provides access to public advertising data on LinkedIn. These endpoints don't require user OAuth - they use the REST API with version headers.
+The Ad Library API provides access to public advertising data on LinkedIn. These endpoints use the REST API with version headers.
 
 #### Required Headers for Ad Library
 
 ```
-X-Restli-Protocol-Version: 2.0.0
-LinkedIn-Version: 202502
+LinkedIn-Version: 202506
 ```
 
 #### Search Ads
@@ -463,8 +414,7 @@ The Marketing API provides access to LinkedIn's advertising platform. These endp
 #### Required Headers for Marketing API
 
 ```
-X-Restli-Protocol-Version: 2.0.0
-LinkedIn-Version: 202502
+LinkedIn-Version: 202506
 ```
 
 #### List Ad Accounts
@@ -682,7 +632,8 @@ DELETE /linkedin/rest/adAccounts/{adAccountId}/adCampaigns/{campaignId}
 Get organizations the authenticated user has access to:
 
 ```bash
-GET /linkedin/v2/organizationAcls?q=roleAssignee
+GET /linkedin/rest/organizationAcls?q=roleAssignee
+LinkedIn-Version: 202506
 ```
 
 **Response:**
@@ -706,7 +657,8 @@ GET /linkedin/v2/organizationAcls?q=roleAssignee
 #### Get Organization
 
 ```bash
-GET /linkedin/v2/organizations/{organizationId}
+GET /linkedin/rest/organizations/{organizationId}
+LinkedIn-Version: 202506
 ```
 
 #### Lookup Organization by Vanity Name
@@ -759,14 +711,14 @@ GET /linkedin/rest/posts?q=author&author=urn:li:organization:12345
 
 ### Media Upload (REST API)
 
-The REST API provides modern media upload endpoints. All require version header `LinkedIn-Version: 202502`.
+The REST API provides modern media upload endpoints. All require version header `LinkedIn-Version: 202506`.
 
 #### Initialize Image Upload
 
 ```bash
 POST /linkedin/rest/images?action=initializeUpload
 Content-Type: application/json
-LinkedIn-Version: 202502
+LinkedIn-Version: 202506
 
 {
   "initializeUploadRequest": {
@@ -793,7 +745,7 @@ Use the `uploadUrl` to PUT your image binary, then use the `image` URN in your p
 ```bash
 POST /linkedin/rest/videos?action=initializeUpload
 Content-Type: application/json
-LinkedIn-Version: 202502
+LinkedIn-Version: 202506
 
 {
   "initializeUploadRequest": {
@@ -823,7 +775,7 @@ LinkedIn-Version: 202502
 ```bash
 POST /linkedin/rest/documents?action=initializeUpload
 Content-Type: application/json
-LinkedIn-Version: 202502
+LinkedIn-Version: 202506
 
 {
   "initializeUploadRequest": {
@@ -886,13 +838,14 @@ Available targeting facets include:
 
 ## Getting Your Person ID
 
-To create posts, you need your LinkedIn person ID. Get it from the `/v2/me` endpoint:
+To create posts, you need your LinkedIn person ID. Get it from the `/rest/me` endpoint:
 
 ```bash
 python <<'EOF'
 import urllib.request, os, json
-req = urllib.request.Request('https://gateway.maton.ai/linkedin/v2/me')
+req = urllib.request.Request('https://gateway.maton.ai/linkedin/rest/me')
 req.add_header('Authorization', f'Bearer {os.environ["MATON_API_KEY"]}')
+req.add_header('LinkedIn-Version', '202506')
 result = json.load(urllib.request.urlopen(req))
 print(f"Your person URN: urn:li:person:{result['id']}")
 EOF
@@ -906,25 +859,21 @@ EOF
 const personId = 'YOUR_PERSON_ID';
 
 const response = await fetch(
-  'https://gateway.maton.ai/linkedin/v2/ugcPosts',
+  'https://gateway.maton.ai/linkedin/rest/posts',
   {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.MATON_API_KEY}`,
       'Content-Type': 'application/json',
-      'X-Restli-Protocol-Version': '2.0.0'
+      'LinkedIn-Version': '202506'
     },
     body: JSON.stringify({
       author: `urn:li:person:${personId}`,
       lifecycleState: 'PUBLISHED',
-      specificContent: {
-        'com.linkedin.ugc.ShareContent': {
-          shareCommentary: { text: 'Hello from the API!' },
-          shareMediaCategory: 'NONE'
-        }
-      },
-      visibility: {
-        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+      visibility: 'PUBLIC',
+      commentary: 'Hello from the API!',
+      distribution: {
+        feedDistribution: 'MAIN_FEED'
       }
     })
   }
@@ -940,23 +889,19 @@ import requests
 person_id = 'YOUR_PERSON_ID'
 
 response = requests.post(
-    'https://gateway.maton.ai/linkedin/v2/ugcPosts',
+    'https://gateway.maton.ai/linkedin/rest/posts',
     headers={
         'Authorization': f'Bearer {os.environ["MATON_API_KEY"]}',
         'Content-Type': 'application/json',
-        'X-Restli-Protocol-Version': '2.0.0'
+        'LinkedIn-Version': '202506'
     },
     json={
         'author': f'urn:li:person:{person_id}',
         'lifecycleState': 'PUBLISHED',
-        'specificContent': {
-            'com.linkedin.ugc.ShareContent': {
-                'shareCommentary': {'text': 'Hello from the API!'},
-                'shareMediaCategory': 'NONE'
-            }
-        },
-        'visibility': {
-            'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+        'visibility': 'PUBLIC',
+        'commentary': 'Hello from the API!',
+        'distribution': {
+            'feedDistribution': 'MAIN_FEED'
         }
     }
 )
@@ -974,8 +919,8 @@ response = requests.post(
 - Person IDs are unique per application and not transferable across apps
 - The `author` field must use URN format: `urn:li:person:{personId}`
 - All posts require `lifecycleState: "PUBLISHED"`
-- Image/video uploads are a 3-step process: register, upload binary, create post
-- Include `X-Restli-Protocol-Version: 2.0.0` header for v2 API calls
+- Image/video uploads are a 3-step process: initialize upload, upload binary, create post
+- Include `LinkedIn-Version: 202506` header for all REST API calls
 - Profile picture URLs may expire; re-fetch if needed
 - IMPORTANT: When using curl commands, use `curl -g` when URLs contain brackets to disable glob parsing
 - IMPORTANT: When piping curl output to `jq` or other commands, environment variables like `$MATON_API_KEY` may not expand correctly in some shell environments
@@ -1026,8 +971,8 @@ EOF
 
 1. Ensure your URL path starts with `linkedin`. For example:
 
-- Correct: `https://gateway.maton.ai/linkedin/v2/me`
-- Incorrect: `https://gateway.maton.ai/v2/me`
+- Correct: `https://gateway.maton.ai/linkedin/rest/me`
+- Incorrect: `https://gateway.maton.ai/rest/me`
 
 ## OAuth Scopes
 
