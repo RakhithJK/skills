@@ -1,0 +1,11 @@
+{
+  "owner": "tfcbot",
+  "slug": "ai-ugc",
+  "displayName": "AI UGC",
+  "latest": {
+    "version": "0.0.3",
+    "publishedAt": 1771284345405,
+    "commit": null
+  },
+  "history": []
+}
