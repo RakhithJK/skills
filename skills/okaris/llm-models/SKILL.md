@@ -1,19 +1,14 @@
 ---
 name: llm-models
-description: |
-  Access Claude, Gemini, Kimi, GLM and 100+ LLMs via inference.sh CLI using OpenRouter.
-  Models: Claude Opus 4.5, Claude Sonnet 4.5, Claude Haiku 4.5, Gemini 3 Pro, Kimi K2, GLM-4.6, Intellect 3.
-  One API for all models with automatic fallback and cost optimization.
-  Use for: AI assistants, code generation, reasoning, agents, chat, content generation.
-  Triggers: claude api, openrouter, llm api, claude sonnet, claude opus, gemini api, kimi,
-  language model, gpt alternative, anthropic api, ai model api, llm access, chat api,
-  claude alternative, openai alternative
+description: "Access Claude, Gemini, Kimi, GLM and 100+ LLMs via inference.sh CLI using OpenRouter. Models: Claude Opus 4.5, Claude Sonnet 4.5, Claude Haiku 4.5, Gemini 3 Pro, Kimi K2, GLM-4.6, Intellect 3. One API for all models with automatic fallback and cost optimization. Use for: AI assistants, code generation, reasoning, agents, chat, content generation. Triggers: claude api, openrouter, llm api, claude sonnet, claude opus, gemini api, kimi, language model, gpt alternative, anthropic api, ai model api, llm access, chat api, claude alternative, openai alternative"
 allowed-tools: Bash(infsh *)
 ---
 
 # LLM Models via OpenRouter
 
 Access 100+ language models via [inference.sh](https://inference.sh) CLI.
+
+![LLM Models via OpenRouter](https://cloud.inference.sh/app/files/u/4mg21r6ta37mpaz6ktzwtt8krr/01kgvftjwhby36trvaj66bwzcf.jpeg)
 
 ## Quick Start
 
@@ -23,6 +18,8 @@ curl -fsSL https://cli.inference.sh | sh && infsh login
 # Call Claude Sonnet
 infsh app run openrouter/claude-sonnet-45 --input '{"prompt": "Explain quantum computing"}'
 ```
+
+> **Install note:** The [install script](https://cli.inference.sh) only detects your OS/architecture, downloads the matching binary from `dist.inference.sh`, and verifies its SHA-256 checksum. No elevated permissions or background processes. [Manual install & verification](https://dist.inference.sh/cli/checksums.txt) available.
 
 ## Available Models
 
@@ -113,16 +110,16 @@ infsh app run openrouter/claude-sonnet-45 --input input.json
 
 ```bash
 # Full platform skill (all 150+ apps)
-npx skills add inference-sh/agent-skills@inference-sh
+npx skills add inference-sh/skills@inference-sh
 
 # Web search (combine with LLMs for RAG)
-npx skills add inference-sh/agent-skills@web-search
+npx skills add inference-sh/skills@web-search
 
 # Image generation
-npx skills add inference-sh/agent-skills@ai-image-generation
+npx skills add inference-sh/skills@ai-image-generation
 
 # Video generation
-npx skills add inference-sh/agent-skills@ai-video-generation
+npx skills add inference-sh/skills@ai-video-generation
 ```
 
 Browse all apps: `infsh app list`
