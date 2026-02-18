@@ -1,15 +1,21 @@
 #!/bin/bash
 # BullyBuddy CLI wrapper for OpenClaw slash commands
-# Usage: bb.sh <subcommand> [args...]
+# Usage: bullybuddy.sh <subcommand> [args...]
 
 set -e
 
-# Config from env or defaults
+# Auto-discover from ~/.bullybuddy/connection.json, fallback to env
+CONN_FILE="$HOME/.bullybuddy/connection.json"
+
+if [[ -z "$BB_TOKEN" && -f "$CONN_FILE" ]]; then
+  BB_URL="$(jq -r '.url' "$CONN_FILE")"
+  BB_TOKEN="$(jq -r '.token' "$CONN_FILE")"
+fi
+
 BB_URL="${BB_URL:-http://127.0.0.1:18900}"
-BB_TOKEN="${BB_TOKEN:-}"
 
 if [[ -z "$BB_TOKEN" ]]; then
-  echo "Error: BB_TOKEN not set"
+  echo "Error: BullyBuddy server not running (no connection file found)"
   exit 1
 fi
 
@@ -52,7 +58,7 @@ case "$cmd" in
     id="$1"
     text="$2"
     if [[ -z "$id" || -z "$text" ]]; then
-      echo "Usage: bb send <id> <text>"
+      echo "Usage: bullybuddy send <id> <text>"
       exit 1
     fi
     # Append carriage return for PTY
@@ -64,7 +70,7 @@ case "$cmd" in
     id="$1"
     lines="${2:-30}"
     if [[ -z "$id" ]]; then
-      echo "Usage: bb output <id> [lines]"
+      echo "Usage: bullybuddy output <id> [lines]"
       exit 1
     fi
     info=$(curl -sf "$BB_URL/api/sessions/$id" -H "$AUTH")
@@ -77,7 +83,7 @@ case "$cmd" in
   kill|k|stop)
     id="$1"
     if [[ -z "$id" ]]; then
-      echo "Usage: bb kill <id>"
+      echo "Usage: bullybuddy kill <id>"
       exit 1
     fi
     curl -sf -X DELETE "$BB_URL/api/sessions/$id" -H "$AUTH" > /dev/null
@@ -94,20 +100,21 @@ case "$cmd" in
     id="$1"
     limit="${2:-50}"
     if [[ -z "$id" ]]; then
-      echo "Usage: bb transcript <id> [limit]"
+      echo "Usage: bullybuddy transcript <id> [limit]"
       exit 1
     fi
     echo "=== Transcript $id ==="
     curl -sf "$BB_URL/api/sessions/$id/transcript?last=$limit" -H "$AUTH" | jq -r '.data[] | "[\(.role)] \(.content)"'
     ;;
     
-  url|dashboard|d)
-    echo "🦞 BullyBuddy Dashboard"
-    # Use BB_PUBLIC_URL if set (for tunnels), otherwise BB_URL
-    PUBLIC="${BB_PUBLIC_URL:-$BB_URL}"
-    echo "$PUBLIC/?token=$BB_TOKEN"
+  url|u)
+    echo "Local:  $BB_URL/?token=$BB_TOKEN"
+    tunnel=$(jq -r '.tunnel // empty' "$CONN_FILE" 2>/dev/null)
+    if [[ -n "$tunnel" ]]; then
+      echo "Tunnel: $tunnel/?token=$BB_TOKEN"
+    fi
     ;;
-    
+
   help|h|"")
     cat << 'EOF'
 BullyBuddy Commands:
@@ -117,18 +124,16 @@ BullyBuddy Commands:
   send, input, i     - Send input <id> <text>
   output, out, o     - Show output <id> [lines]
   kill, k, stop      - Kill session <id>
+  url, u             - Show dashboard URL
   audit, a           - Audit log [limit]
   transcript, t      - Transcript <id> [limit]
-  url, dashboard, d  - Show dashboard URL
   help, h            - This help
-
-Env: BB_URL, BB_TOKEN
 EOF
     ;;
     
   *)
     echo "Unknown command: $cmd"
-    echo "Run 'bb help' for usage"
+    echo "Run 'bullybuddy help' for usage"
     exit 1
     ;;
 esac
