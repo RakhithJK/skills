@@ -58,11 +58,20 @@
     </main>
 
     <script>
+        // Escape HTML to prevent XSS from email content
+        function esc(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         const urlToken = new URLSearchParams(window.location.search).get('token');
         if (urlToken) {
             localStorage.setItem('dashboard-token', urlToken);
-            const newUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
+            window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
         }
 
         const token = localStorage.getItem('dashboard-token');
@@ -87,13 +96,13 @@
                             <input type="radio" name="email-accordion" />
                             <div class="collapse-title flex justify-between items-center pr-10">
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-sm text-lime-400">${email.from}</span>
-                                    <span class="text-xs opacity-50 truncate max-w-xs">${email.subject || '(no subject)'}</span>
+                                    <span class="font-bold text-sm text-lime-400">${esc(email.from)}</span>
+                                    <span class="text-xs opacity-50 truncate max-w-xs">${esc(email.subject || '(no subject)')}</span>
                                 </div>
-                                <span class="text-[10px] opacity-40">${new Date(email.receivedAt).toLocaleTimeString()}</span>
+                                <span class="text-[10px] opacity-40">${esc(new Date(email.receivedAt).toLocaleTimeString())}</span>
                             </div>
                             <div class="collapse-content text-sm bg-base-300/30 p-4">
-                                <div class="whitespace-pre-wrap font-mono text-xs opacity-80">${email.text || 'No text body'}</div>
+                                <div class="whitespace-pre-wrap font-mono text-xs opacity-80">${esc(email.text || 'No text body')}</div>
                             </div>
                         </div>
                     `).join('');
@@ -105,7 +114,7 @@
                 const session = await sRes.json();
                 const sStatus = document.getElementById('sessionStatus');
                 if (session.active) {
-                    sStatus.innerHTML = `<span class="text-success flex items-center gap-2">● Session Active</span><div class="text-[10px] opacity-40 font-normal mt-1">Updated: ${new Date(session.updatedAt).toLocaleString()}</div>`;
+                    sStatus.innerHTML = `<span class="text-success flex items-center gap-2">● Session Active</span><div class="text-[10px] opacity-40 font-normal mt-1">Updated: ${esc(new Date(session.updatedAt).toLocaleString())}</div>`;
                 } else {
                     sStatus.innerHTML = `<span class="text-error">● No Session</span>`;
                 }

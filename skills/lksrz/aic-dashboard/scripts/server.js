@@ -1,25 +1,25 @@
 const express = require('express');
-const http = require('http');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
-async function startDashboard({ 
+function startDashboard({ 
     port = 19195, 
-    host = '127.0.0.1', 
-    token = 'admin-token',
+    host = '0.0.0.0', 
+    token = crypto.randomBytes(12).toString('hex'),
     inboxPath = process.env.INBOX_PATH || path.resolve(__dirname, '../data/inbox.jsonl'),
     sessionPath = process.env.SESSION_PATH || path.resolve(__dirname, '../data/session.json')
 }) {
+
     const app = express();
-    const server = http.createServer(app);
 
     // Auth middleware
     app.use((req, res, next) => {
         const authHeader = req.headers['authorization'];
         const bearerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
         const queryToken = req.query.token || req.headers['x-dashboard-token'] || bearerToken;
-        
-        if (!token || queryToken !== token) {
+
+        if (queryToken !== token) {
             return res.status(403).send('Forbidden: Invalid dashboard token.');
         }
         next();
@@ -27,6 +27,7 @@ async function startDashboard({
 
     app.get('/', (req, res) => {
         const html = fs.readFileSync(path.resolve(__dirname, '../assets/index.html'), 'utf8');
+        res.setHeader('Content-Type', 'text/html');
         res.send(html);
     });
 
@@ -53,18 +54,17 @@ async function startDashboard({
         }
     });
 
-    server.listen(port, host, () => {
+    app.listen(port, host, () => {
+        const displayHost = host === '0.0.0.0' ? 'YOUR_IP' : host;
         console.log(`\n🏠 AI COMMANDER DASHBOARD READY`);
-        console.log(`URL: http://${host === '0.0.0.0' ? 'YOUR_IP' : host}:${port}/\n`);
+        console.log(`Access URL: http://${displayHost}:${port}/?token=${token}\n`);
     });
-
-    return server;
 }
 
 if (require.main === module) {
     const port = parseInt(process.env.PORT) || 19195;
-    const host = process.env.DASHBOARD_HOST || '127.0.0.1';
-    const token = process.env.DASHBOARD_TOKEN || 'test-admin';
+    const host = process.env.DASHBOARD_HOST || '0.0.0.0';
+    const token = process.env.DASHBOARD_TOKEN || crypto.randomBytes(12).toString('hex');
     startDashboard({ port, host, token });
 }
 

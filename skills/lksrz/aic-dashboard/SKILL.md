@@ -42,17 +42,32 @@ This dashboard reads both files and displays them in one place.
    ```bash
    npm install express@4.21.2
    ```
-2. **Start Server**:
+2. **Start** (zero config needed):
    ```bash
-   DASHBOARD_TOKEN=mysecret node scripts/server.js
+   node scripts/server.js
    ```
-3. **Open in browser**:
+3. **Read the printed URL** — it includes the auto-generated token:
    ```
-   http://127.0.0.1:19195/?token=mysecret
+   🏠 AI COMMANDER DASHBOARD READY
+   Access URL: http://YOUR_IP:19195/?token=a3f9c2...
    ```
+
+That's it. No configuration required.
+
+## Optional Environment Variables
+
+Override defaults only if needed:
+
+| Variable | Default | Description |
+|---|---|---|
+| `DASHBOARD_TOKEN` | *(random)* | Custom token instead of auto-generated |
+| `PORT` | `19195` | Server port |
+| `DASHBOARD_HOST` | `0.0.0.0` | Bind address |
+| `INBOX_PATH` | `./data/inbox.jsonl` | Path to email data (from `email-webhook`) |
+| `SESSION_PATH` | `./data/session.json` | Path to session file (from `browser-auth`) |
 
 ## Security
 
-- All requests require `X-Dashboard-Token` header, `Authorization: Bearer <token>`, or `?token=` query param
-- Binds to `127.0.0.1` by default — use a secure tunnel (Tailscale, Cloudflare Tunnel, SSH) for remote access
-- The UI stores the token in `localStorage` and removes it from the URL after load, preventing it from appearing in browser history or server logs
+- A fresh random token is generated on every start if `DASHBOARD_TOKEN` is not set
+- All requests require the token (`?token=`, `X-Dashboard-Token` header, or `Authorization: Bearer`)
+- The UI stores the token in `localStorage` and removes it from the URL after load
