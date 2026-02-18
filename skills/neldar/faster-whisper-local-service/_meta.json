@@ -1,0 +1,11 @@
+{
+  "owner": "neldar",
+  "slug": "faster-whisper-local-service",
+  "displayName": "Faster Whisper Local Service",
+  "latest": {
+    "version": "0.1.6",
+    "publishedAt": 1771368118716,
+    "commit": null
+  },
+  "history": []
+}
