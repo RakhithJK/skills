@@ -1,18 +1,14 @@
 ---
 name: background-removal
-description: |
-  Remove backgrounds from images with BiRefNet via inference.sh CLI.
-  Model: BiRefNet (high accuracy background removal).
-  Use for: product photos, portraits, e-commerce, transparent PNGs, photo editing.
-  Triggers: remove background, background removal, remove bg, transparent background,
-  cut out image, background remover, rembg, product photo editing, cutout,
-  transparent png, bg removal, photo cutout
+description: "Remove backgrounds from images with BiRefNet via inference.sh CLI. Model: BiRefNet (high accuracy background removal). Use for: product photos, portraits, e-commerce, transparent PNGs, photo editing. Triggers: remove background, background removal, remove bg, transparent background, cut out image, background remover, rembg, product photo editing, cutout, transparent png, bg removal, photo cutout"
 allowed-tools: Bash(infsh *)
 ---
 
 # Background Removal
 
 Remove backgrounds from images via [inference.sh](https://inference.sh) CLI.
+
+![Background Removal](https://cloud.inference.sh/u/33sqbmzt3mrg2xxphnhw5g5ear/01k8d7y07rpmnv85hz2xvhjvbb.png)
 
 ## Quick Start
 
@@ -21,6 +17,8 @@ curl -fsSL https://cli.inference.sh | sh && infsh login
 
 infsh app run infsh/birefnet --input '{"image_url": "https://your-photo.jpg"}'
 ```
+
+> **Install note:** The [install script](https://cli.inference.sh) only detects your OS/architecture, downloads the matching binary from `dist.inference.sh`, and verifies its SHA-256 checksum. No elevated permissions or background processes. [Manual install & verification](https://dist.inference.sh/cli/checksums.txt) available.
 
 ## How To
 
@@ -71,16 +69,16 @@ Returns a PNG with transparent background.
 
 ```bash
 # Full platform skill (all 150+ apps)
-npx skills add inference-sh/agent-skills@inference-sh
+npx skills add inference-sh/skills@inference-sh
 
 # Image generation
-npx skills add inference-sh/agent-skills@ai-image-generation
+npx skills add inference-sh/skills@ai-image-generation
 
 # FLUX models (including inpainting)
-npx skills add inference-sh/agent-skills@flux-image
+npx skills add inference-sh/skills@flux-image
 
 # Upscaling
-npx skills add inference-sh/agent-skills@image-upscaling
+npx skills add inference-sh/skills@image-upscaling
 ```
 
 Browse all image apps: `infsh app list --category image`
