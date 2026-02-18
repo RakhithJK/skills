@@ -1780,3 +1780,139 @@ It's optional — routing works with just the `custom_name` — but improves lin
    - File link: `https://go.fast.io/shared/{custom_name}/client-docs/preview/{file.id}`
 6. **Transfer ownership** → API returns token
    - Claim link: `https://go.fast.io/claim?token={token}`
+
+---
+
+## Workflow Primitives
+
+Fast.io provides five workflow primitives for structured agent collaboration. These enable agents and humans to organize
+work, track progress, handle urgent corrections, manage approvals, and maintain simple checklists — all within the same
+workspaces and shares where files live.
+
+### 1. Task Lists & Tasks
+
+Organize work into lists with individual tasks. Task lists belong to a workspace or share and contain ordered tasks.
+
+- **Task statuses:** `pending` → `in_progress` → `complete`, `blocked` (blocked → pending to unblock)
+- **Priorities:** `0` (none), `1` (low), `2` (medium), `3` (high), `4` (critical) — integer values
+- **Assignees:** assign tasks to specific members
+- **Dependencies:** tasks can depend on other tasks
+- **File linking:** connect tasks to files or notes via `node_id` — the linked node provides context and is indexed by AI
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /tasks/workspace/{workspace_id}/` | List task lists in a workspace |
+| `GET /tasks/share/{share_id}/` | List task lists in a share |
+| `POST /tasks/workspace/{workspace_id}/create/` | Create a task list in a workspace |
+| `POST /tasks/share/{share_id}/create/` | Create a task list in a share |
+| `GET /tasks/{list_id}/details/` | Get task list details |
+| `POST /tasks/{list_id}/update/` | Update a task list |
+| `POST /tasks/{list_id}/delete/` | Delete a task list |
+| `GET /tasks/{list_id}/items/` | List tasks in a list |
+| `POST /tasks/{list_id}/items/create/` | Create a task |
+| `GET /tasks/{list_id}/items/{task_id}/` | Get task details |
+| `POST /tasks/{list_id}/items/{task_id}/update/` | Update a task |
+| `POST /tasks/{list_id}/items/{task_id}/delete/` | Delete a task |
+| `POST /tasks/{list_id}/items/{task_id}/status/` | Change task status |
+| `POST /tasks/{list_id}/items/{task_id}/assign/` | Assign a task |
+| `POST /tasks/{list_id}/items/bulk-status/` | Bulk status change |
+
+### 2. Worklogs
+
+Append-only activity logs attached to any entity (task, task list, profile, node). Worklogs provide a chronological
+record of progress, decisions, and issues — visible to all members with access to the entity.
+
+- **Entry types:** `info`, `decision`, `error`, `status_change`, `request`, `interjection`
+- **Priority levels:** support priority to highlight important entries
+- **Attached to any entity:** task, task list, workspace, share, or node
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /worklogs/{entity_type}/{entity_id}/` | List worklog entries |
+| `POST /worklogs/{entity_type}/{entity_id}/append/` | Append a worklog entry |
+| `GET /worklogs/{entry_id}/details/` | Get entry details |
+
+### 3. Interjections
+
+Urgent priority corrections or instructions that require acknowledgement. Interjections are created via a dedicated
+endpoint and are always urgent priority. They must be acknowledged before being cleared — ensuring critical messages
+are not missed.
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /worklogs/{entity_type}/{entity_id}/interjection/` | Create an interjection |
+| `GET /worklogs/{entity_type}/{entity_id}/interjections/` | List unacknowledged interjections |
+| `POST /worklogs/{entry_id}/acknowledge/` | Acknowledge an interjection |
+
+**Agent use case:** A human notices an agent is heading in the wrong direction. They create an interjection on the
+task. The agent checks for unacknowledged interjections before continuing work, sees the correction, acknowledges it,
+and adjusts course.
+
+### 4. Approvals
+
+Request/response approval workflow. Create an approval request with a designated approver, who can approve or reject
+with a comment.
+
+- **Statuses:** `pending` → `approved` or `rejected`
+- **Scoped to workspace or share** — list all approvals for a given profile
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /approvals/workspace/{workspace_id}/` | List approvals in a workspace |
+| `GET /approvals/share/{share_id}/` | List approvals in a share |
+| `POST /approvals/{entity_type}/{entity_id}/create/` | Create an approval request |
+| `GET /approvals/{approval_id}/details/` | Get approval details |
+| `POST /approvals/{approval_id}/resolve/` | Resolve (approve or reject) |
+
+**Agent use case:** An agent completes a deliverable and needs human sign-off before publishing. It creates an
+approval request. The human reviews, approves or rejects with a comment, and the agent proceeds accordingly.
+
+### 5. Todos
+
+Simple checklist items with toggle. Lightweight compared to full tasks — no statuses, no dependencies, just done or
+not done. Support assignees and bulk toggle operations.
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /todos/workspace/{workspace_id}/` | List todos in a workspace |
+| `GET /todos/share/{share_id}/` | List todos in a share |
+| `POST /todos/workspace/{workspace_id}/create/` | Create a todo in a workspace |
+| `POST /todos/share/{share_id}/create/` | Create a todo in a share |
+| `GET /todos/{todo_id}/details/` | Get todo details |
+| `POST /todos/{todo_id}/details/update/` | Update a todo |
+| `POST /todos/{todo_id}/details/delete/` | Delete a todo |
+| `POST /todos/{todo_id}/details/toggle/` | Toggle done/not done |
+| `POST /todos/workspace/{workspace_id}/bulk-toggle/` | Bulk toggle in a workspace |
+| `POST /todos/share/{share_id}/bulk-toggle/` | Bulk toggle in a share |
+
+### Enabling Workflow
+
+Workflow features must be enabled on each workspace or share before use:
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /workspace/{workspace_id}/workflow/enable/` | Enable workflow on a workspace |
+| `POST /workspace/{workspace_id}/workflow/disable/` | Disable workflow on a workspace |
+| `POST /share/{share_id}/workflow/enable/` | Enable workflow on a share |
+| `POST /share/{share_id}/workflow/disable/` | Disable workflow on a share |
+
+### Key Patterns for Agents
+
+- **Enable workflow first:** Call `POST /workspace/{id}/workflow/enable/` before using any workflow endpoints on that
+  workspace.
+- **All workflow endpoints require the `workflow` feature enabled** on the target workspace or share.
+- **All GET endpoints support `format=md`** for LLM-friendly Markdown output — use this when consuming responses in
+  agent context windows.
+- **Create notes for context, link tasks to notes via `node_id`** — notes are indexed by AI/RAG, so linked context
+  becomes searchable and citable in AI chat.
+- **Pattern:** Create context note → Create task list → Link tasks to notes → Log progress → AI searches across all.
+
+### Recommended Workflow for Agent Teams
+
+1. Enable workflow on the workspace
+2. Create a task list for the project
+3. Create tasks with descriptions and link to reference notes
+4. Log progress with worklog entries
+5. Use interjections for urgent corrections
+6. Request approvals for important decisions
+7. Use todos for simple checklists

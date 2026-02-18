@@ -3,11 +3,16 @@
   "slug": "fast-io",
   "displayName": "Fast.io",
   "latest": {
-    "version": "1.68.0",
-    "publishedAt": 1771275195927,
-    "commit": "https://github.com/openclaw/skills/commit/1eeb97be55440b1e17527f4c4520b524c1fdb10a"
+    "version": "1.73.0",
+    "publishedAt": 1771425837078,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.68.0",
+      "publishedAt": 1771275195927,
+      "commit": "https://github.com/openclaw/skills/commit/1eeb97be55440b1e17527f4c4520b524c1fdb10a"
+    },
     {
       "version": "1.64.0",
       "publishedAt": 1771102216637,
