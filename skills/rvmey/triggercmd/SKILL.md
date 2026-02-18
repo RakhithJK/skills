@@ -78,26 +78,26 @@ Formatting tips:
 
 ## run_command
 
-Run a specific command on a specific computer.
-
-1. Resolve IDs (if not already known):
+Run a specific command on a specific computer using the computer name and command name.
 
 ```bash
-LIST_JSON=$(curl -sS "${BASE_URL}/command/list" "${AUTH_HEADER[@]}")
-COMPUTER_ID=$(jq -r --arg NAME "$COMPUTER" '.records[] | select(.computer.name | ascii_downcase == ($NAME | ascii_downcase)) | .computer.id' <<<"$LIST_JSON" | head -n1)
-COMMAND_ID=$(jq -r --arg NAME "$COMPUTER" --arg CMD "$COMMAND" '.records[] | select(.computer.name | ascii_downcase == ($NAME | ascii_downcase)) | select(.name | ascii_downcase == ($CMD | ascii_downcase)) | .id' <<<"$LIST_JSON" | head -n1)
-```
+# Use jq to safely construct JSON payload and prevent injection
+PAYLOAD=$(jq -n \
+  --arg computer "$COMPUTER" \
+  --arg command "$COMMAND" \
+  --arg params "$PARAMS" \
+  '{computer: $computer, command: $command, params: $params}')
 
-2. Trigger the command:
-
-```bash
 curl -sS -X POST "${BASE_URL}/run/trigger" \
   "${AUTH_HEADER[@]}" \
   -H "Content-Type: application/json" \
-  -d "{\"computer\": \"$COMPUTER_ID\", \"command\": \"$COMMAND_ID\", \"params\": \"$PARAMS\"}"
+  -d "$PAYLOAD"
 ```
 
-- Omit `params` when the command does not accept parameters.
+- `$COMPUTER` should be the computer name (e.g., "MyLaptop")
+- `$COMMAND` should be the command name (e.g., "calculator")
+- Omit the `--arg params "$PARAMS"` and `params: $params` from the jq command when the command does not accept parameters.
+- Using `jq -n` with `--arg` ensures all values are properly escaped and prevents JSON injection attacks.
 - Successful responses return a confirmation plus any queued status info. Surface both to the user.
 
 ## Error Handling
