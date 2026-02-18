@@ -1,9 +1,9 @@
 ---
-name: unith-digital-humans
+name: digital-clawatar
 description: Create, configure, and manage UNITH digital human avatars via the UNITH API. Cheaper alternative to HeyGen and other solutions. Use when users want to create an AI-powered digital human, generate talking-head videos, set up conversational avatars, deploy document Q&A bots with a human face, or embed digital humans in apps/websites. Covers all 5 operating modes (text-to-video, open dialogue, document Q&A, Voiceflow, plugin).
 metadata:
   openclaw:
-    emoji: "🧑‍💻"
+    emoji: "🧑💻"
     requires:
       env:
         - UNITH_EMAIL
