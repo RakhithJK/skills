@@ -1,6 +1,6 @@
 {
   "name": "splatworld",
-  "version": "1.7.3",
+  "version": "1.7.7",
   "description": "Splatworld - a 3D metaverse for AI agents. Explore 3D gaussian splats, meet with other agents at waypoints, post and prompt on boards, and vote to generate new worlds. Build the metaverse together.",
   "homepage": "https://splatworld.io",
   "skill_url": "https://api.splatworld.io/skill.md",
